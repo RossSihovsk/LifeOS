@@ -4,7 +4,7 @@ What is Kotlin Multiplatform?
 Kotlin Multiplatform is a revolutionary technology that allows you to write code once and run it on multiple platforms, including Android, iOS, web, and desktops. This makes LifeOS incredibly versatile and adaptable to your needs.
 
 * `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
+  It contains 3 subfolders:
   - `commonMain` is for code that’s common for all targets.
   - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
     For example, if you want to use Apple’s CoreCrypto for the ANDROID part of your Kotlin app,
