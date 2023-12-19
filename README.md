@@ -12,7 +12,7 @@ Kotlin Multiplatform is a revolutionary technology that allows you to write code
 
 ## Getting Started
 
-1. Clone the LifeOS repository from GitHub: [LifeOS Repository]([https://github.com/ROSS-org/ROSS](https://github.com/RossSihovsk/LifeOS.git))
+1. Clone the LifeOS repository from GitHub by "git clone https://github.com/RossSihovsk/LifeOS.git"
 2. Follow the setup instructions based on your desired platform (Android, iOS, etc.).
 3. Explore the codebase and customize LifeOS to your liking.
 
