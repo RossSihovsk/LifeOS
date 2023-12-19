@@ -7,7 +7,7 @@ Kotlin Multiplatform is a revolutionary technology that allows you to write code
   It contains 3 subfolders:
   - `commonMain` is for code that’s common for all targets.
   - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the ANDROID part of your Kotlin app,
+    For example, if you want to use platform-specific instruments for the ANDROID part of your Kotlin app,
     `androidMain` would be the right folder for such calls.
 
 ## Getting Started
