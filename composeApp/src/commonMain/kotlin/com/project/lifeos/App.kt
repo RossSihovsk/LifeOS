@@ -1,21 +1,39 @@
 package com.project.lifeos
 
-import androidx.compose.material.MaterialTheme
+import androidx.compose.foundation.layout.fillMaxSize
+
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import com.project.lifeos.interactor.TestInteractor
-import com.project.lifeos.repository.TestRepository
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.transitions.FadeTransition
+import com.project.lifeos.ui.bottomNavigation.BottomBar
+
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import com.project.lifeos.ui.HomeScreen
-import com.project.lifeos.viewmodel.HomeViewModel
+import com.project.lifeos.ui.screen.HomeScreen
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun App() {
     MaterialTheme {
-        val repository = TestRepository()
-        val interactor = TestInteractor(repository)
-        val viewModel = HomeViewModel(interactor)
-        HomeScreen(viewModel)
+        Surface(
+            modifier = Modifier.fillMaxSize(),
+            color = MaterialTheme.colorScheme.background
+        ) {
+            Navigator(HomeScreen()) { navigator ->
+                Scaffold(bottomBar = {
+                    val activeScreen  = mutableStateOf(
+                        if (navigator.lastItem is HomeScreen ) 0 else 1
+                    )
+
+                    BottomBar(navigator, activeScreen)
+                }) {
+                    FadeTransition(navigator)
+                }
+            }
+        }
     }
 }
-
