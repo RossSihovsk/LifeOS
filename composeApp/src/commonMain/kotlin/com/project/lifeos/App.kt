@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.FadeTransition
+import co.touchlab.kermit.Logger
 import com.project.lifeos.ui.bottomNavigation.BottomBar
 
 import org.jetbrains.compose.resources.ExperimentalResourceApi
@@ -18,6 +19,7 @@ import com.project.lifeos.ui.screen.HomeScreen
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun App() {
+    Logger.i("MyTag") { "Hello World" }
     MaterialTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),

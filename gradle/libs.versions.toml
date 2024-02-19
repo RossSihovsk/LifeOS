@@ -7,14 +7,18 @@ androidx-activityCompose = "1.8.2"
 compose = "1.6.0"
 compose-compiler = "1.5.6"
 compose-plugin = "1.5.11"
+github-napier = "2.7.1"
+kermit = "2.0.3"
 kotlin = "1.9.21"
 voyagerNavigator = "1.0.0"
 
 [libraries]
+aakira-napier = { module = "io.github.aakira:napier", version.ref = "github-napier" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 compose_material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "compose" }
+kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 voyager-bottom-sheet-navigator = { module = "cafe.adriel.voyager:voyager-bottom-sheet-navigator", version.ref = "voyagerNavigator" }
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyagerNavigator" }
 voyager-tab-navigator = { module = "cafe.adriel.voyager:voyager-tab-navigator", version.ref = "voyagerNavigator" }
