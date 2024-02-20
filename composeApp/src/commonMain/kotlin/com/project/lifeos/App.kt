@@ -19,9 +19,7 @@ import com.project.lifeos.ui.screen.HomeScreen
 private const val TAG = "AppCommon"
 private val logger = Logger.withTag(TAG)
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
-
 fun App() {
     logger.d("Application started")
     MaterialTheme {
