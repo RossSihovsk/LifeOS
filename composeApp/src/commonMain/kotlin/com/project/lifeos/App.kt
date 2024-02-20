@@ -16,9 +16,10 @@ import com.project.lifeos.ui.bottomNavigation.BottomBar
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import com.project.lifeos.ui.screen.HomeScreen
 
-@OptIn(ExperimentalResourceApi::class)
 private const val TAG = "AppCommon"
-val logger = Logger.withTag(TAG)
+private val logger = Logger.withTag(TAG)
+
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 
 fun App() {
@@ -30,8 +31,8 @@ fun App() {
         ) {
             Navigator(HomeScreen()) { navigator ->
                 Scaffold(bottomBar = {
-                    val activeScreen  = mutableStateOf(
-                        if (navigator.lastItem is HomeScreen ) 0 else 1
+                    val activeScreen = mutableStateOf(
+                        if (navigator.lastItem is HomeScreen) 0 else 1
                     )
 
                     BottomBar(navigator, activeScreen)
