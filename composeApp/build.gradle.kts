@@ -15,12 +15,12 @@ kotlin {
             }
         }
     }
-    
+
     jvm("desktop")
-    
+
     sourceSets {
         val desktopMain by getting
-        
+
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
@@ -41,9 +41,12 @@ kotlin {
             implementation(libs.voyager.transitions)
 
             //kermit
-            implementation(libs.kermit)}
+            implementation(libs.kermit)
+        }
         desktopMain.dependencies {
-            implementation(compose.desktop.currentOs) }}
+            implementation(compose.desktop.currentOs)
+        }
+    }
 }
 
 android {

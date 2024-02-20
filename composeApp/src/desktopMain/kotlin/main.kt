@@ -8,11 +8,12 @@ import com.project.lifeos.App
 fun main() = application {
     Window(onCloseRequest = ::exitApplication, title = "LifeOS") {
         App()
-}
+    }
 
-@Preview
-@Composable
-fun AppDesktopPreview() {
-    App()
-}}
+    @Preview
+    @Composable
+    fun AppDesktopPreview() {
+        App()
+    }
+}
 

@@ -17,9 +17,12 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import com.project.lifeos.ui.screen.HomeScreen
 
 @OptIn(ExperimentalResourceApi::class)
+private const val TAG = "AppCommon"
+val logger = Logger.withTag(TAG)
 @Composable
+
 fun App() {
-    Logger.i("MyTag") { "Hello World" }
+    logger.d("Application started")
     MaterialTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
