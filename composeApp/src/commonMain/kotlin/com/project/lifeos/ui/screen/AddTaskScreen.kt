@@ -1,21 +1,22 @@
 package com.project.lifeos.ui.screen
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
-import cafe.adriel.voyager.navigator.LocalNavigator
-import cafe.adriel.voyager.navigator.currentOrThrow
+import co.touchlab.kermit.Logger
+import com.project.lifeos.viewmodel.TaskViewModel
 
 
 @Composable
-expect fun AddTaskScreenContent()
-class AddTaskScreen: Screen {
+expect fun AddTaskScreenContent(taskViewModel: TaskViewModel, logger: Logger)
+
+private const val TAG = "AddTaskScreen"
+private val logger = Logger.withTag(TAG)
+
+class AddTaskScreen : Screen {
     @Composable
     override fun Content() {
-        AddTaskScreenContent()
+        val taskViewModel = rememberScreenModel { TaskViewModel() }
+        AddTaskScreenContent(taskViewModel, logger)
     }
 }
