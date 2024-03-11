@@ -3,17 +3,12 @@ package com.project.lifeos.ui.screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
-import androidx.compose.animation.slideInVertically
-import androidx.compose.foundation.background
+
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -30,12 +25,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -47,14 +40,12 @@ import com.project.lifeos.data.Task
 import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.di.AppModule
 import com.project.lifeos.ui.view.CalendarView
+import com.project.lifeos.utils.formatTime
 import com.project.lifeos.utils.generateTasks
 import com.project.lifeos.viewmodel.TaskViewModel
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
-import kotlin.random.Random
-import kotlin.text.Typography.section
+
+const val TO_COMPLETE_TITLE = "To complete"
+const val COMPLETED_TITLE = "Completed"
 
 @Composable
 actual fun HomeScreenContent(
@@ -65,23 +56,17 @@ actual fun HomeScreenContent(
     val ongoingTasksExpanded = remember { mutableStateOf(true) } // Track expansion state
     val completedTasksExpanded = remember { mutableStateOf(false) } // Track expansion state
 
-    val EXPANSION_ANIMATION_DURATION = 300
-
-    val transition = updateTransition(targetState = ongoingTasksExpanded, label = null)
-
     Column(modifier = Modifier.fillMaxWidth().verticalScroll(state = scrollState)) {
-
-
         CalendarView(modifier = Modifier.fillMaxWidth(), onDateClickListener = { date ->
-            //do smth
+            TODO("Refactor with ViewModel usage")
         })
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        ExpandableSection(
-            title = "To complete",
+        TaskExpandedSection(
+            title = TO_COMPLETE_TITLE,
             content = {
-                TaskItem(generateTasks(5))
+                TasksContent(generateTasks(5))
             },
             isExpanded = ongoingTasksExpanded.value, // Bind state to isExpanded
             onToggleClick = { ongoingTasksExpanded.value = !ongoingTasksExpanded.value }
@@ -89,10 +74,10 @@ actual fun HomeScreenContent(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        ExpandableSection(
-            title = "Completed",
+        TaskExpandedSection(
+            title = COMPLETED_TITLE,
             content = {
-                TaskItem(generateTasks(5))
+                TasksContent(generateTasks(5))
             },
             isExpanded = completedTasksExpanded.value, // Bind state to isExpanded
             onToggleClick = { completedTasksExpanded.value = !completedTasksExpanded.value }
@@ -104,7 +89,7 @@ actual fun HomeScreenContent(
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun ExpandableSection(
+fun TaskExpandedSection(
     title: String,
     content: @Composable () -> Unit,
     isExpanded: Boolean = false, // Optional parameter for initial state
@@ -132,24 +117,30 @@ fun ExpandableSection(
                 )
             }
         }
-        Divider(modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp), color = Color.LightGray, thickness = 1.dp)
+        Divider(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+            color = Color.LightGray,
+            thickness = 1.dp
+        )
         Spacer(modifier = Modifier.height(10.dp))
-        if (isExpanded) {
+
+        AnimatedVisibility(visible = isExpanded) {
             content()
         }
     }
 }
 
 @Composable
-fun TaskItem(tasks: List<Task>) {
+fun TasksContent(tasks: List<Task>) {
     LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 600.dp)) {
         items(tasks) { task ->
-            TaskItemRow(task = task) // Call the new TaskItemRow composable
+            TaskCard(task = task)
         }
     }
 }
+
 @Composable
-fun TaskItemRow(task: Task) {
+fun TaskCard(task: Task) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -158,9 +149,9 @@ fun TaskItemRow(task: Task) {
     ) {
         Checkbox(
             checked = task.status == TaskStatus.DONE,
-            onCheckedChange = {  }
+            onCheckedChange = { }
         )
-        Spacer(modifier = Modifier.width(8.dp)) // Adjust spacing as needed
+        Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = task.title,
             style = MaterialTheme.typography.bodyMedium,
@@ -172,11 +163,6 @@ fun TaskItemRow(task: Task) {
         )
     }
 }
-fun formatTime(timeInMillis: Long): String {
-    val formatter = SimpleDateFormat("h:mm a", Locale.getDefault()) // Customize format if needed
-    return formatter.format(Date(timeInMillis))
-}
-
 
 @Composable
 @Preview
