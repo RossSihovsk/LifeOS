@@ -31,6 +31,7 @@ kotlin {
             implementation(compose.foundation)
             implementation(compose.material3)
             implementation(compose.ui)
+            implementation(libs.compose.ui.tooling.preview)
             @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
 
@@ -39,9 +40,14 @@ kotlin {
             implementation(libs.voyager.bottom.sheet.navigator)
             implementation(libs.voyager.tab.navigator)
             implementation(libs.voyager.transitions)
+            implementation(libs.voyager.screenmodel)
 
             //kermit
             implementation(libs.kermit)
+
+//            Maybe I'll use it for creating calendar view for android, but basically, we have to find smth multiplatform
+//            implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.3.0")
+//            implementation("com.maxkeppeler.sheets-compose-dialogs:calendar:1.3.0")
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
