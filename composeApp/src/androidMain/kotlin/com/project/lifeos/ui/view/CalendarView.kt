@@ -57,12 +57,12 @@ fun Header(data: CalendarUiModel) {
 }
 
 @Composable
-fun CalendarView(modifier: Modifier = Modifier) {
+fun CalendarView(modifier: Modifier = Modifier, onDateClickListener: (CalendarUiModel.Date) -> Unit) {
     val dataSource = CalendarDataSource()
     // we use `mutableStateOf` and `remember` inside composable function to schedules recomposition
     var calendarUiModel by remember { mutableStateOf(dataSource.getData(lastSelectedDate = dataSource.today)) }
 
-    Column(modifier = modifier.fillMaxSize()) {
+    Column(modifier = modifier.fillMaxWidth()) {
         Header(data = calendarUiModel)
         Content(data = calendarUiModel, onDateClickListener = { date ->
             calendarUiModel = calendarUiModel.copy(
@@ -73,6 +73,7 @@ fun CalendarView(modifier: Modifier = Modifier) {
                     )
                 }
             )
+            onDateClickListener(date)
         })
     }
 }
@@ -106,7 +107,7 @@ fun ContentItem(date: CalendarUiModel.Date, onDateClickListener: (CalendarUiMode
     ) {
         Column(
             modifier = Modifier
-                .width(40.dp)
+                .width(45.dp)
                 .padding(vertical = 10.dp, horizontal = 4.dp)
         ) {
             Text(
