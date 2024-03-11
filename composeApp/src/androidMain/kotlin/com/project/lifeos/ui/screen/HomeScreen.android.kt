@@ -58,7 +58,7 @@ actual fun HomeScreenContent(
 
     Column(modifier = Modifier.fillMaxWidth().verticalScroll(state = scrollState)) {
         CalendarView(modifier = Modifier.fillMaxWidth(), onDateClickListener = { date ->
-            TODO("Refactor with ViewModel usage")
+//            TODO("Refactor with ViewModel usage")
         })
 
         Spacer(modifier = Modifier.height(10.dp))
