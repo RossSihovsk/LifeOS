@@ -55,7 +55,7 @@ import co.touchlab.kermit.Logger
 import com.project.lifeos.R
 import com.project.lifeos.data.Task
 import com.project.lifeos.data.TaskStatus
-import com.project.lifeos.viewmodel.TaskViewModel
+import com.project.lifeos.viewmodel.CreateTaskScreenViewModel
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.Calendar
@@ -63,7 +63,7 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-actual fun AddTaskScreenContent(taskViewModel: TaskViewModel, logger: Logger) {
+actual fun AddTaskScreenContent(viewModel: CreateTaskScreenViewModel, logger: Logger) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -151,7 +151,7 @@ actual fun AddTaskScreenContent(taskViewModel: TaskViewModel, logger: Logger) {
                 status = TaskStatus.PENDING
             )
             logger.i("Save task $task")
-            taskViewModel.addTask(task)
+            viewModel.addTask(task)
         }
     }
 }
@@ -335,5 +335,5 @@ fun TimePickerDialog(
 @Preview
 @Composable
 fun AddTaskScreenPreview() {
-    AddTaskScreenContent(taskViewModel = TaskViewModel(), logger = Logger.withTag("AddTaskScreenDebug"))
+    AddTaskScreenContent(viewModel = CreateTaskScreenViewModel(), logger = Logger.withTag("AddTaskScreenDebug"))
 }

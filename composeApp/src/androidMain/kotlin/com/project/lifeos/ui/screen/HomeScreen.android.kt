@@ -2,7 +2,6 @@ package com.project.lifeos.ui.screen
 
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +24,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -35,64 +36,82 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.navigator.Navigator
+import co.touchlab.kermit.Logger
 import com.project.lifeos.R
 import com.project.lifeos.data.Task
 import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.di.AppModule
 import com.project.lifeos.ui.view.CalendarView
 import com.project.lifeos.utils.formatTime
-import com.project.lifeos.utils.generateTasks
-import com.project.lifeos.viewmodel.TaskViewModel
+import com.project.lifeos.viewmodel.HomeScreenViewModel
+import com.project.lifeos.viewmodel.HomeUiState
 
 const val TO_COMPLETE_TITLE = "To complete"
 const val COMPLETED_TITLE = "Completed"
 
 @Composable
 actual fun HomeScreenContent(
-    viewModel: TaskViewModel,
+    viewModel: HomeScreenViewModel,
     navigator: Navigator?
 ) {
+    val logger = Logger.withTag("HomeScreenContent")
     val scrollState = rememberScrollState()
     val ongoingTasksExpanded = remember { mutableStateOf(true) } // Track expansion state
     val completedTasksExpanded = remember { mutableStateOf(false) } // Track expansion state
 
+    val uiState by viewModel.uiState.collectAsState()
+
     Column(modifier = Modifier.fillMaxWidth().verticalScroll(state = scrollState)) {
-        CalendarView(modifier = Modifier.fillMaxWidth(), onDateClickListener = { date ->
-//            TODO("Refactor with ViewModel usage")
-        })
+
+        CalendarView(
+            modifier = Modifier.fillMaxWidth(),
+            calendarUiModel = viewModel.calendarUiModel,
+            onDateClickListener = { date ->
+                viewModel.onDateClicked(date)
+            })
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        TaskExpandedSection(
-            title = TO_COMPLETE_TITLE,
-            content = {
-                TasksContent(generateTasks(5))
-            },
-            isExpanded = ongoingTasksExpanded.value, // Bind state to isExpanded
-            onToggleClick = { ongoingTasksExpanded.value = !ongoingTasksExpanded.value }
-        )
+        when (val state = uiState) {
+            is HomeUiState.Loading -> {
+                //Display some loading indicator
+            }
 
-        Spacer(modifier = Modifier.height(20.dp))
+            is HomeUiState.NoTaskForSelectedDate -> {
+                //Show default image instead
+            }
 
-        TaskExpandedSection(
-            title = COMPLETED_TITLE,
-            content = {
-                TasksContent(generateTasks(5))
-            },
-            isExpanded = completedTasksExpanded.value, // Bind state to isExpanded
-            onToggleClick = { completedTasksExpanded.value = !completedTasksExpanded.value }
-        )
+            is HomeUiState.TaskUpdated -> {
+                logger.i("UpdateTaskStatus")
+                TaskExpandedSection(
+                    title = TO_COMPLETE_TITLE,
+                    content = {
+                        TasksContent(state.unCompletedTasks, onTaskStatusChanged = viewModel::onTaskStatusChanged)
+                    },
+                    isExpanded = ongoingTasksExpanded.value, // Bind state to isExpanded
+                    onToggleClick = { ongoingTasksExpanded.value = !ongoingTasksExpanded.value }
+                )
 
+                Spacer(modifier = Modifier.height(20.dp))
+
+                TaskExpandedSection(
+                    title = COMPLETED_TITLE,
+                    content = {
+                        TasksContent(state.completedTasks, onTaskStatusChanged = viewModel::onTaskStatusChanged)
+                    },
+                    isExpanded = completedTasksExpanded.value, // Bind state to isExpanded
+                    onToggleClick = { completedTasksExpanded.value = !completedTasksExpanded.value }
+                )
+            }
+        }
     }
-
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun TaskExpandedSection(
     title: String,
     content: @Composable () -> Unit,
-    isExpanded: Boolean = false, // Optional parameter for initial state
+    isExpanded: Boolean = false,
     onToggleClick: () -> Unit,
 ) {
 
@@ -131,16 +150,16 @@ fun TaskExpandedSection(
 }
 
 @Composable
-fun TasksContent(tasks: List<Task>) {
+fun TasksContent(tasks: List<Task>, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit) {
     LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 600.dp)) {
         items(tasks) { task ->
-            TaskCard(task = task)
+            TaskCard(task = task, onTaskStatusChanged = onTaskStatusChanged)
         }
     }
 }
 
 @Composable
-fun TaskCard(task: Task) {
+fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -149,7 +168,7 @@ fun TaskCard(task: Task) {
     ) {
         Checkbox(
             checked = task.status == TaskStatus.DONE,
-            onCheckedChange = { }
+            onCheckedChange = { status -> onTaskStatusChanged(status, task) }
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
@@ -167,5 +186,5 @@ fun TaskCard(task: Task) {
 @Composable
 @Preview
 fun HomeScreenPreview() {
-    HomeScreenContent(viewModel = AppModule.taskViewModel)
+    HomeScreenContent(viewModel = AppModule.homeViewModel)
 }

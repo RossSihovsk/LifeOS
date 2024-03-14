@@ -1,6 +1,7 @@
 package com.project.lifeos.utils
 
 import com.project.lifeos.data.Task
+import com.project.lifeos.data.TaskStatus
 import java.util.Calendar
 import kotlin.random.Random
 
@@ -22,7 +23,8 @@ fun generateTasks(numberOfTasks: Int): List<Task> {
             Task(
                 title = "Task $i",
                 time = taskTime,
-                date = currentDate
+                date = currentDate,
+                status = if (random.nextBoolean()) TaskStatus.DONE else TaskStatus.PENDING
             )
         )
     }
