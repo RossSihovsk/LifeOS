@@ -8,15 +8,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.navigator.Navigator
-import com.project.lifeos.viewmodel.TaskViewModel
+import com.project.lifeos.viewmodel.HomeScreenViewModel
 
 @Composable
 actual fun HomeScreenContent(
-    viewModel: TaskViewModel,
+    viewModel: HomeScreenViewModel,
     navigator: Navigator?
 ) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Button(onClick = {navigator?.push(AddTaskScreen())}) {
+        Button(onClick = { navigator?.push(AddTaskScreen()) }) {
             Text("New screen")
         }
     }

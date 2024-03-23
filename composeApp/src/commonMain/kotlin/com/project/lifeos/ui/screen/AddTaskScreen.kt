@@ -5,11 +5,11 @@ import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import co.touchlab.kermit.Logger
 import com.project.lifeos.di.AppModule
-import com.project.lifeos.viewmodel.TaskViewModel
+import com.project.lifeos.viewmodel.CreateTaskScreenViewModel
 
 
 @Composable
-expect fun AddTaskScreenContent(taskViewModel: TaskViewModel, logger: Logger)
+expect fun AddTaskScreenContent(viewModel: CreateTaskScreenViewModel, logger: Logger)
 
 private const val TAG = "AddTaskScreen"
 private val logger = Logger.withTag(TAG)
@@ -17,7 +17,7 @@ private val logger = Logger.withTag(TAG)
 class AddTaskScreen : Screen {
     @Composable
     override fun Content() {
-        val taskViewModel = rememberScreenModel { AppModule.taskViewModel }
+        val taskViewModel = rememberScreenModel { AppModule.createTaskScreenViewModel }
         AddTaskScreenContent(taskViewModel, logger)
     }
 }

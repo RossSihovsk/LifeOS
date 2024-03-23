@@ -7,7 +7,7 @@ data class Task(
     val description: String? = null,
     val time: Long,
     val date: Long,
-    val status: TaskStatus = TaskStatus.PENDING
+    var status: TaskStatus = TaskStatus.PENDING
 )
 
 enum class TaskStatus {

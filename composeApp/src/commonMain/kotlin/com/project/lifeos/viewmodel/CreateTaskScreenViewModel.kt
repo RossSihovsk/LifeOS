@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class TaskViewModel : ScreenModel {
+class CreateTaskScreenViewModel() : ScreenModel {
 
     // Flow of tasks for a specific date
     private val _tasks = MutableStateFlow<List<Task>>(emptyList())
