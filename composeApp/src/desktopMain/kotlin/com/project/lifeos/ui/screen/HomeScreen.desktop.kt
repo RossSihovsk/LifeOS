@@ -15,11 +15,4 @@ import com.project.lifeos.viewmodel.HomeUiState
 actual fun HomeScreenContent(
     viewModel: HomeScreenViewModel,
     navigator: Navigator?
-) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        val state = viewModel.uiState.value
-        if (state is HomeUiState.TaskUpdated ) {
-            Text(text = state.toString())
-        }
-    }
-}
+) {}

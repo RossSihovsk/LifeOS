@@ -6,8 +6,5 @@ import com.project.lifeos.viewmodel.CreateTaskScreenViewModel
 
 @Composable
 actual fun AddTaskScreenContent(viewModel: CreateTaskScreenViewModel, logger: Logger) {
-    viewModel.saveTask(
-        "test",
-        date = 1712519461312
-    )
+
 }

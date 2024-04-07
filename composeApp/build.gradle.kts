@@ -63,7 +63,6 @@ kotlin {
 
             //SQLDelight Common
             implementation(libs.sqldelight.coroutines)
-            implementation(libs.sqldelight.native)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
