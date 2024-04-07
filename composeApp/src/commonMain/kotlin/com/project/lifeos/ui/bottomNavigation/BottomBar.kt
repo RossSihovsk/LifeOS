@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import cafe.adriel.voyager.navigator.Navigator
+import com.project.lifeos.di.AppModule
 import com.project.lifeos.ui.screen.AddTaskScreen
 import com.project.lifeos.ui.screen.HomeScreen
 
@@ -29,7 +30,7 @@ private val items = listOf(
 )
 
 @Composable
-fun BottomBar(navigator: Navigator, selectedItemIndex: MutableState<Int>) {
+fun BottomBar(navigator: Navigator, selectedItemIndex: MutableState<Int>, appModule: AppModule) {
     NavigationBar {
         items.forEachIndexed { index, item ->
             NavigationBarItem(selected = selectedItemIndex.value == index,
@@ -37,8 +38,8 @@ fun BottomBar(navigator: Navigator, selectedItemIndex: MutableState<Int>) {
                     if (selectedItemIndex.value != index) {
                         selectedItemIndex.value = index
                         if (item.title == "Home") {
-                            navigator.replaceAll(HomeScreen())
-                        } else navigator.replaceAll(AddTaskScreen())
+                            navigator.replaceAll(HomeScreen(appModule))
+                        } else navigator.replaceAll(AddTaskScreen(appModule))
 
                     }
                 }, icon = {

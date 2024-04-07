@@ -143,15 +143,16 @@ actual fun AddTaskScreenContent(viewModel: CreateTaskScreenViewModel, logger: Lo
         Spacer(modifier = Modifier.height(60.dp))
 
         EnableSaveButton(taskDate, taskDescription, taskTime, taskTitle) {
-            val task = Task(
+            logger.i(
+                "Save task with title: ${taskTitle.value}, description: ${taskDescription.value}, time: ${taskTime.value}, date: ${taskDate.value}"
+            )
+            viewModel.saveTask(
                 title = taskTitle.value,
                 description = taskDescription.value,
-                time = taskTime.value!!,
-                date = taskDate.value!!,
+                time = taskTime.value,
+                date = taskDate.value,
                 status = TaskStatus.PENDING
             )
-            logger.i("Save task $task")
-            viewModel.addTask(task)
         }
     }
 }
@@ -335,5 +336,5 @@ fun TimePickerDialog(
 @Preview
 @Composable
 fun AddTaskScreenPreview() {
-    AddTaskScreenContent(viewModel = CreateTaskScreenViewModel(), logger = Logger.withTag("AddTaskScreenDebug"))
+//    AddTaskScreenContent(viewModel = CreateTaskScreenViewModel(), logger = Logger.withTag("AddTaskScreenDebug"))
 }

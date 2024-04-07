@@ -1,0 +1,25 @@
+CREATE TABLE TaskEntity (
+  id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+  name TEXT NOT NULL,
+  description TEXT,
+  time INTEGER,
+  date TEXT,
+  status TEXT NOT NULL
+  );
+
+  addNewTask:
+  INSERT OR REPLACE INTO TaskEntity(id, name, description, time, date, status)
+  VALUES (?,?,?,?,?,?);
+
+  getTasksForDay:
+  SELECT * FROM TaskEntity
+  WHERE date IS :date;
+
+  updateStatus:
+  UPDATE TaskEntity
+  SET status = :status
+  WHERE id IS :id;
+
+  delete:
+  DELETE FROM TaskEntity
+  WHERE id IS :id;

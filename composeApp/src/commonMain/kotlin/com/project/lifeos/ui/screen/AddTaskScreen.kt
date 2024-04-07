@@ -14,10 +14,10 @@ expect fun AddTaskScreenContent(viewModel: CreateTaskScreenViewModel, logger: Lo
 private const val TAG = "AddTaskScreen"
 private val logger = Logger.withTag(TAG)
 
-class AddTaskScreen : Screen {
+class AddTaskScreen(private val appModule: AppModule) : Screen {
     @Composable
     override fun Content() {
-        val taskViewModel = rememberScreenModel { AppModule.createTaskScreenViewModel }
+        val taskViewModel = rememberScreenModel { appModule.provideAddTaskViewModel() }
         AddTaskScreenContent(taskViewModel, logger)
     }
 }

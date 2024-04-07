@@ -9,6 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.navigator.Navigator
 import com.project.lifeos.viewmodel.HomeScreenViewModel
+import com.project.lifeos.viewmodel.HomeUiState
 
 @Composable
 actual fun HomeScreenContent(
@@ -16,8 +17,9 @@ actual fun HomeScreenContent(
     navigator: Navigator?
 ) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Button(onClick = { navigator?.push(AddTaskScreen()) }) {
-            Text("New screen")
+        val state = viewModel.uiState.value
+        if (state is HomeUiState.TaskUpdated ) {
+            Text(text = state.toString())
         }
     }
 }

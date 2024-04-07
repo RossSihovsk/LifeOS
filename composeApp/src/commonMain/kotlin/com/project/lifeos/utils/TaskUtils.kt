@@ -23,7 +23,7 @@ fun generateTasks(numberOfTasks: Int): List<Task> {
             Task(
                 title = "Task $i",
                 time = taskTime,
-                date = currentDate,
+                date = convertLongToStringDate(currentDate),
                 status = if (random.nextBoolean()) TaskStatus.DONE else TaskStatus.PENDING
             )
         )

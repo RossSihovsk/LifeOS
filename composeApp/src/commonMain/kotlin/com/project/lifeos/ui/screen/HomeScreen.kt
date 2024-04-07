@@ -20,12 +20,12 @@ otherwise there would be an exception after onPause()
  */
 private val logger = Logger.withTag("HomeScreen")
 
-class HomeScreen : Screen {
+class HomeScreen(private val appModule: AppModule) : Screen {
 
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val homeViewModel = rememberScreenModel { AppModule.homeViewModel }
+        val homeViewModel = rememberScreenModel { appModule.provideHomeScreenViewModel() }
         logger.i("Home Screen active")
         HomeScreenContent(viewModel = homeViewModel, navigator = navigator)
     }

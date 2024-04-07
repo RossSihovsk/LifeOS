@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.sqlDelight)
 }
 
 kotlin {
@@ -12,6 +13,14 @@ kotlin {
         compilations.all {
             kotlinOptions {
                 jvmTarget = "1.8"
+            }
+        }
+    }
+
+    sqldelight {
+        databases {
+            create("LifeOsDatabase") {
+                packageName = "com.lifeos"
             }
         }
     }
@@ -24,6 +33,13 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
+
+            //SQLDelight Android
+            implementation(libs.sqldelight.android)
+
+//            Maybe I'll use it for creating calendar view for android, but basically, we have to find smth multiplatform
+//            implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.3.0")
+//            implementation("com.maxkeppeler.sheets-compose-dialogs:calendar:1.3.0")
         }
         commonMain.dependencies {
             //compose
@@ -45,12 +61,15 @@ kotlin {
             //kermit
             implementation(libs.kermit)
 
-//            Maybe I'll use it for creating calendar view for android, but basically, we have to find smth multiplatform
-//            implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.3.0")
-//            implementation("com.maxkeppeler.sheets-compose-dialogs:calendar:1.3.0")
+            //SQLDelight Common
+            implementation(libs.sqldelight.coroutines)
+            implementation(libs.sqldelight.native)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
+
+            //SQLDelight Desktop
+            implementation(libs.sqldelight.jvm)
         }
     }
 }
