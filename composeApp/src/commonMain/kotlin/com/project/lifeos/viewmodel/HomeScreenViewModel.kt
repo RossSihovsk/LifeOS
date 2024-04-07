@@ -8,9 +8,11 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import co.touchlab.kermit.Logger
 import com.project.lifeos.data.Task
 import com.project.lifeos.data.TaskStatus
-import com.project.lifeos.di.AppModule
+import com.project.lifeos.repository.TaskRepository
+import com.project.lifeos.ui.view.calendar.CalendarDataSource
 import com.project.lifeos.ui.view.calendar.CalendarUiModel
-import com.project.lifeos.utils.convertLocalDateTimeToLong
+import com.project.lifeos.utils.convertLocalDateToString
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,35 +21,36 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-class HomeScreenViewModel : ScreenModel {
-    private val logger = Logger.withTag("HomeScreenViewModel")
-    private val calendarDataSource = AppModule.calendarDataSource
-    private val repository = AppModule.taskRepository
+class HomeScreenViewModel(
+    private val calendarDataSource: CalendarDataSource,
+    private val repository: TaskRepository
 
+) : ScreenModel {
+    private val logger = Logger.withTag("HomeScreenViewModel")
     var calendarUiModel by mutableStateOf(calendarDataSource.getData(lastSelectedDate = calendarDataSource.today))
         private set
 
-    private val currentDate: Long
-        get() = convertLocalDateTimeToLong(calendarUiModel.selectedDate.date.atStartOfDay())
+    private val currentDate: String
+        get() = convertLocalDateToString(calendarUiModel.selectedDate.date)
 
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState = _uiState.asStateFlow()
 
     init {
         _uiState.value = HomeUiState.Loading
-        val date = calendarUiModel.selectedDate.date.atStartOfDay() // Should be done on UI thread
+        val date = currentDate // Should be done on UI thread
 
         screenModelScope.launch(context = Dispatchers.IO) {
             logger.i("Init")
 
-            val tasks = repository.getTasksForDay(convertLocalDateTimeToLong(date))
-            withContext(Dispatchers.Main) {
+            val tasks = repository.getTasksForDay(date)
+            withContext(Dispatchers.Default) {
                 if (tasks.isEmpty()) {
-                    logger.i("Tasks are not present for ${date.dayOfMonth} ${date.month.name}")
+                    logger.i("Tasks are not present for $date")
                     _uiState.value = HomeUiState.NoTaskForSelectedDate
 
                 } else {
-                    logger.i("${tasks.size} Tasks are present for ${date.dayOfMonth} ${date.month.name}")
+                    logger.i("${tasks.size} Tasks are present for $date")
                     val (completed, uncompleted) = separateTasks(tasks)
                     _uiState.value = HomeUiState.TaskUpdated(completedTasks = completed, unCompletedTasks = uncompleted)
                 }
@@ -57,13 +60,17 @@ class HomeScreenViewModel : ScreenModel {
 
     fun onDateClicked(date: CalendarUiModel.Date) {
         calendarUiModel = calendarUiModel.copy(
-            selectedDate = date,
+            selectedDate = date.copy(isSelected = true),
             visibleDates = calendarUiModel.visibleDates.map {
                 it.copy(
                     isSelected = it.date.isEqual(date.date)
                 )
             }
         )
+
+        updateTasksState()
+
+        logger.d("Selected date changed to $date")
     }
 
     fun onTaskStatusChanged(status: Boolean, task: Task) {
@@ -74,18 +81,20 @@ class HomeScreenViewModel : ScreenModel {
             repository.onTaskStatusChanged(status, task)
         }
 
-        screenModelScope.launch {
-            updateJob.onAwait
-            val updatedList = repository.getTasksForDay(currentDate)
-            val (completed, uncompleted) = separateTasks(updatedList)
-            _uiState.value = HomeUiState.TaskUpdated(completedTasks = completed, unCompletedTasks = uncompleted)
-        }
+        updateTasksState(updateJob)
     }
 
     private fun separateTasks(tasks: List<Task>): Pair<List<Task>, List<Task>> {
         val completedTasks = tasks.filter { it.status == TaskStatus.DONE }
         val uncompletedTasks = tasks.filter { it.status == TaskStatus.PENDING }
         return Pair(completedTasks, uncompletedTasks)
+    }
+
+    private fun updateTasksState(changeJob: Deferred<Unit>? = null) = screenModelScope.launch {
+        changeJob?.onAwait
+        val updatedList = repository.getTasksForDay(currentDate)
+        val (completed, uncompleted) = separateTasks(updatedList)
+        _uiState.value = HomeUiState.TaskUpdated(completedTasks = completed, unCompletedTasks = uncompleted)
     }
 }
 

@@ -176,15 +176,17 @@ fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> U
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.weight(1f)
         )
-        Text(
-            text = formatTime(task.time),
-            style = MaterialTheme.typography.bodyMedium,
-        )
+        task.time?.let { time ->
+            Text(
+                text = formatTime(time),
+                style = MaterialTheme.typography.bodyMedium,
+            )
+        }
     }
 }
 
 @Composable
 @Preview
 fun HomeScreenPreview() {
-    HomeScreenContent(viewModel = AppModule.homeViewModel)
+//    HomeScreenContent()
 }
