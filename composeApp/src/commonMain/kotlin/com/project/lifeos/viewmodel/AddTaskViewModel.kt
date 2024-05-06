@@ -10,11 +10,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.Date
 
-class CreateTaskScreenViewModel(private val repository: TaskRepository) : ScreenModel {
+class AddTaskViewModel(private val repository: TaskRepository) : ScreenModel {
 
     // Flow of tasks for a specific date
     private val _tasks = MutableStateFlow<List<Task>>(emptyList())
