@@ -36,6 +36,7 @@ kotlin {
             implementation(compose.uiTooling)
             implementation(compose.material3)
 
+            implementation("com.kizitonwose.calendar:compose:2.5.1")
 
             //SQLDelight Android
             implementation(libs.sqldelight.android)

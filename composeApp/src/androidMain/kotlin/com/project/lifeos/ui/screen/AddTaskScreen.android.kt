@@ -73,113 +73,113 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
     ) {
         Box(modifier = Modifier.width(100.dp).height(300.dp).background(Color.Black))
     }
-//    Column(
-//        modifier = Modifier.fillMaxSize(),
-//        horizontalAlignment = Alignment.CenterHorizontally
-//    ) {
-//        val taskTitle = remember { mutableStateOf("") }
-//        val taskDescription = remember { mutableStateOf("") }
-//        val taskTime = remember { mutableStateOf<Long?>(null) }
-//        val taskDate = remember { mutableStateOf<Long?>(null) }
-//
-//        val keyboardController = LocalSoftwareKeyboardController.current
-//
-//        val timePickerState = rememberTimePickerState()
-//        val showTimePicker = remember { mutableStateOf(false) }
-//
-//        val isMenuOpen = remember { mutableStateOf(false) }
-//        val timeFormatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
-//        val dateFormatter = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
-//
-//        val datePickerState = rememberDatePickerState(
-//            initialSelectedDateMillis = Instant.now().toEpochMilli()
-//        )
-//        val showDatePicker = remember { mutableStateOf(false) }
-//
-//        Text(
-//            modifier = Modifier.padding(top = 40.dp),
-//            text = "AddTaskScreen",
-//            fontSize = 32.sp,
-//            fontWeight = FontWeight.Bold,
-//            fontFamily = MaterialTheme.typography.headlineLarge.fontFamily
-//        )
-//        Spacer(modifier = Modifier.padding(40.dp))
-//
-//        ShowTitleTextField(taskTitle = taskTitle, keyboardController = keyboardController)
-//        Spacer(modifier = Modifier.padding(20.dp))
-//        ShowDescriptionTextField(taskDescription = taskDescription)
-//
-//        Spacer(modifier = Modifier.padding(30.dp))
-//        Text(
-//            text = getFormattedTimeText(taskTime, timeFormatter),
-//            fontSize = 16.sp,
-//            fontWeight = FontWeight.Bold,
-//            fontFamily = MaterialTheme.typography.bodyMedium.fontFamily
-//        )
-//        Text(
-//            text = getFormattedDateText(taskDate, dateFormatter),
-//            fontSize = 16.sp,
-//            fontWeight = FontWeight.Bold,
-//            fontFamily = MaterialTheme.typography.bodyMedium.fontFamily
-//        )
-//        Spacer(modifier = Modifier.padding(60.dp))
-//
-//
-//        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-//            Button(onClick = { showDatePicker.value = true }) {
-//                Icon(
-//                    Icons.Rounded.DateRange,
-//                    contentDescription = null
-//                )
-//            }
-//            Button(onClick = { showTimePicker.value = true }) {
-//                Icon(
-//                    painterResource(id = R.drawable.time),
-//                    contentDescription = null
-//                )
-//            }
-//            Button(onClick = { isMenuOpen.value = true }) {
-//                Icon(
-//                    painterResource(id = R.drawable.add_activity),
-//                    contentDescription = null
-//                )
-//            }
-//        }
-//        ShowTimePickerDialog(showTimePicker, timePickerState, taskTime)
-//        ShowDatePickerDialog(showDatePicker, datePickerState, taskDate)
-//
-//
-//        Spacer(modifier = Modifier.height(60.dp))
-//
-//        EnableSaveButton(taskDate, taskDescription, taskTime, taskTitle) {
-//            logger.i(
-//                "Save task with title: ${taskTitle.value}, description: ${taskDescription.value}, time: ${taskTime.value}, date: ${taskDate.value}"
-//            )
-//            viewModel.saveTask(
-//                title = taskTitle.value,
-//                description = taskDescription.value,
-//                time = taskTime.value,
-//                date = taskDate.value,
-//                status = TaskStatus.PENDING
-//            )
-//        }
-//    }
-//}
-//
-//@Composable
-//fun EnableSaveButton(
-//    taskDate: MutableState<Long?>,
-//    taskDescription: MutableState<String>,
-//    taskTime: MutableState<Long?>,
-//    taskTitle: MutableState<String>,
-//    onClick: () -> Unit
-//) {
-//    val enabled =
-//        taskDate.value != null && taskDescription.value.isNotEmpty() && taskTime.value != null && taskTitle.value.isNotEmpty()
-//
-//    Button(enabled = enabled, onClick = onClick) {
-//        Text("Save Task")
-//    }
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        val taskTitle = remember { mutableStateOf("") }
+        val taskDescription = remember { mutableStateOf("") }
+        val taskTime = remember { mutableStateOf<Long?>(null) }
+        val taskDate = remember { mutableStateOf<Long?>(null) }
+
+        val keyboardController = LocalSoftwareKeyboardController.current
+
+        val timePickerState = rememberTimePickerState()
+        val showTimePicker = remember { mutableStateOf(false) }
+
+        val isMenuOpen = remember { mutableStateOf(false) }
+        val timeFormatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
+        val dateFormatter = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
+
+        val datePickerState = rememberDatePickerState(
+            initialSelectedDateMillis = Instant.now().toEpochMilli()
+        )
+        val showDatePicker = remember { mutableStateOf(false) }
+
+        Text(
+            modifier = Modifier.padding(top = 40.dp),
+            text = "AddTaskScreen",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = MaterialTheme.typography.headlineLarge.fontFamily
+        )
+        Spacer(modifier = Modifier.padding(40.dp))
+
+        ShowTitleTextField(taskTitle = taskTitle, keyboardController = keyboardController)
+        Spacer(modifier = Modifier.padding(20.dp))
+        ShowDescriptionTextField(taskDescription = taskDescription)
+
+        Spacer(modifier = Modifier.padding(30.dp))
+        Text(
+            text = getFormattedTimeText(taskTime, timeFormatter),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = MaterialTheme.typography.bodyMedium.fontFamily
+        )
+        Text(
+            text = getFormattedDateText(taskDate, dateFormatter),
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = MaterialTheme.typography.bodyMedium.fontFamily
+        )
+        Spacer(modifier = Modifier.padding(60.dp))
+
+
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            Button(onClick = { showDatePicker.value = true }) {
+                Icon(
+                    Icons.Rounded.DateRange,
+                    contentDescription = null
+                )
+            }
+            Button(onClick = { showTimePicker.value = true }) {
+                Icon(
+                    painterResource(id = R.drawable.time),
+                    contentDescription = null
+                )
+            }
+            Button(onClick = { isMenuOpen.value = true }) {
+                Icon(
+                    painterResource(id = R.drawable.add_activity),
+                    contentDescription = null
+                )
+            }
+        }
+        ShowTimePickerDialog(showTimePicker, timePickerState, taskTime)
+        ShowDatePickerDialog(showDatePicker, datePickerState, taskDate)
+
+
+        Spacer(modifier = Modifier.height(60.dp))
+
+        EnableSaveButton(taskDate, taskDescription, taskTime, taskTitle) {
+            logger.i(
+                "Save task with title: ${taskTitle.value}, description: ${taskDescription.value}, time: ${taskTime.value}, date: ${taskDate.value}"
+            )
+            viewModel.saveTask(
+                title = taskTitle.value,
+                description = taskDescription.value,
+                time = taskTime.value,
+                date = taskDate.value,
+                status = TaskStatus.PENDING
+            )
+        }
+    }
+}
+
+@Composable
+fun EnableSaveButton(
+    taskDate: MutableState<Long?>,
+    taskDescription: MutableState<String>,
+    taskTime: MutableState<Long?>,
+    taskTitle: MutableState<String>,
+    onClick: () -> Unit
+) {
+    val enabled =
+        taskDate.value != null && taskDescription.value.isNotEmpty() && taskTime.value != null && taskTitle.value.isNotEmpty()
+
+    Button(enabled = enabled, onClick = onClick) {
+        Text("Save Task")
+    }
 }
 
 fun getFormattedDateText(taskDate: MutableState<Long?>, dateFormatter: SimpleDateFormat): String {

@@ -1,7 +1,5 @@
 package com.project.lifeos.data
 
-import java.time.LocalDate
-
 data class Task(
     val id: Long? = null,
     val title: String,
@@ -16,3 +14,20 @@ enum class TaskStatus {
     DONE,
     SKIPPED
 }
+
+enum class Reminder(val title: String) {
+    NONE("None"),
+    ON_TIME("On time"),
+    FIVE_MIN_BEFORE("5 minutes early"),
+    THIRTY_MIN_BEFORE("30 minutes early"),
+    HOUR_BEFORE("1 hour early"),
+    DAY_BEFORE("1 day early")
+}
+
+enum class Repeat(val title: String) {
+    NONE("None"),
+    WEEKLY("Weekly"),
+    MONTHLY("Monthly"),
+    CUSTOM("Custom")
+}
+

@@ -1,12 +1,9 @@
-package com.project.lifeos.ui.view
+package com.project.lifeos.ui.screen.addTask
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -21,7 +18,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -33,7 +29,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -67,7 +62,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import co.touchlab.kermit.Logger
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.project.lifeos.R
 import com.project.lifeos.ui.screen.TimePickerDialog
 import com.project.lifeos.viewmodel.AddTaskViewModel
@@ -93,8 +89,6 @@ fun AddTaskView() {
     var taskTime by remember { mutableStateOf<Long?>(null) }
     var taskDate by remember { mutableStateOf<Long?>(null) }
 
-    val timePickerState = rememberTimePickerState()
-    var showTimePicker by remember { mutableStateOf(false) }
     val datePickerState = rememberDatePickerState(
         initialSelectedDateMillis = Instant.now().toEpochMilli()
     )
@@ -116,9 +110,6 @@ fun AddTaskView() {
                 .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
         ) {
 
-            val logger = Logger.withTag("BottomSheetView")
-            logger.i("Color ${MaterialTheme.colorScheme.surface} ")
-            val interactionSource = remember { MutableInteractionSource() }
             val focusRequester = remember { FocusRequester() }
 
             BasicTextField2(modifier = Modifier.fillMaxWidth().wrapContentHeight().focusRequester(focusRequester),
@@ -224,41 +215,20 @@ fun AddTaskView() {
                     }
                 }
             }
-
-            if (showDatePicker) {
-                val confirmEnabled = remember {
-                    derivedStateOf { datePickerState.selectedDateMillis != null }
-                }
-
-                DatePickerDialog(
-                    onDismissRequest = { showDatePicker = false },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                showDatePicker = false
-                                taskDate = datePickerState.selectedDateMillis
-                            },
-                            enabled = confirmEnabled.value
-                        ) { Text("OK") }
-                    },
-                    dismissButton = {
-                        TextButton(
-                            onClick = { showDatePicker = false }
-                        ) { Text("Cancel") }
-                    }
-                ) { DatePicker(state = datePickerState) }
-            }
         }
-        if (showTimePicker) {
-            TimePickerDialog(
-                onCancel = { showTimePicker = false },
-                onConfirm = { showTimePicker = false },
-                content = {
-                    val calendar = Calendar.getInstance()
-                    calendar.set(Calendar.HOUR_OF_DAY, timePickerState.hour)
-                    calendar.set(Calendar.MINUTE, timePickerState.minute)
-                    TimePicker(state = timePickerState)
-                })
+
+        if (showDatePicker) {
+            DatePickerDialog(
+                onDismissRequest = { showDatePicker = false },
+                confirmButton = {}
+            ) {
+                DateTimeSelectorView(
+                    onDone = { _, _, _ ->
+                        // TODO("Here we have to somehow save the data")
+                    },
+                    onCanceled = { showDatePicker = false }
+                )
+            }
         }
     }
 }

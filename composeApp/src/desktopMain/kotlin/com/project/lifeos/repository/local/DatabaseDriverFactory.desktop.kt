@@ -11,8 +11,6 @@ actual class DatabaseDriverFactory {
     actual fun create(): SqlDriver {
         val databasePath = File(System.getProperty("java.io.tmpdir"), "lifeos_database.db")
         val driver: SqlDriver = JdbcSqliteDriver(url = "jdbc:sqlite:${databasePath.absolutePath}") //C:\Users\Huawei\AppData\Local\Temp in my case
-        val logger = co.touchlab.kermit.Logger.withTag("DatabaseDriverFactory")
-        logger.i("suka ${databasePath.absolutePath}")
         LifeOsDatabase.Schema.create(driver)
         return driver
     }
