@@ -1,5 +1,7 @@
 package com.project.lifeos.data
 
+import androidx.compose.ui.graphics.Color
+
 data class Task(
     val id: Long? = null,
     val title: String,
@@ -29,5 +31,12 @@ enum class Repeat(val title: String) {
     WEEKLY("Weekly"),
     MONTHLY("Monthly"),
     CUSTOM("Custom")
+}
+
+enum class Priority(val title: String, val color: Color) {
+    HIGH("High priority", Color.Red),
+    MEDIUM("Medium priority", Color.Yellow),
+    LOW("Low priority", Color.Blue),
+    NO_PRIORITY("No priority", Color.Black),
 }
 

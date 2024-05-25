@@ -17,34 +17,35 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TimePicker
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -52,23 +53,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import com.project.lifeos.R
-import com.project.lifeos.ui.screen.TimePickerDialog
+import com.project.lifeos.data.Priority
 import com.project.lifeos.viewmodel.AddTaskViewModel
-import java.time.Instant
-import java.util.Calendar
 
 @Composable
 fun AddTaskBottomSheetView(addTaskViewModel: AddTaskViewModel) {
@@ -86,22 +87,24 @@ fun AddTaskView() {
     val keyboardController = LocalSoftwareKeyboardController.current
     var taskTitle by remember { mutableStateOf("") }
     var taskDescription by remember { mutableStateOf("") }
-    var taskTime by remember { mutableStateOf<Long?>(null) }
-    var taskDate by remember { mutableStateOf<Long?>(null) }
+    var taskPriority by remember { mutableStateOf(Priority.NO_PRIORITY) }
 
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = Instant.now().toEpochMilli()
-    )
+    val taskCheckItems = remember { mutableStateListOf<String>() }
+
     var showDatePicker by remember { mutableStateOf(false) }
+    var showPriorityPicker by remember { mutableStateOf(false) }
 
+
+    val sheetState = rememberModalBottomSheetState()
+    TextFieldValue
 
     ModalBottomSheet(
         containerColor = Color.White,
         onDismissRequest = {
         },
-        sheetState = rememberModalBottomSheetState()
+        sheetState = sheetState
     ) {
-
+        val focusRequester = remember { FocusRequester() }
 
         Column(
             modifier = Modifier
@@ -109,8 +112,6 @@ fun AddTaskView() {
                 .wrapContentHeight()
                 .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
         ) {
-
-            val focusRequester = remember { FocusRequester() }
 
             BasicTextField2(modifier = Modifier.fillMaxWidth().wrapContentHeight().focusRequester(focusRequester),
                 value = taskTitle,
@@ -161,6 +162,46 @@ fun AddTaskView() {
 
             Spacer(modifier = Modifier.height(15.dp))
 
+            // Display the list of input fields
+            LazyColumn {
+                items(taskCheckItems) { textFieldValue ->
+                    InputCheckItem(
+                        textFieldValue = textFieldValue
+                    ) { newValue ->
+                        val index = taskCheckItems.indexOf(textFieldValue)
+                        if (index != -1) {
+                            taskCheckItems[index] = newValue
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            }
+
+            if (showPriorityPicker) {
+                Column {
+                    Priority.entries.forEach {
+                        DropdownMenuItem(
+                            modifier = Modifier.wrapContentSize(),
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.flag),
+                                    contentDescription = null,
+                                    tint = it.color
+                                )
+                            },
+                            text = { Text(it.title) },
+                            onClick = {
+                                taskPriority = it
+                                showPriorityPicker = false
+                            }
+                        )
+                    }
+                }
+                LaunchedEffect(Unit) {
+                    sheetState.expand()
+                }
+            }
+
             LazyRow(
                 modifier = Modifier.fillMaxWidth().wrapContentHeight(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -169,10 +210,15 @@ fun AddTaskView() {
                     TaskParameters("Today", Icons.Default.DateRange) { showDatePicker = true }
                 }
                 item {
-                    TaskParameters("Priority", ImageVector.vectorResource(R.drawable.flag)) {}
+                    TaskParameters("Priority", ImageVector.vectorResource(R.drawable.flag)) {
+                        showPriorityPicker = !showPriorityPicker
+                    }
                 }
                 item {
-                    TaskParameters("Check Item", ImageVector.vectorResource(R.drawable.list)) {}
+                    TaskParameters("Check Item", ImageVector.vectorResource(R.drawable.list)) {
+                        if (taskCheckItems.isNotEmpty() && taskCheckItems.last().isEmpty()) return@TaskParameters
+                        taskCheckItems.add("")
+                    }
                 }
                 item {
                     TaskParameters("Add photo", ImageVector.vectorResource(R.drawable.photo)) {}
@@ -185,6 +231,7 @@ fun AddTaskView() {
                 thickness = 1.dp,
                 color = Color.LightGray
             )
+
             Row(
                 modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically
@@ -231,6 +278,27 @@ fun AddTaskView() {
             }
         }
     }
+}
+
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun InputCheckItem(textFieldValue: String, onValueChange: (String) -> Unit) {
+    HorizontalDivider(Modifier.height(1.dp))
+    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 0.dp), verticalAlignment = Alignment.CenterVertically) {
+        Checkbox(checked = false, enabled = false, onCheckedChange = {})
+        BasicTextField2(
+            modifier = Modifier.fillMaxWidth(0.9f).height(20.dp),
+            value = textFieldValue,
+            onValueChange = { onValueChange(it) },
+            textStyle = TextStyle(
+                fontSize = 14.sp,
+                fontFamily = FontFamily.Default
+            )
+        )
+        Icon(imageVector = Icons.Default.Close, contentDescription = null)
+    }
+    HorizontalDivider(Modifier.height(1.dp))
 }
 
 
