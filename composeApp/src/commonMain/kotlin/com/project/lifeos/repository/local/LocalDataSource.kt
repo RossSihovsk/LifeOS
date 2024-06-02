@@ -13,14 +13,14 @@ class LocalDataSource(db: LifeOsDatabase) {
 
     fun insert(task: Task) {
         logger.d("Insert $task")
-        queries.addNewTask(
-            id = null,
-            name = task.title,
-            description = task.description,
-            time = task.time,
-            date = task.date,
-            status = task.status.name
-        )
+//        queries.addNewTask(
+//            id = null,
+//            name = task.title,
+//            description = task.description,
+//            time = task.time,
+//            date = task.date,
+//            status = task.status.name
+//        )
     }
 
     fun updateStatus(id: Long, status: TaskStatus) {

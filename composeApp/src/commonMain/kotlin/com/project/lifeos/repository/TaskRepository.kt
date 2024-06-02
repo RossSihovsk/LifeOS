@@ -11,7 +11,7 @@ class TaskRepository(private val localDataSource: LocalDataSource) {
     private val logger = Logger.withTag("TaskRepository")
 
     fun getTasksForDay(day: String): List<Task> {
-        return localDataSource.getForSomeDay(day)
+        return taskList
     }
 
     fun addTask(task: Task) {
