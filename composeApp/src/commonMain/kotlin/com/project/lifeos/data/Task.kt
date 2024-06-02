@@ -8,7 +8,9 @@ data class Task(
     val description: String? = null,
     val time: Long?,
     val date: String?,
-    var status: TaskStatus = TaskStatus.PENDING
+    var status: TaskStatus = TaskStatus.PENDING,
+    val reminder: Reminder = Reminder.NONE,
+    val priority: Priority = Priority.NO_PRIORITY
 )
 
 enum class TaskStatus {

@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS TaskEntity (
 
   getTasksForDay:
   SELECT * FROM TaskEntity
-  WHERE date LIKE  :date;
+  WHERE date LIKE '%' || :date || '%';
 
   updateStatus:
   UPDATE TaskEntity
