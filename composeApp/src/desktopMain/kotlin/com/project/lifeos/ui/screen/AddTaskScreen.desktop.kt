@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
 import com.project.lifeos.viewmodel.AddTaskViewModel
 //import com.project.lifeos.R
@@ -61,10 +62,10 @@ import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.Calendar
 import java.util.Locale
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
+actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger,navigator: Navigator?) {
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally

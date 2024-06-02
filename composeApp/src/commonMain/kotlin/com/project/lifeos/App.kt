@@ -13,6 +13,7 @@ import cafe.adriel.voyager.transitions.FadeTransition
 import co.touchlab.kermit.Logger
 import com.project.lifeos.di.AppModule
 import com.project.lifeos.ui.bottomNavigation.BottomBar
+import com.project.lifeos.ui.screen.AddTaskScreen
 
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import com.project.lifeos.ui.screen.HomeScreen
@@ -35,7 +36,8 @@ fun App(appModule: AppModule) {
                     )
                     logger.d("zxc $activeScreen ")
                     BottomBar(navigator, activeScreen, appModule)
-                }) {
+                })
+                {
                     FadeTransition(navigator)
                 }
             }

@@ -44,7 +44,7 @@ private val items = listOf(
 fun BottomBar(navigator: Navigator, selectedItemIndex: MutableState<Int>, appModule: AppModule) {
     var selectedItem by remember { mutableStateOf("Home")}
     logger.i("execpted error $selectedItem")
-    bottomBarNavigation(selectedItem, navigator, appModule)
+
 
     NavigationBar {
         items.forEachIndexed { index, item ->
@@ -62,4 +62,7 @@ fun BottomBar(navigator: Navigator, selectedItemIndex: MutableState<Int>, appMod
                 })
         }
     }
+
+    bottomBarNavigation(selectedItem, navigator, appModule)
+
 }
