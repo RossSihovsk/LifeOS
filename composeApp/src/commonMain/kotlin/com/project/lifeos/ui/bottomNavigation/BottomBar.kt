@@ -21,7 +21,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.navigator.Navigator
+import co.touchlab.kermit.Logger
 import com.project.lifeos.di.AppModule
+private val logger = Logger.withTag("BottomBar")
 
 @Composable
 expect fun bottomBarNavigation(screenName: String, navigator: Navigator, appModule: AppModule)
@@ -33,30 +35,15 @@ private val items = listOf(
         unSelectedIcon = Icons.Outlined.Home
     ),
     BottomNavigationItem(
-        title = "Goals",
-        selectedIcon = Icons.Filled.Favorite,
-        unSelectedIcon = Icons.Outlined.Favorite
-    ),
-    BottomNavigationItem(
-        title = "Add Task",
+        title = "AddTask",
         selectedIcon = Icons.Filled.Add,
         unSelectedIcon = Icons.Outlined.Add
     ),
-    BottomNavigationItem(
-        title = "Stats",
-        selectedIcon = Icons.Filled.Star,
-        unSelectedIcon = Icons.Outlined.Star
-    ),
-    BottomNavigationItem(
-        title = "Profile",
-        selectedIcon = Icons.Filled.Person,
-        unSelectedIcon = Icons.Outlined.Person
-    ),
 )
-
 @Composable
 fun BottomBar(navigator: Navigator, selectedItemIndex: MutableState<Int>, appModule: AppModule) {
     var selectedItem by remember { mutableStateOf("Home")}
+    logger.i("execpted error $selectedItem")
     bottomBarNavigation(selectedItem, navigator, appModule)
 
     NavigationBar {

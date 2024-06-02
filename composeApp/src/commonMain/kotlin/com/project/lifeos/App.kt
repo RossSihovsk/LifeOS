@@ -33,7 +33,7 @@ fun App(appModule: AppModule) {
                     val activeScreen = mutableStateOf(
                         if (navigator.lastItem is HomeScreen) 0 else 1
                     )
-
+                    logger.d("zxc $activeScreen ")
                     BottomBar(navigator, activeScreen, appModule)
                 }) {
                     FadeTransition(navigator)
