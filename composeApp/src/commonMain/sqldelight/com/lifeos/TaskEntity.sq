@@ -4,16 +4,18 @@ CREATE TABLE IF NOT EXISTS TaskEntity (
   description TEXT,
   time INTEGER,
   date TEXT,
-  status TEXT NOT NULL
+  status TEXT NOT NULL,
+  reminder TEXT NOT NULL,
+  priority TEXT NOT NULL
   );
 
   addNewTask:
-  INSERT OR REPLACE INTO TaskEntity(id, name, description, time, date, status)
-  VALUES (?,?,?,?,?,?);
+  INSERT OR REPLACE INTO TaskEntity(id, name, description, time, date, status, reminder, priority)
+  VALUES (?,?,?,?,?,?,?,?);
 
   getTasksForDay:
   SELECT * FROM TaskEntity
-  WHERE date IS :date;
+  WHERE date LIKE  :date;
 
   updateStatus:
   UPDATE TaskEntity
