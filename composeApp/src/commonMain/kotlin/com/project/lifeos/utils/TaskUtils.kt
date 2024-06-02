@@ -21,6 +21,7 @@ fun generateTasks(numberOfTasks: Int): List<Task> {
         val taskTime = currentDate + randomTimeOffset
         tasks.add(
             Task(
+                id = i.toLong(),
                 title = "Task $i",
                 time = taskTime,
                 date = convertLongToStringDate(currentDate),

@@ -8,5 +8,5 @@ import com.project.lifeos.ui.screen.AddTaskScreen
 
 @Composable
 actual fun bottomBarNavigation(screenName: String, navigator: Navigator, appModule: AppModule) {
-//navigator.push(AddTaskScreen(appModule))
+navigator.push(AddTaskScreen(appModule))
 }

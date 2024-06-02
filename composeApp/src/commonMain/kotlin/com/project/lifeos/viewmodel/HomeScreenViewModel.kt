@@ -77,7 +77,7 @@ class HomeScreenViewModel(
         logger.i("Task $task finished $status")
         if (status && task.status != TaskStatus.PENDING) return
 
-        val updateJob = screenModelScope.async {
+        val updateJob = screenModelScope.async(Dispatchers.Default) {
             repository.onTaskStatusChanged(status, task)
         }
 
@@ -90,7 +90,7 @@ class HomeScreenViewModel(
         return Pair(completedTasks, uncompletedTasks)
     }
 
-    private fun updateTasksState(changeJob: Deferred<Unit>? = null) = screenModelScope.launch {
+    private fun updateTasksState(changeJob: Deferred<Unit>? = null) = screenModelScope.launch(Dispatchers.Default) {
         changeJob?.onAwait
         val updatedList = repository.getTasksForDay(currentDate)
         val (completed, uncompleted) = separateTasks(updatedList)
