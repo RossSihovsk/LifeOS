@@ -70,7 +70,7 @@ kotlin {
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
-
+            implementation(compose.materialIconsExtended)
             //SQLDelight Desktop
             implementation(libs.sqldelight.jvm)
         }

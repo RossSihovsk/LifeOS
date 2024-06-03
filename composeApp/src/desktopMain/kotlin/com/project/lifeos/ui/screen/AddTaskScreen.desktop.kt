@@ -16,6 +16,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DateRange
+import androidx.compose.material.icons.rounded.PriorityHigh
+import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -31,13 +33,7 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -47,34 +43,38 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-//import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import cafe.adriel.voyager.navigator.Navigator
+
 import co.touchlab.kermit.Logger
+import com.project.lifeos.data.Priority
+import com.project.lifeos.data.Reminder
 import com.project.lifeos.viewmodel.AddTaskViewModel
-//import com.project.lifeos.R
-import com.project.lifeos.data.Task
+
 import com.project.lifeos.data.TaskStatus
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.Calendar
 import java.util.Locale
+
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
 
     Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val taskTitle = remember { mutableStateOf("") }
         val taskDescription = remember { mutableStateOf("") }
+        var taskPriority by remember { mutableStateOf(Priority.NO_PRIORITY) }
+
         val taskTime = remember { mutableStateOf<Long?>(null) }
         val taskDate = remember { mutableStateOf<Long?>(null) }
-
+        var taskReminder by remember { mutableStateOf(Reminder.NONE) }
+        // val taskDates = remember { mutableStateListOf<CalendarDay>() }
         val keyboardController = LocalSoftwareKeyboardController.current
 
         val timePickerState = rememberTimePickerState()
@@ -88,6 +88,7 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
             initialSelectedDateMillis = Instant.now().toEpochMilli()
         )
         val showDatePicker = remember { mutableStateOf(false) }
+        var showPriorityPicker by remember { mutableStateOf(false) }
 
         Text(
             modifier = Modifier.padding(top = 40.dp),
@@ -121,15 +122,19 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
             Button(onClick = { showDatePicker.value = true }) {
                 Icon(
-                    Icons.Rounded.DateRange,
-                    contentDescription = null
+                    Icons.Rounded.DateRange, contentDescription = null
                 )
             }
             Button(onClick = { showTimePicker.value = true }) {
+                Icon(
+                    Icons.Rounded.Timer, contentDescription = null
+                )
 
             }
             Button(onClick = { isMenuOpen = true }) {
-
+                Icon(
+                    Icons.Rounded.PriorityHigh, contentDescription = null
+                )
             }
         }
         ShowTimePickerDialog(showTimePicker, timePickerState, taskTime)
@@ -146,7 +151,7 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
                 title = taskTitle.value,
                 description = taskDescription.value,
                 time = taskTime.value,
-                date = taskDate.value,
+                dates = taskDate.value.toString(),
                 status = TaskStatus.PENDING
             )
         }
@@ -184,18 +189,15 @@ fun getFormattedTimeText(taskTime: MutableState<Long?>, timeFormatter: SimpleDat
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ShowTitleTextField(taskTitle: MutableState<String>, keyboardController: SoftwareKeyboardController?) {
-    TextField(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 8.dp)
-            .onFocusChanged { focusState ->
-                if (!focusState.isFocused) keyboardController?.hide()
-            },
+    TextField(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)
+        .onFocusChanged { focusState ->
+            if (!focusState.isFocused) keyboardController?.hide()
+        },
         shape = RoundedCornerShape(20.dp),
         value = taskTitle.value,
         onValueChange = { taskTitle.value = it },
         label = { Text("What are you going to achieve") },
-       // leadingIcon = { Icon(painterResource(R.drawable.title), contentDescription = "Localized description") },
+        //leadingIcon = { Icon(painterResource(R.drawable.title), contentDescription = "Localized description") },
         placeholder = { Text("Enter title for your task") },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
@@ -204,25 +206,19 @@ fun ShowTitleTextField(taskTitle: MutableState<String>, keyboardController: Soft
 
 @Composable
 fun ShowDescriptionTextField(taskDescription: MutableState<String>) {
-    TextField(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 20.dp, vertical = 10.dp),
+    TextField(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp),
         shape = RoundedCornerShape(20.dp),
         value = taskDescription.value,
         onValueChange = { taskDescription.value = it },
         label = { Text("Add some description about it") },
-      //  leadingIcon = { Icon(painterResource(R.drawable.align), contentDescription = "Localized description") },
-        placeholder = { Text("Enter description for your task") }
-    )
+        //  leadingIcon = { Icon(painterResource(R.drawable.align), contentDescription = "Localized description") },
+        placeholder = { Text("Enter description for your task") })
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShowTimePickerDialog(
-    showTimePicker: MutableState<Boolean>,
-    timePickerState: TimePickerState,
-    taskTime: MutableState<Long?>
+    showTimePicker: MutableState<Boolean>, timePickerState: TimePickerState, taskTime: MutableState<Long?>
 ) {
     if (showTimePicker.value) {
         TimePickerDialog(
@@ -244,32 +240,23 @@ fun ShowTimePickerDialog(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShowDatePickerDialog(
-    showDatePicker: MutableState<Boolean>,
-    datePickerState: DatePickerState,
-    taskDate: MutableState<Long?>
+    showDatePicker: MutableState<Boolean>, datePickerState: DatePickerState, taskDate: MutableState<Long?>
 ) {
     if (showDatePicker.value) {
         val confirmEnabled = remember {
             derivedStateOf { datePickerState.selectedDateMillis != null }
         }
 
-        DatePickerDialog(
-            onDismissRequest = { showDatePicker.value = false },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showDatePicker.value = false
-                        taskDate.value = datePickerState.selectedDateMillis
-                    },
-                    enabled = confirmEnabled.value
-                ) { Text("OK") }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = { showDatePicker.value = false }
-                ) { Text("Cancel") }
-            }
-        ) { DatePicker(state = datePickerState) }
+        DatePickerDialog(onDismissRequest = { showDatePicker.value = false }, confirmButton = {
+            TextButton(
+                onClick = {
+                    showDatePicker.value = false
+                    taskDate.value = datePickerState.selectedDateMillis
+                }, enabled = confirmEnabled.value
+            ) { Text("OK") }
+        }, dismissButton = {
+            TextButton(onClick = { showDatePicker.value = false }) { Text("Cancel") }
+        }) { DatePicker(state = datePickerState) }
     }
 }
 
@@ -291,30 +278,21 @@ fun TimePickerDialog(
         Surface(
             shape = MaterialTheme.shapes.extraLarge,
             tonalElevation = 6.dp,
-            modifier = Modifier
-                .width(IntrinsicSize.Min)
-                .height(IntrinsicSize.Min)
-                .background(
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.surface
+            modifier = Modifier.width(IntrinsicSize.Min).height(IntrinsicSize.Min).background(
+                    shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surface
                 ),
         ) {
             Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 20.dp),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp),
                     text = title,
                     style = MaterialTheme.typography.labelMedium
                 )
                 content()
                 Row(
-                    modifier = Modifier
-                        .height(40.dp)
-                        .fillMaxWidth()
+                    modifier = Modifier.height(40.dp).fillMaxWidth()
                 ) {
                     toggle()
                     Spacer(modifier = Modifier.weight(1f))
