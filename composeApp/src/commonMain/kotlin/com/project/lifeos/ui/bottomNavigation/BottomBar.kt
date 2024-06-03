@@ -22,9 +22,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.navigator.Navigator
 import com.project.lifeos.di.AppModule
+import com.project.lifeos.ui.screen.AddTaskScreen
+import com.project.lifeos.ui.screen.HomeScreen
 
 @Composable
 expect fun bottomBarNavigation(screenName: String, navigator: Navigator, appModule: AppModule)
+expect fun getPlatform(): String
 
 private val items = listOf(
     BottomNavigationItem(
@@ -38,19 +41,27 @@ private val items = listOf(
         unSelectedIcon = Icons.Outlined.Add
     ),
 )
+
 @Composable
 fun BottomBar(navigator: Navigator, selectedItemIndex: MutableState<Int>, appModule: AppModule) {
-    var selectedItem by remember { mutableStateOf("Home")}
+    var selectedItem by remember { mutableStateOf("Home") }
     bottomBarNavigation(selectedItem, navigator, appModule)
 
     NavigationBar {
         items.forEachIndexed { index, item ->
             NavigationBarItem(selected = selectedItemIndex.value == index,
                 onClick = {
-                    if (selectedItemIndex.value != index) {
-                        selectedItemIndex.value = index
-                        selectedItem = item.title
+                    if (getPlatform() == "Android") {
+                        if (selectedItemIndex.value != index) {
+                            selectedItemIndex.value = index
+                            selectedItem = item.title
+                        }
+                    } else {
+                        if (item.title == "Home") {
+                            navigator.replaceAll(HomeScreen(appModule))
+                        } else navigator.replaceAll(AddTaskScreen(appModule))
                     }
+
                 }, icon = {
                     Icon(
                         imageVector = if (index == selectedItemIndex.value) item.selectedIcon else item.unSelectedIcon,
