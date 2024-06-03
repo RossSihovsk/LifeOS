@@ -7,6 +7,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.FadeTransition
@@ -31,13 +32,10 @@ fun App(appModule: AppModule) {
         ) {
             Navigator(HomeScreen(appModule)) { navigator ->
                 Scaffold(bottomBar = {
-                    val activeScreen = mutableStateOf(
-                        if (navigator.lastItem is HomeScreen) 0 else 1
-                    )
-                    logger.d("zxc $activeScreen ")
+                    val activeScreen = remember { mutableStateOf(if (navigator.lastItem is HomeScreen) 0 else 1) }
+                    logger.d("Active screen index: ${activeScreen.value}")
                     BottomBar(navigator, activeScreen, appModule)
-                })
-                {
+                }) {
                     FadeTransition(navigator)
                 }
             }

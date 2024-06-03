@@ -11,10 +11,10 @@ private val logger = Logger.withTag("BottomBarNavigation")
 
 @Composable
 actual fun bottomBarNavigation(screenName: String, navigator: Navigator, appModule: AppModule) {
-    logger.i("excepted error $screenName")
-    if (screenName == "AddTask") {
-        navigator.replaceAll(AddTaskScreen(appModule))
+    logger.i("Navigating to screen: $screenName")
+    when (screenName) {
+       // "Home" -> navigator.replaceAll(HomeScreen(appModule))
+        "AddTask" -> navigator.replaceAll(AddTaskScreen(appModule))
+        else -> logger.w("Unknown screen: $screenName")
     }
-
 }
-

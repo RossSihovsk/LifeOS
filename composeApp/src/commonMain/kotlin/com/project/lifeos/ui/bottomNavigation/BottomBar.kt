@@ -23,6 +23,9 @@ import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
 import com.project.lifeos.di.AppModule
+import com.project.lifeos.ui.screen.AddTaskScreen
+import com.project.lifeos.ui.screen.HomeScreen
+
 private val logger = Logger.withTag("BottomBar")
 
 @Composable
@@ -41,28 +44,29 @@ private val items = listOf(
     ),
 )
 @Composable
+// BottomBar composable function
 fun BottomBar(navigator: Navigator, selectedItemIndex: MutableState<Int>, appModule: AppModule) {
-    var selectedItem by remember { mutableStateOf("Home")}
-    logger.i("execpted error $selectedItem")
-
+    var selectedItem by remember { mutableStateOf("Home") }
+    logger.i("Current selected item: $selectedItem")
 
     NavigationBar {
         items.forEachIndexed { index, item ->
-            NavigationBarItem(selected = selectedItemIndex.value == index,
+            NavigationBarItem(
+                selected = selectedItemIndex.value == index,
                 onClick = {
                     if (selectedItemIndex.value != index) {
                         selectedItemIndex.value = index
                         selectedItem = item.title
                     }
-                }, icon = {
+                },
+                icon = {
                     Icon(
                         imageVector = if (index == selectedItemIndex.value) item.selectedIcon else item.unSelectedIcon,
                         contentDescription = item.title
                     )
-                })
+                }
+            )
         }
     }
-
     bottomBarNavigation(selectedItem, navigator, appModule)
-
 }

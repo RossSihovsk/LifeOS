@@ -64,7 +64,7 @@ import java.util.Calendar
 import java.util.Locale
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
-actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger,navigator: Navigator?) {
+actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
 
     Column(
         modifier = Modifier.fillMaxSize(),

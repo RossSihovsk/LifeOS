@@ -12,7 +12,7 @@ import com.project.lifeos.viewmodel.AddTaskViewModel
 
 
 @Composable
-expect fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger,navigator: Navigator? = null)
+expect fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger)
 
 private const val TAG = "AddTaskScreen"
 private val logger = Logger.withTag(TAG)
@@ -24,6 +24,6 @@ class AddTaskScreen(private val appModule: AppModule) : Screen {
         val navigator = LocalNavigator.currentOrThrow
         val taskViewModel = rememberScreenModel { appModule.provideAddTaskViewModel() }
         logger.i("AddTaskScreen active")
-        AddTaskScreenContent(taskViewModel, logger,navigator)
+        AddTaskScreenContent(taskViewModel, logger)
     }
 }
