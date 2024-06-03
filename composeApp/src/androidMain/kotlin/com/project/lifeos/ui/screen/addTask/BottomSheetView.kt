@@ -45,6 +45,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -67,8 +68,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.kizitonwose.calendar.core.CalendarDay
 import com.project.lifeos.R
 import com.project.lifeos.data.Priority
+import com.project.lifeos.data.Reminder
 import com.project.lifeos.viewmodel.AddTaskViewModel
 
 @Composable
@@ -76,18 +79,21 @@ fun AddTaskBottomSheetView(addTaskViewModel: AddTaskViewModel) {
 
     var showBottomSheet by remember { mutableStateOf(true) }
     if (showBottomSheet) {
-        AddTaskView()
+        AddTaskView(addTaskViewModel)
     }
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun AddTaskView() {
+fun AddTaskView(addTaskViewModel: AddTaskViewModel?) {
     val keyboardController = LocalSoftwareKeyboardController.current
     var taskTitle by remember { mutableStateOf("") }
     var taskDescription by remember { mutableStateOf("") }
     var taskPriority by remember { mutableStateOf(Priority.NO_PRIORITY) }
+    var taskTime by remember { mutableStateOf<Long?>(null) }
+    var taskReminder by remember { mutableStateOf(Reminder.NONE) }
+    val taskDates = remember { mutableStateListOf<CalendarDay>() }
 
     val taskCheckItems = remember { mutableStateListOf<String>() }
 
@@ -247,7 +253,14 @@ fun AddTaskView() {
                 }
                 if (taskTitle.isNotBlank()) {
                     Button(
-                        onClick = {},
+                        onClick = {addTaskViewModel?.saveTask(
+                            title = taskTitle,
+                            description = taskDescription,
+                            time = taskTime,
+                            dates = taskDates.toList().toString(),
+                            reminder = taskReminder,
+                            priority = taskPriority
+                        )},
                         modifier = Modifier.wrapContentSize(),
                         shape = CircleShape,
                         contentPadding = PaddingValues(0.dp),
@@ -270,8 +283,12 @@ fun AddTaskView() {
                 confirmButton = {}
             ) {
                 DateTimeSelectorView(
-                    onDone = { _, _, _ ->
-                        // TODO("Here we have to somehow save the data")
+                    onDone = { dates, time, reminder ->
+                        taskDates.addAll(dates)
+                        taskTime = time
+                        taskReminder = reminder
+                        showDatePicker = false
+
                     },
                     onCanceled = { showDatePicker = false }
                 )
@@ -329,5 +346,5 @@ fun TaskParameters(title: String, icon: ImageVector, onClick: () -> Unit) {
 @Composable
 @Preview
 fun ModalBottomSheetPreview() {
-    AddTaskView()
+    AddTaskView(null)
 }
