@@ -15,6 +15,5 @@ actual fun bottomBarNavigation(screenName: String, navigator: Navigator, appModu
     when (screenName) {
        // "Home" -> navigator.replaceAll(HomeScreen(appModule))
         "AddTask" -> navigator.replaceAll(AddTaskScreen(appModule))
-        else -> logger.w("Unknown screen: $screenName")
     }
 }

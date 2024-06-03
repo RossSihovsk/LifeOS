@@ -34,6 +34,7 @@ fun App(appModule: AppModule) {
                 Scaffold(bottomBar = {
                     val activeScreen = remember { mutableStateOf(if (navigator.lastItem is HomeScreen) 0 else 1) }
                     logger.d("Active screen index: ${activeScreen.value}")
+                    if()
                     BottomBar(navigator, activeScreen, appModule)
                 }) {
                     FadeTransition(navigator)
