@@ -36,10 +36,8 @@ import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -58,7 +56,6 @@ import co.touchlab.kermit.Logger
 import com.project.lifeos.R
 import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.viewmodel.AddTaskViewModel
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.Calendar
@@ -159,7 +156,7 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
                 title = taskTitle.value,
                 description = taskDescription.value,
                 time = taskTime.value,
-                date = taskDate.value,
+                dates = "",
                 status = TaskStatus.PENDING
             )
         }

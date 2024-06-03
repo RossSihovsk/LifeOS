@@ -431,6 +431,6 @@ fun ShowTimePicker(onCanceled: () -> Unit, onConfirmed: (state: TimePickerState)
 private fun Example1Preview() {
     DateTimeSelectorView(
         onCanceled = {},
-        onDone = { _, _, _, -> }
+        onDone = {_, _, _, -> }
     )
 }
