@@ -15,61 +15,55 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.vector.ImageVector
 import cafe.adriel.voyager.navigator.Navigator
+import co.touchlab.kermit.Logger
 import com.project.lifeos.di.AppModule
 
-@Composable
-expect fun bottomBarNavigation(screenName: String, navigator: Navigator, appModule: AppModule)
+private val logger = Logger.withTag("bottomBarNavigationCommon")
 
-private val items = listOf(
-    BottomNavigationItem(
-        title = "Home",
-        selectedIcon = Icons.Filled.Home,
-        unSelectedIcon = Icons.Outlined.Home
-    ),
-    BottomNavigationItem(
-        title = "Goals",
-        selectedIcon = Icons.Filled.Favorite,
-        unSelectedIcon = Icons.Outlined.Favorite
-    ),
-    BottomNavigationItem(
-        title = "Add Task",
-        selectedIcon = Icons.Filled.Add,
-        unSelectedIcon = Icons.Outlined.Add
-    ),
-    BottomNavigationItem(
-        title = "Stats",
-        selectedIcon = Icons.Filled.Star,
-        unSelectedIcon = Icons.Outlined.Star
-    ),
-    BottomNavigationItem(
-        title = "Profile",
-        selectedIcon = Icons.Filled.Person,
-        unSelectedIcon = Icons.Outlined.Person
-    ),
+@Composable
+expect fun bottomBarNavigation(
+    bottomBarItems: BottomBarItems,
+    navigator: Navigator,
+    appModule: AppModule,
+    onDoneOrDismiss: () -> Unit
 )
 
+
+
+private val items = BottomBarItems.entries.toList()
+
 @Composable
-fun BottomBar(navigator: Navigator, selectedItemIndex: MutableState<Int>, appModule: AppModule) {
-    var selectedItem by remember { mutableStateOf("Home")}
-    bottomBarNavigation(selectedItem, navigator, appModule)
+fun BottomBar(navigator: Navigator, appModule: AppModule) {
+    var previousItem by remember {  mutableStateOf(BottomBarItems.HOME) }
+    var selectedItem by remember { mutableStateOf(BottomBarItems.HOME) }
+
+    logger.d("BottomBar previousItem: $previousItem selectedItem:$selectedItem")
+
+    bottomBarNavigation(selectedItem, navigator, appModule) {
+        logger.d("DoneOrDismiss called previousItem: $previousItem selectedItem:$selectedItem")
+        selectedItem = previousItem
+        previousItem = BottomBarItems.HOME
+        logger.d("DoneOrDismiss After previousItem: $previousItem selectedItem:$selectedItem")
+    }
 
     NavigationBar {
-        items.forEachIndexed { index, item ->
-            NavigationBarItem(selected = selectedItemIndex.value == index,
+        items.forEach() { item ->
+            NavigationBarItem(selected = item == selectedItem,
                 onClick = {
-                    if (selectedItemIndex.value != index) {
-                        selectedItemIndex.value = index
-                        selectedItem = item.title
+                    logger.d("onClick item: $item selectedItem:$selectedItem")
+                    if (item != selectedItem) {
+                        previousItem = selectedItem
+                        selectedItem = item
                     }
                 }, icon = {
                     Icon(
-                        imageVector = if (index == selectedItemIndex.value) item.selectedIcon else item.unSelectedIcon,
+                        imageVector = if (item == selectedItem) item.selectedIcon else item.unSelectedIcon,
                         contentDescription = item.title
                     )
                 })
