@@ -71,6 +71,12 @@ class HomeScreenViewModel(
     private fun updateTasksState(changeJob: Deferred<Unit>? = null) = screenModelScope.launch {
         changeJob?.onAwait
         val updatedList = repository.getTasksForDay(currentDate)
+        if (updatedList.isEmpty()){
+            logger.d("No tasks for this day")
+            _uiState.emit(HomeUiState.NoTaskForSelectedDate)
+            return@launch
+        }
+
         val (completed, uncompleted) = separateTasks(updatedList)
         _uiState.value = HomeUiState.TaskUpdated(completedTasks = completed, unCompletedTasks = uncompleted)
     }
