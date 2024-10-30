@@ -62,19 +62,25 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cafe.adriel.voyager.navigator.Navigator
+import co.touchlab.kermit.Logger
 import com.kizitonwose.calendar.core.CalendarDay
 import com.project.lifeos.R
 import com.project.lifeos.data.Priority
 import com.project.lifeos.data.Reminder
 import com.project.lifeos.viewmodel.AddTaskViewModel
 
+val logger: Logger = Logger.withTag("AddTaskBottomSheetView")
+
 @Composable
-fun AddTaskBottomSheetView(addTaskViewModel: AddTaskViewModel) {
+fun AddTaskBottomSheetView(addTaskViewModel: AddTaskViewModel, onDoneOrDismiss: () -> Unit) {
 
     var showBottomSheet by remember { mutableStateOf(true) }
     if (showBottomSheet) {
         AddTaskView(addTaskViewModel) {
+            logger.i("Navigate back")
             showBottomSheet = false
+            onDoneOrDismiss()
         }
     }
 }
@@ -82,7 +88,7 @@ fun AddTaskBottomSheetView(addTaskViewModel: AddTaskViewModel) {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun AddTaskView(addTaskViewModel: AddTaskViewModel?, onDismissRequest:() -> Unit) {
+fun AddTaskView(addTaskViewModel: AddTaskViewModel?, onDismissRequest: () -> Unit) {
     val keyboardController = LocalSoftwareKeyboardController.current
     var taskTitle by remember { mutableStateOf("") }
     var taskDescription by remember { mutableStateOf("") }
@@ -102,7 +108,7 @@ fun AddTaskView(addTaskViewModel: AddTaskViewModel?, onDismissRequest:() -> Unit
 
     ModalBottomSheet(
         containerColor = Color.White,
-        onDismissRequest =onDismissRequest,
+        onDismissRequest = onDismissRequest,
         sheetState = sheetState
     ) {
 
@@ -247,14 +253,18 @@ fun AddTaskView(addTaskViewModel: AddTaskViewModel?, onDismissRequest:() -> Unit
                 }
                 if (taskTitle.isNotBlank()) {
                     Button(
-                        onClick = {addTaskViewModel?.saveTask(
-                            title = taskTitle,
-                            description = taskDescription,
-                            time = taskTime,
-                            dates = taskDates.toList().toString(),
-                            reminder = taskReminder,
-                            priority = taskPriority
-                        )},
+                        onClick = {
+                            addTaskViewModel?.saveTask(
+                                title = taskTitle,
+                                description = taskDescription,
+                                time = taskTime,
+                                dates = taskDates.toList().toString(),
+                                reminder = taskReminder,
+                                priority = taskPriority
+                            )
+                            onDismissRequest()
+
+                        },
                         modifier = Modifier.wrapContentSize(),
                         shape = CircleShape,
                         contentPadding = PaddingValues(0.dp),

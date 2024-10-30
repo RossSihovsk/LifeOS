@@ -6,6 +6,6 @@ import com.project.lifeos.di.AppModule
 
 
 @Composable
-actual fun bottomBarNavigation(screenName: String, navigator: Navigator, appModule: AppModule) {
+actual fun bottomBarNavigation(bottomBarItems: BottomBarItems, navigator: Navigator, appModule: AppModule, onDoneorDissmiss: () -> Unit) {
 
 }

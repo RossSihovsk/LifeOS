@@ -30,11 +30,7 @@ fun App(appModule: AppModule) {
         ) {
             Navigator(HomeScreen(appModule)) { navigator ->
                 Scaffold(bottomBar = {
-                    val activeScreen = mutableStateOf(
-                        if (navigator.lastItem is HomeScreen) 0 else 1
-                    )
-
-                    BottomBar(navigator, activeScreen, appModule)
+                    BottomBar(navigator, appModule)
                 }) {
                     FadeTransition(navigator)
                 }
