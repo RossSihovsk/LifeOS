@@ -2,6 +2,8 @@ package com.project.lifeos.viewmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.project.lifeos.data.Priority
+import com.project.lifeos.data.Reminder
 import com.project.lifeos.data.Task
 import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.repository.TaskRepository
@@ -10,11 +12,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.Date
 
-class CreateTaskScreenViewModel(private val repository: TaskRepository) : ScreenModel {
+class AddTaskViewModel(private val repository: TaskRepository) : ScreenModel {
 
     // Flow of tasks for a specific date
     private val _tasks = MutableStateFlow<List<Task>>(emptyList())
@@ -26,13 +26,23 @@ class CreateTaskScreenViewModel(private val repository: TaskRepository) : Screen
         title: String,
         description: String? = null,
         time: Long? = null,
-        date: Long? = null,
-        status: TaskStatus = TaskStatus.PENDING
+        dates: String,
+        status: TaskStatus = TaskStatus.PENDING,
+        reminder: Reminder = Reminder.NONE,
+        priority: Priority = Priority.NO_PRIORITY
     ) {
         val currentTasks = _tasks.value.toMutableList()
 
         screenModelScope.launch(Dispatchers.Default) {
-            val task = validateAndCreateTask(title,description,time,date,status)
+            val task = Task(
+                title = title,
+                description = description,
+                time = time,
+                date = dates,
+                status = status,
+                priority = priority,
+                reminder = reminder
+            )
             currentTasks.add(task)
             repository.addTask(task)
         }

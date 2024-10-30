@@ -33,6 +33,10 @@ kotlin {
         androidMain.dependencies {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
+            implementation(compose.uiTooling)
+            implementation(compose.material3)
+
+            implementation("com.kizitonwose.calendar:compose:2.5.1")
 
             //SQLDelight Android
             implementation(libs.sqldelight.android)

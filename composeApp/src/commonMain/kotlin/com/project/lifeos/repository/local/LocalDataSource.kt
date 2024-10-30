@@ -19,7 +19,9 @@ class LocalDataSource(db: LifeOsDatabase) {
             description = task.description,
             time = task.time,
             date = task.date,
-            status = task.status.name
+            status = task.status.name,
+            reminder = task.reminder.name,
+            priority = task.priority.name
         )
     }
 

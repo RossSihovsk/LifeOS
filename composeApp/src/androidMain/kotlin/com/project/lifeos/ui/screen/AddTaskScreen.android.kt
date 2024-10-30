@@ -2,6 +2,7 @@ package com.project.lifeos.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,7 @@ import androidx.compose.material3.DatePickerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -34,13 +36,12 @@ import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -53,9 +54,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import co.touchlab.kermit.Logger
 import com.project.lifeos.R
-import com.project.lifeos.data.Task
 import com.project.lifeos.data.TaskStatus
-import com.project.lifeos.viewmodel.CreateTaskScreenViewModel
+import com.project.lifeos.viewmodel.AddTaskViewModel
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.Calendar
@@ -63,7 +63,13 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-actual fun AddTaskScreenContent(viewModel: CreateTaskScreenViewModel, logger: Logger) {
+actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
+    ModalBottomSheet(
+        onDismissRequest = {},
+
+    ) {
+        Box(modifier = Modifier.width(100.dp).height(300.dp).background(Color.Black))
+    }
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -78,7 +84,7 @@ actual fun AddTaskScreenContent(viewModel: CreateTaskScreenViewModel, logger: Lo
         val timePickerState = rememberTimePickerState()
         val showTimePicker = remember { mutableStateOf(false) }
 
-        var isMenuOpen by remember { mutableStateOf(false) }
+        val isMenuOpen = remember { mutableStateOf(false) }
         val timeFormatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
         val dateFormatter = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
 
@@ -129,7 +135,7 @@ actual fun AddTaskScreenContent(viewModel: CreateTaskScreenViewModel, logger: Lo
                     contentDescription = null
                 )
             }
-            Button(onClick = { isMenuOpen = true }) {
+            Button(onClick = { isMenuOpen.value = true }) {
                 Icon(
                     painterResource(id = R.drawable.add_activity),
                     contentDescription = null
@@ -150,7 +156,7 @@ actual fun AddTaskScreenContent(viewModel: CreateTaskScreenViewModel, logger: Lo
                 title = taskTitle.value,
                 description = taskDescription.value,
                 time = taskTime.value,
-                date = taskDate.value,
+                dates = "",
                 status = TaskStatus.PENDING
             )
         }

@@ -1,10 +1,9 @@
 package com.project.lifeos.di
 
-import com.lifeos.LifeOsDatabase
 import com.project.lifeos.repository.TaskRepository
 import com.project.lifeos.repository.local.LocalDataSource
 import com.project.lifeos.ui.view.calendar.CalendarDataSource
-import com.project.lifeos.viewmodel.CreateTaskScreenViewModel
+import com.project.lifeos.viewmodel.AddTaskViewModel
 import com.project.lifeos.viewmodel.HomeScreenViewModel
 
 
@@ -21,7 +20,7 @@ interface AppModule {
         repository = provideTaskRepository()
     )
 
-    fun provideAddTaskViewModel(): CreateTaskScreenViewModel = CreateTaskScreenViewModel(
+    fun provideAddTaskViewModel(): AddTaskViewModel = AddTaskViewModel(
         repository = provideTaskRepository()
     )
 }

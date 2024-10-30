@@ -3,15 +3,15 @@ agp = "8.1.4"
 android-compileSdk = "34"
 android-minSdk = "26"
 android-targetSdk = "34"
-androidx-activityCompose = "1.8.2"
-compose = "1.6.0"
-compose-compiler = "1.5.6"
-compose-plugin = "1.5.11"
-github-napier = "2.7.1"
+androidx-activityCompose = "1.9.0"
+compose = "1.6.6"
+compose-plugin = "1.6.1"
+composeVersion = "2.5.1"
 kermit = "2.0.3"
-kotlin = "1.9.21"
+kotlin = "1.9.23"
 voyagerNavigator = "1.0.0"
 sqldelight = "2.0.2"
+material3Android = "1.2.1"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
@@ -31,6 +31,7 @@ sqldelight-android = { module = "app.cash.sqldelight:android-driver", version.re
 sqldelight-native = { module = "app.cash.sqldelight:native-driver", version.ref = "sqldelight" }
 sqldelight-jvm = { module = "app.cash.sqldelight:sqlite-driver", version.ref = "sqldelight" }
 sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }
+androidx-material3-android = { group = "androidx.compose.material3", name = "material3-android", version.ref = "material3Android" }
 
 
 
