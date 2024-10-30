@@ -36,28 +36,6 @@ class HomeScreenViewModel(
     private val _uiState = MutableStateFlow<HomeUiState>(HomeUiState.Loading)
     val uiState = _uiState.asStateFlow()
 
-    init {
-        _uiState.value = HomeUiState.Loading
-        val date = currentDate // Should be done on UI thread
-
-        screenModelScope.launch(context = Dispatchers.IO) {
-            logger.i("Init")
-
-            val tasks = repository.getTasksForDay(date)
-            withContext(Dispatchers.Default) {
-                if (tasks.isEmpty()) {
-                    logger.i("Tasks are not present for $date")
-                    _uiState.value = HomeUiState.NoTaskForSelectedDate
-
-                } else {
-                    logger.i("${tasks.size} Tasks are present for $date")
-                    val (completed, uncompleted) = separateTasks(tasks)
-                    _uiState.value = HomeUiState.TaskUpdated(completedTasks = completed, unCompletedTasks = uncompleted)
-                }
-            }
-        }
-    }
-
     fun onDateClicked(date: CalendarUiModel.Date) {
         calendarUiModel = calendarUiModel.copy(
             selectedDate = date.copy(isSelected = true),
@@ -95,6 +73,28 @@ class HomeScreenViewModel(
         val updatedList = repository.getTasksForDay(currentDate)
         val (completed, uncompleted) = separateTasks(updatedList)
         _uiState.value = HomeUiState.TaskUpdated(completedTasks = completed, unCompletedTasks = uncompleted)
+    }
+
+    fun init() {
+        _uiState.value = HomeUiState.Loading
+        val date = currentDate // Should be done on UI thread
+
+        screenModelScope.launch(context = Dispatchers.IO) {
+            logger.i("Init")
+
+            val tasks = repository.getTasksForDay(date)
+            withContext(Dispatchers.Default) {
+                if (tasks.isEmpty()) {
+                    logger.i("Tasks are not present for $date")
+                    _uiState.value = HomeUiState.NoTaskForSelectedDate
+
+                } else {
+                    logger.i("${tasks.size} Tasks are present for $date")
+                    val (completed, uncompleted) = separateTasks(tasks)
+                    _uiState.value = HomeUiState.TaskUpdated(completedTasks = completed, unCompletedTasks = uncompleted)
+                }
+            }
+        }
     }
 }
 

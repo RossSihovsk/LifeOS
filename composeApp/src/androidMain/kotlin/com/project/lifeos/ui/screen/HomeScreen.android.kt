@@ -105,6 +105,8 @@ actual fun HomeScreenContent(
             }
         }
     }
+
+    viewModel.init()
 }
 
 @Composable
