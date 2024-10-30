@@ -45,20 +45,14 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
@@ -79,14 +73,16 @@ fun AddTaskBottomSheetView(addTaskViewModel: AddTaskViewModel) {
 
     var showBottomSheet by remember { mutableStateOf(true) }
     if (showBottomSheet) {
-        AddTaskView(addTaskViewModel)
+        AddTaskView(addTaskViewModel) {
+            showBottomSheet = false
+        }
     }
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun AddTaskView(addTaskViewModel: AddTaskViewModel?) {
+fun AddTaskView(addTaskViewModel: AddTaskViewModel?, onDismissRequest:() -> Unit) {
     val keyboardController = LocalSoftwareKeyboardController.current
     var taskTitle by remember { mutableStateOf("") }
     var taskDescription by remember { mutableStateOf("") }
@@ -106,11 +102,9 @@ fun AddTaskView(addTaskViewModel: AddTaskViewModel?) {
 
     ModalBottomSheet(
         containerColor = Color.White,
-        onDismissRequest = {
-        },
+        onDismissRequest =onDismissRequest,
         sheetState = sheetState
     ) {
-        val focusRequester = remember { FocusRequester() }
 
         Column(
             modifier = Modifier
@@ -119,7 +113,7 @@ fun AddTaskView(addTaskViewModel: AddTaskViewModel?) {
                 .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
         ) {
 
-            BasicTextField2(modifier = Modifier.fillMaxWidth().wrapContentHeight().focusRequester(focusRequester),
+            BasicTextField2(modifier = Modifier.fillMaxWidth().wrapContentHeight(),
                 value = taskTitle,
                 onValueChange = { taskTitle = it },
                 textStyle = TextStyle(
@@ -141,7 +135,7 @@ fun AddTaskView(addTaskViewModel: AddTaskViewModel?) {
                 }
             )
             LaunchedEffect(Unit) {
-                focusRequester.requestFocus()
+
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -346,5 +340,5 @@ fun TaskParameters(title: String, icon: ImageVector, onClick: () -> Unit) {
 @Composable
 @Preview
 fun ModalBottomSheetPreview() {
-    AddTaskView(null)
+    AddTaskView(null) {}
 }
