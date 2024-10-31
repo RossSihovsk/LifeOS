@@ -2,17 +2,20 @@ package com.project.lifeos.ui.screen
 
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -31,10 +34,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
 import com.project.lifeos.R
@@ -78,7 +85,7 @@ actual fun HomeScreenContent(
             }
 
             is HomeUiState.NoTaskForSelectedDate -> {
-                //Show default image instead
+                DisplayNoDataImage()
             }
 
             is HomeUiState.TaskUpdated -> {
@@ -107,6 +114,32 @@ actual fun HomeScreenContent(
     }
 
     viewModel.init()
+}
+
+@Composable
+fun DisplayNoDataImage() {
+    Column(modifier = Modifier
+        .padding(top = 60.dp, start = 20.dp, end = 20.dp)
+        .fillMaxWidth()
+        .fillMaxHeight(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Text(
+            text = "There is nothing TODO list for this day",
+            fontSize = 24.sp,
+            textAlign = TextAlign.Center,
+            fontWeight = FontWeight.Bold
+        )
+
+        Spacer(modifier = Modifier.height(60.dp))
+        Image(
+            painter = painterResource(id = R.drawable.no_data), // Load the image from the drawable folder
+            contentDescription = "No data available",
+            modifier = Modifier.fillMaxWidth(), // Adjust the size or any modifiers as needed
+            contentScale = ContentScale.Fit // Adjust content scaling if necessary
+        )
+    }
 }
 
 @Composable
