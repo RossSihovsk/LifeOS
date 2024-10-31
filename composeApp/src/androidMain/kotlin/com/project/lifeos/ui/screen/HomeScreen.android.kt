@@ -126,7 +126,7 @@ fun DisplayNoDataImage() {
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         Text(
-            text = "There is nothing TODO list for this day",
+            text = "There is nothing in TODO list for this day",
             fontSize = 24.sp,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold
