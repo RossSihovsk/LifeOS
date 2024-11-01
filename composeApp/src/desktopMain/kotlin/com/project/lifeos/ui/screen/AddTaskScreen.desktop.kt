@@ -69,11 +69,11 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
     ) {
         val taskTitle = remember { mutableStateOf("") }
         val taskDescription = remember { mutableStateOf("") }
-        var taskPriority by remember { mutableStateOf(Priority.NO_PRIORITY) }
+        //  var taskPriority by remember { mutableStateOf(Priority.NO_PRIORITY) }
 
         val taskTime = remember { mutableStateOf<Long?>(null) }
         val taskDate = remember { mutableStateOf<Long?>(null) }
-        var taskReminder by remember { mutableStateOf(Reminder.NONE) }
+        //var taskReminder by remember { mutableStateOf(Reminder.NONE) }
         // val taskDates = remember { mutableStateListOf<CalendarDay>() }
         val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -189,10 +189,11 @@ fun getFormattedTimeText(taskTime: MutableState<Long?>, timeFormatter: SimpleDat
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ShowTitleTextField(taskTitle: MutableState<String>, keyboardController: SoftwareKeyboardController?) {
-    TextField(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)
-        .onFocusChanged { focusState ->
-            if (!focusState.isFocused) keyboardController?.hide()
-        },
+    TextField(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp)
+            .onFocusChanged { focusState ->
+                if (!focusState.isFocused) keyboardController?.hide()
+            },
         shape = RoundedCornerShape(20.dp),
         value = taskTitle.value,
         onValueChange = { taskTitle.value = it },
@@ -279,8 +280,8 @@ fun TimePickerDialog(
             shape = MaterialTheme.shapes.extraLarge,
             tonalElevation = 6.dp,
             modifier = Modifier.width(IntrinsicSize.Min).height(IntrinsicSize.Min).background(
-                    shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surface
-                ),
+                shape = MaterialTheme.shapes.extraLarge, color = MaterialTheme.colorScheme.surface
+            ),
         ) {
             Column(
                 modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally
