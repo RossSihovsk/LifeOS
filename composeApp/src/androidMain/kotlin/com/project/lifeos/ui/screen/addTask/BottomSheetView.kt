@@ -48,6 +48,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -69,6 +70,8 @@ import com.project.lifeos.R
 import com.project.lifeos.data.Priority
 import com.project.lifeos.data.Reminder
 import com.project.lifeos.viewmodel.AddTaskViewModel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 val logger: Logger = Logger.withTag("AddTaskBottomSheetView")
 
@@ -76,6 +79,7 @@ val logger: Logger = Logger.withTag("AddTaskBottomSheetView")
 fun AddTaskBottomSheetView(addTaskViewModel: AddTaskViewModel, onDoneOrDismiss: () -> Unit) {
 
     var showBottomSheet by remember { mutableStateOf(true) }
+    logger.d("AddTaskBottomSheetView showBottomSheet $showBottomSheet")
     if (showBottomSheet) {
         AddTaskView(addTaskViewModel) {
             logger.i("Navigate back")
@@ -104,7 +108,6 @@ fun AddTaskView(addTaskViewModel: AddTaskViewModel?, onDismissRequest: () -> Uni
 
 
     val sheetState = rememberModalBottomSheetState()
-    TextFieldValue
 
     ModalBottomSheet(
         containerColor = Color.White,
