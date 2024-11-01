@@ -17,6 +17,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.observeOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -71,7 +73,7 @@ class HomeScreenViewModel(
     private fun updateTasksState(changeJob: Deferred<Unit>? = null) = screenModelScope.launch {
         changeJob?.onAwait
         val updatedList = repository.getTasksForDay(currentDate)
-        if (updatedList.isEmpty()){
+        if (updatedList.isEmpty()) {
             logger.d("No tasks for this day")
             _uiState.emit(HomeUiState.NoTaskForSelectedDate)
             return@launch
@@ -82,12 +84,23 @@ class HomeScreenViewModel(
     }
 
     fun init() {
+        logger.i("Init")
+
+        screenModelScope.launch {
+            repository.tasksFlow.collect { tasks ->
+                logger.d("tasksFlow collect")
+                if (tasks.isEmpty()) _uiState.emit(HomeUiState.NoTaskForSelectedDate)
+                else {
+                    val (completed, uncompleted) = separateTasks(tasks)
+                    _uiState.value = HomeUiState.TaskUpdated(completedTasks = completed, unCompletedTasks = uncompleted)
+                }
+            }
+        }
+
         _uiState.value = HomeUiState.Loading
         val date = currentDate // Should be done on UI thread
 
         screenModelScope.launch(context = Dispatchers.IO) {
-            logger.i("Init")
-
             val tasks = repository.getTasksForDay(date)
             withContext(Dispatchers.Default) {
                 if (tasks.isEmpty()) {

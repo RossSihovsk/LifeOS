@@ -25,7 +25,7 @@ class HomeScreen(private val appModule: AppModule) : Screen {
     @Composable
     override fun Content() {
         val navigator = LocalNavigator.currentOrThrow
-        val homeViewModel = rememberScreenModel { appModule.provideHomeScreenViewModel() }
+        val homeViewModel = rememberScreenModel { appModule.homeScreenViewModel }
         logger.i("Home Screen active")
         HomeScreenContent(viewModel = homeViewModel, navigator = navigator)
     }

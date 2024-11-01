@@ -7,20 +7,27 @@ import com.project.lifeos.viewmodel.AddTaskViewModel
 import com.project.lifeos.viewmodel.HomeScreenViewModel
 
 
-// Shared
-interface AppModule {
-    fun provideLocalDataSource(): LocalDataSource
-    fun provideCalendarDataSource(): CalendarDataSource = CalendarDataSource()
-    fun provideTaskRepository(): TaskRepository = TaskRepository(
-        localDataSource = provideLocalDataSource()
-    )
+/* This Module is shared across both apps
+You just have to provide LocalDataSource object that requires
+ a Database object that specific for each platform
+**/
+abstract class AppModule {
+    abstract val localDataSource: LocalDataSource
 
-    fun provideHomeScreenViewModel(): HomeScreenViewModel = HomeScreenViewModel(
-        calendarDataSource = provideCalendarDataSource(),
-        repository = provideTaskRepository()
-    )
+    private val calendarDataSource: CalendarDataSource
+        get() = CalendarDataSource()
 
-    fun provideAddTaskViewModel(): AddTaskViewModel = AddTaskViewModel(
-        repository = provideTaskRepository()
-    )
+    private val taskRepository: TaskRepository
+        get() = TaskRepository(localDataSource = localDataSource)
+
+    val homeScreenViewModel: HomeScreenViewModel by lazy {
+        HomeScreenViewModel(
+            calendarDataSource = calendarDataSource,
+            repository = taskRepository
+        )
+    }
+
+    val addTaskViewModel: AddTaskViewModel by lazy {
+        AddTaskViewModel(repository = taskRepository)
+    }
 }

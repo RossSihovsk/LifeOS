@@ -27,7 +27,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.currentRecomposeScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,18 +38,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cafe.adriel.voyager.core.registry.screenModule
 import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
 import com.project.lifeos.R
 import com.project.lifeos.data.Task
 import com.project.lifeos.data.TaskStatus
-import com.project.lifeos.di.AppModule
 import com.project.lifeos.ui.view.CalendarView
 import com.project.lifeos.utils.formatTime
 import com.project.lifeos.viewmodel.HomeScreenViewModel
@@ -112,8 +113,10 @@ actual fun HomeScreenContent(
             }
         }
     }
-
-    viewModel.init()
+    LaunchedEffect(Unit) {
+        // Call your ViewModel function
+        viewModel.init()
+    }
 }
 
 @Composable

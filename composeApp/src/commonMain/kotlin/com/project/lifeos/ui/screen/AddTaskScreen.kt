@@ -17,7 +17,7 @@ private val logger = Logger.withTag(TAG)
 class AddTaskScreen(private val appModule: AppModule) : Screen {
     @Composable
     override fun Content() {
-        val taskViewModel = rememberScreenModel { appModule.provideAddTaskViewModel() }
+        val taskViewModel = rememberScreenModel { appModule.addTaskViewModel }
         AddTaskScreenContent(taskViewModel, logger)
     }
 }
