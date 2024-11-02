@@ -86,7 +86,7 @@ class HomeScreenViewModel(
     fun init() {
         logger.i("Init")
 
-        screenModelScope.launch {
+        screenModelScope.launch(context = Dispatchers.IO)  {
             repository.tasksFlow.collect { tasks ->
                 logger.d("tasksFlow collect")
                 if (tasks.isEmpty()) _uiState.emit(HomeUiState.NoTaskForSelectedDate)
