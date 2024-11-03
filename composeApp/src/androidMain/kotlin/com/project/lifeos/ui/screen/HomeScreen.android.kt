@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -234,42 +235,58 @@ fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> U
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(start = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = taskDescription,
                     style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(0.8f)
                 )
+
+                //Reminder
+                if (task.reminder != Reminder.NONE) {
+                    Text(
+                        text = "Remind:",
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier
+                    )
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Image(
+                        painter = painterResource(id = getReminderImageId(task.reminder)), // Replace with your image resource
+                        contentDescription = "Reminder Icon", // Content description for accessibility
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
             }
         }
+
         //priority
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxWidth()
+                .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = task.priority.title,
                 style = MaterialTheme.typography.bodySmall,
                 color = task.priority.color,
-                modifier = Modifier
+                modifier = Modifier.weight(1f)
             )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            if (task.reminder != Reminder.NONE) {
-                Text(
-                    text = "Remind you ${task.reminder.title}",
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier
-                )
-            }
         }
-
     }
+}
 
+private fun getReminderImageId(reminder: Reminder): Int {
+    return when (reminder) {
+        Reminder.NONE -> throw IllegalArgumentException("Do not show if there is no reminder")
+        Reminder.ON_TIME -> R.drawable.on_time
+        Reminder.FIVE_MIN_BEFORE -> R.drawable.five_minutes_before
+        Reminder.THIRTY_MIN_BEFORE -> R.drawable.thirty_minites_before
+        Reminder.HOUR_BEFORE -> R.drawable.one_hour_before
+        Reminder.DAY_BEFORE -> R.drawable.one_day_before
+    }
 }
 
 @Composable
