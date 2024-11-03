@@ -25,20 +25,35 @@ enum class Reminder(val title: String) {
     FIVE_MIN_BEFORE("5 minutes early"),
     THIRTY_MIN_BEFORE("30 minutes early"),
     HOUR_BEFORE("1 hour early"),
-    DAY_BEFORE("1 day early")
+    DAY_BEFORE("1 day early");
+
+    companion object {
+        fun getFromTitle(title: String) = entries.toTypedArray()
+            .find { reminder -> reminder.title == title } ?: NONE
+    }
 }
 
 enum class Repeat(val title: String) {
     NONE("None"),
     WEEKLY("Weekly"),
     MONTHLY("Monthly"),
-    CUSTOM("Custom")
+    CUSTOM("Custom");
+
+    companion object {
+        fun getFromTitle(title: String) = Repeat.entries.toTypedArray()
+            .find { reminder -> reminder.title == title } ?: NONE
+    }
 }
 
 enum class Priority(val title: String, val color: Color) {
     HIGH("High priority", Color.Red),
     MEDIUM("Medium priority", Color.Yellow),
     LOW("Low priority", Color.Blue),
-    NO_PRIORITY("No priority", Color.Black),
+    NO_PRIORITY("No priority", Color.Black);
+
+    companion object {
+        fun getFromTitle(title: String) = Priority.entries.toTypedArray()
+            .find { reminder -> reminder.title == title } ?: NO_PRIORITY
+    }
 }
 

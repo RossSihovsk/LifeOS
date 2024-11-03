@@ -3,6 +3,8 @@ package com.project.lifeos.repository.local
 import co.touchlab.kermit.Logger
 import com.lifeos.LifeOsDatabase
 import com.lifeos.TaskEntity
+import com.project.lifeos.data.Priority
+import com.project.lifeos.data.Reminder
 import com.project.lifeos.data.Task
 import com.project.lifeos.data.TaskStatus
 
@@ -20,8 +22,8 @@ class LocalDataSource(db: LifeOsDatabase) {
             time = task.time,
             date = task.date,
             status = task.status.name,
-            reminder = task.reminder.name,
-            priority = task.priority.name
+            reminder = task.reminder.title,
+            priority = task.priority.title
         )
     }
 
@@ -50,7 +52,9 @@ class LocalDataSource(db: LifeOsDatabase) {
                     description = taskEntity.description,
                     time = taskEntity.time,
                     date = taskEntity.date,
-                    status = TaskStatus.valueOf(taskEntity.status)
+                    status = TaskStatus.valueOf(taskEntity.status),
+                    reminder = Reminder.getFromTitle(taskEntity.reminder),
+                    priority = Priority.getFromTitle(taskEntity.priority)
                 )
             )
         }
