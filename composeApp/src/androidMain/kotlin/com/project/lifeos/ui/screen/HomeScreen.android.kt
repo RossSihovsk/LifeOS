@@ -43,10 +43,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cafe.adriel.voyager.core.registry.screenModule
 import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
 import com.project.lifeos.R
+import com.project.lifeos.data.Reminder
 import com.project.lifeos.data.Task
 import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.ui.view.CalendarView
@@ -121,10 +121,11 @@ actual fun HomeScreenContent(
 
 @Composable
 fun DisplayNoDataImage() {
-    Column(modifier = Modifier
-        .padding(top = 60.dp, start = 20.dp, end = 20.dp)
-        .fillMaxWidth()
-        .fillMaxHeight(),
+    Column(
+        modifier = Modifier
+            .padding(top = 60.dp, start = 20.dp, end = 20.dp)
+            .fillMaxWidth()
+            .fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -198,29 +199,77 @@ fun TasksContent(tasks: List<Task>, onTaskStatusChanged: (status: Boolean, task:
 
 @Composable
 fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit) {
-    Row(
+    Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .wrapContentSize()
+            .padding(horizontal = 16.dp),
+        horizontalAlignment = Alignment.Start
     ) {
-        Checkbox(
-            checked = task.status == TaskStatus.DONE,
-            onCheckedChange = { status -> onTaskStatusChanged(status, task) }
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = task.title,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.weight(1f)
-        )
-        task.time?.let { time ->
-            Text(
-                text = formatTime(time),
-                style = MaterialTheme.typography.bodyMedium,
+        //Title and checkbox
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = task.status == TaskStatus.DONE,
+                onCheckedChange = { status -> onTaskStatusChanged(status, task) }
             )
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = task.title,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f)
+            )
+            task.time?.let { time ->
+                Text(
+                    text = formatTime(time),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
         }
+        //description
+        task.description?.let { taskDescription ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = taskDescription,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+        //priority
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+        ) {
+            Text(
+                text = task.priority.title,
+                style = MaterialTheme.typography.bodySmall,
+                color = task.priority.color,
+                modifier = Modifier
+            )
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            if (task.reminder != Reminder.NONE) {
+                Text(
+                    text = "Remind you ${task.reminder.title}",
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier
+                )
+            }
+        }
+
     }
+
 }
 
 @Composable
