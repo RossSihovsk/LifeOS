@@ -1,8 +1,12 @@
 package com.project.lifeos.ui.screen
 
 
+import android.app.ActivityManager.TaskDescription
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,13 +20,19 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -37,8 +47,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,6 +59,7 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
 import com.project.lifeos.R
+import com.project.lifeos.data.Priority
 import com.project.lifeos.data.Reminder
 import com.project.lifeos.data.Task
 import com.project.lifeos.data.TaskStatus
@@ -194,6 +207,7 @@ fun TasksContent(tasks: List<Task>, onTaskStatusChanged: (status: Boolean, task:
     LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 600.dp)) {
         items(tasks) { task ->
             TaskCard(task = task, onTaskStatusChanged = onTaskStatusChanged)
+            Spacer(modifier = Modifier.height(25.dp))
         }
     }
 }
@@ -206,77 +220,137 @@ fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> U
             .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        //Title and checkbox
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Checkbox(
-                checked = task.status == TaskStatus.DONE,
-                onCheckedChange = { status -> onTaskStatusChanged(status, task) }
-            )
-            Spacer(modifier = Modifier.width(8.dp))
+        MainInfoCard(task = task, onTaskStatusChanged = onTaskStatusChanged)
+        Spacer(modifier = Modifier.height(4.dp))
+        TaskCardDescription(description = task.description)
+        Spacer(modifier = Modifier.height(6.dp))
+        AdditionalInfoCard(task = task)
+    }
+}
+
+@Composable
+fun MainInfoCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Checkbox(
+            modifier = Modifier.height(20.dp),
+            checked = task.status == TaskStatus.DONE,
+            onCheckedChange = { status ->
+                onTaskStatusChanged(status, task)
+            }
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = task.title,
+            style = MaterialTheme.typography.bodyLarge,
+            fontSize = 20.sp,
+            modifier = Modifier.weight(1f)
+        )
+        task.time?.let { time ->
             Text(
-                text = task.title,
+                text = formatTime(time),
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.weight(1f)
-            )
-            task.time?.let { time ->
-                Text(
-                    text = formatTime(time),
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-            }
-        }
-        //description
-        task.description?.let { taskDescription ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = taskDescription,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.weight(0.8f)
-                )
-
-                //Reminder
-                if (task.reminder != Reminder.NONE) {
-                    Text(
-                        text = "Remind:",
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier
-                    )
-                    Spacer(modifier = Modifier.width(5.dp))
-                    Image(
-                        painter = painterResource(id = getReminderImageId(task.reminder)), // Replace with your image resource
-                        contentDescription = "Reminder Icon", // Content description for accessibility
-                        modifier = Modifier.size(30.dp)
-                    )
-                }
-            }
-        }
-
-        //priority
-        Row(
-            modifier = Modifier.fillMaxWidth()
-                .padding(vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = task.priority.title,
-                style = MaterialTheme.typography.bodySmall,
-                color = task.priority.color,
-                modifier = Modifier.weight(1f)
             )
         }
     }
 }
+
+@Composable
+fun TaskCardDescription(description: String?) {
+    description?.let { taskDescription ->
+        Text(
+            text = taskDescription,
+            style = MaterialTheme.typography.bodyMedium,
+            fontSize = 15.sp,
+            modifier = Modifier.padding(start = 16.dp)
+        )
+    }
+}
+
+@Composable
+fun AdditionalInfoCard(task: Task) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (task.reminder != Reminder.NONE) {
+            with(task.reminder) {
+                TaskInfoItem {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier
+                    )
+                    Image(
+                        painter = painterResource(id = getReminderImageId(this)), // Replace with your image resource
+                        contentDescription = "Reminder Icon", // Content description for accessibility
+                        modifier = Modifier.size(25.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(10.dp))
+            }
+        }
+
+        if (task.checkItems.isNotEmpty()) {
+            TaskInfoItem {
+                Text(
+                    text = "Check list:",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                Icon(
+                    modifier = Modifier.size(25.dp),
+                    imageVector = ImageVector.vectorResource(R.drawable.checked_items),
+                    contentDescription = null,
+                )
+            }
+
+            Spacer(modifier = Modifier.width(10.dp))
+        }
+
+        if (task.priority != Priority.NO_PRIORITY) {
+            with(task.priority) {
+                TaskInfoItem {
+                    Text(
+                        text = "Priority: ",
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontWeight = FontWeight.Bold,
+                        color = color
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun TaskInfoItem(content: @Composable () -> Unit) {
+    Card(
+        modifier = Modifier.background(Color.Transparent).wrapContentWidth().height(28.dp),
+        border = BorderStroke(1.dp, Color.LightGray),
+        shape = RoundedCornerShape(6.dp),
+        colors = CardDefaults.outlinedCardColors(containerColor = Color.Transparent),
+    ) {
+        Row(
+            modifier = Modifier.wrapContentSize().padding(horizontal = 3.dp, vertical = 3.dp),
+            horizontalArrangement = Arrangement.spacedBy(1.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            content()
+        }
+    }
+}
+
 
 private fun getReminderImageId(reminder: Reminder): Int {
     return when (reminder) {
