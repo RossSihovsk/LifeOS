@@ -4,14 +4,15 @@ CREATE TABLE IF NOT EXISTS TaskEntity (
   description TEXT,
   time INTEGER,
   date TEXT,
+  checkItems TEXT,
   status TEXT NOT NULL,
   reminder TEXT NOT NULL,
   priority TEXT NOT NULL
   );
 
   addNewTask:
-  INSERT OR REPLACE INTO TaskEntity(id, name, description, time, date, status, reminder, priority)
-  VALUES (?,?,?,?,?,?,?,?);
+  INSERT OR REPLACE INTO TaskEntity(id, name, description, time, date, checkItems, status, reminder, priority)
+  VALUES (?,?,?,?,?,?,?,?, ?);
 
   getTasksForDay:
   SELECT * FROM TaskEntity

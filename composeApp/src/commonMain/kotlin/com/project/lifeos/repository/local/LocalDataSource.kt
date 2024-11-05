@@ -7,6 +7,7 @@ import com.project.lifeos.data.Priority
 import com.project.lifeos.data.Reminder
 import com.project.lifeos.data.Task
 import com.project.lifeos.data.TaskStatus
+import com.project.lifeos.utils.convertToSingleLine
 
 class LocalDataSource(db: LifeOsDatabase) {
 
@@ -21,6 +22,7 @@ class LocalDataSource(db: LifeOsDatabase) {
             description = task.description,
             time = task.time,
             date = task.date,
+            checkItems = task.checkItems.convertToSingleLine(),
             status = task.status.name,
             reminder = task.reminder.title,
             priority = task.priority.title
@@ -52,6 +54,7 @@ class LocalDataSource(db: LifeOsDatabase) {
                     description = taskEntity.description,
                     time = taskEntity.time,
                     date = taskEntity.date,
+                    checkItems = validateToList(taskEntity.checkItems),
                     status = TaskStatus.valueOf(taskEntity.status),
                     reminder = Reminder.getFromTitle(taskEntity.reminder),
                     priority = Priority.getFromTitle(taskEntity.priority)
@@ -59,5 +62,15 @@ class LocalDataSource(db: LifeOsDatabase) {
             )
         }
         return taskList
+    }
+
+    private fun validateToList(checkItems: String?): List<String> {
+        checkItems?.let { checkItemsList ->
+            return checkItemsList.split(";").filter { value -> value.isNotBlank() }.map { value ->
+                value.trimStart()
+                value.trimEnd()
+            }.toList()
+        }
+        return emptyList()
     }
 }
