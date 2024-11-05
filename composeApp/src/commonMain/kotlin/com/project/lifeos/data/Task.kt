@@ -47,9 +47,9 @@ enum class Repeat(val title: String) {
 }
 
 enum class Priority(val title: String, val color: Color) {
-    HIGH("High priority", Color.Red),
-    MEDIUM("Medium priority", Color.Yellow),
-    LOW("Low priority", Color.Blue),
+    HIGH("High", Color.Red),
+    MEDIUM("Medium", Color(255,165,0)),
+    LOW("Low", Color.Blue),
     NO_PRIORITY("No priority", Color.Black);
 
     companion object {
