@@ -27,6 +27,7 @@ class AddTaskViewModel(private val repository: TaskRepository) : ScreenModel {
         description: String? = null,
         time: Long? = null,
         dates: String,
+        checkItems: List<String> = emptyList(),
         status: TaskStatus = TaskStatus.PENDING,
         reminder: Reminder = Reminder.NONE,
         priority: Priority = Priority.NO_PRIORITY
@@ -39,6 +40,7 @@ class AddTaskViewModel(private val repository: TaskRepository) : ScreenModel {
                 description = description,
                 time = time,
                 date = dates,
+                checkItems = checkItems,
                 status = status,
                 priority = priority,
                 reminder = reminder

@@ -257,11 +257,13 @@ fun AddTaskView(addTaskViewModel: AddTaskViewModel?, onDismissRequest: () -> Uni
                 if (taskTitle.isNotBlank()) {
                     Button(
                         onClick = {
+                            if (taskCheckItems.last() == "") taskCheckItems.removeLast()
                             addTaskViewModel?.saveTask(
                                 title = taskTitle,
                                 description = taskDescription,
                                 time = taskTime,
                                 dates = taskDates.toList().toString(),
+                                checkItems = taskCheckItems.toList(),
                                 reminder = taskReminder,
                                 priority = taskPriority
                             )

@@ -8,6 +8,7 @@ data class Task(
     val description: String? = null,
     val time: Long?,
     val date: String?,
+    val checkItems: List<String> = emptyList(),
     var status: TaskStatus = TaskStatus.PENDING,
     val reminder: Reminder = Reminder.NONE,
     val priority: Priority = Priority.NO_PRIORITY
