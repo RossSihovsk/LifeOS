@@ -37,6 +37,8 @@ class LocalDataSource(db: LifeOsDatabase) {
     fun getForSomeDay(date: String): List<Task> {
         val result = queries.getTasksForDay(date).executeAsList().mapToTaskList()
         logger.d("getForDay $date result: $result")
+        val result2 = queries.getAllData().executeAsList().mapToTaskList()
+        logger.d("getAllData result2: $result2")
         return result
     }
 
