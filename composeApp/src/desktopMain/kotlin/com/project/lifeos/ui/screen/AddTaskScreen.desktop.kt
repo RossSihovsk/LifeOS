@@ -15,7 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.DateRange
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -53,6 +53,7 @@ import com.project.lifeos.viewmodel.AddTaskViewModel
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.util.*
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -117,17 +118,14 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
                 )
             }
             Button(onClick = { showTimePicker.value = true }) {
-//                Icon(
-//                    painterResource(id = R.drawable.time),
-//                    contentDescription = null
-//                )
+                Icon(
+                    Icons.Rounded.Timer, contentDescription = null
+                )
             }
             Button(onClick = { isMenuOpen.value = true }) {
-//                Icon(
-//                    painterResource(id = R.drawable.add_activity),
-//                    contentDescription = null
-//                )
-//            }
+                Icon(
+                    Icons.Rounded.Flag, contentDescription = null
+                )
         }
         ShowTimePickerDialog(showTimePicker, timePickerState, taskTime)
         ShowDatePickerDialog(showDatePicker, datePickerState, taskDate)
@@ -191,7 +189,9 @@ fun ShowTitleTextField(taskTitle: MutableState<String>, keyboardController: Soft
         value = taskTitle.value,
         onValueChange = { taskTitle.value = it },
         label = { Text("What are you going to achieve") },
-       // leadingIcon = { Icon(painterResource(R.drawable.title), contentDescription = "Localized description") },
+       leadingIcon = { Icon(
+                          Icons.Rounded.Title, contentDescription = null
+                      ) },
         placeholder = { Text("Enter title for your task") },
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() })
@@ -208,7 +208,9 @@ fun ShowDescriptionTextField(taskDescription: MutableState<String>) {
         value = taskDescription.value,
         onValueChange = { taskDescription.value = it },
         label = { Text("Add some description about it") },
-       // leadingIcon = { Icon(painterResource(R.drawable.align), contentDescription = "Localized description") },
+        leadingIcon = { Icon(
+            Icons.Rounded.Description, contentDescription = null
+        ) },
         placeholder = { Text("Enter description for your task") }
     )
 }
