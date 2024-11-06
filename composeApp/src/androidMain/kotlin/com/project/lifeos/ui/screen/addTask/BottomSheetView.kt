@@ -48,7 +48,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,19 +58,18 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
 import com.kizitonwose.calendar.core.CalendarDay
+import com.kizitonwose.calendar.core.DayPosition
 import com.project.lifeos.R
 import com.project.lifeos.data.Priority
 import com.project.lifeos.data.Reminder
+import com.project.lifeos.utils.formatDateFromLocalDate
 import com.project.lifeos.viewmodel.AddTaskViewModel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 val logger: Logger = Logger.withTag("AddTaskBottomSheetView")
 
@@ -99,7 +97,7 @@ fun AddTaskView(addTaskViewModel: AddTaskViewModel?, onDismissRequest: () -> Uni
     var taskPriority by remember { mutableStateOf(Priority.NO_PRIORITY) }
     var taskTime by remember { mutableStateOf<Long?>(null) }
     var taskReminder by remember { mutableStateOf(Reminder.NONE) }
-    val taskDates = remember { mutableStateListOf<CalendarDay>() }
+    val taskDates = remember { mutableStateListOf(CalendarDay(date = LocalDate.now(), DayPosition.InDate)) }
 
     val taskCheckItems = remember { mutableStateListOf<String>() }
 
@@ -206,9 +204,6 @@ fun AddTaskView(addTaskViewModel: AddTaskViewModel?, onDismissRequest: () -> Uni
                         )
                     }
                 }
-                LaunchedEffect(Unit) {
-                    sheetState.expand()
-                }
             }
 
             LazyRow(
@@ -216,10 +211,18 @@ fun AddTaskView(addTaskViewModel: AddTaskViewModel?, onDismissRequest: () -> Uni
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 item {
-                    TaskParameters("Today", Icons.Default.DateRange) { showDatePicker = true }
+                    with(taskDates.toList()) {
+                        val text = if (isEmpty()) "Today"
+                        else formatDateFromLocalDate(first().date)
+                        TaskParameters(title = text, Icons.Default.DateRange) { showDatePicker = true }
+                    }
                 }
                 item {
-                    TaskParameters("Priority", ImageVector.vectorResource(R.drawable.flag)) {
+                    TaskParameters(
+                        "Priority",
+                        ImageVector.vectorResource(R.drawable.flag),
+                        textItemColor = taskPriority.color
+                    ) {
                         showPriorityPicker = !showPriorityPicker
                     }
                 }
@@ -232,7 +235,6 @@ fun AddTaskView(addTaskViewModel: AddTaskViewModel?, onDismissRequest: () -> Uni
                 item {
                     TaskParameters("Add photo", ImageVector.vectorResource(R.drawable.photo)) {}
                 }
-
             }
 
             HorizontalDivider(
@@ -292,6 +294,7 @@ fun AddTaskView(addTaskViewModel: AddTaskViewModel?, onDismissRequest: () -> Uni
             ) {
                 DateTimeSelectorView(
                     onDone = { dates, time, reminder ->
+                        taskDates.clear()
                         taskDates.addAll(dates)
                         taskTime = time
                         taskReminder = reminder
@@ -328,7 +331,7 @@ fun InputCheckItem(textFieldValue: String, onValueChange: (String) -> Unit) {
 
 
 @Composable
-fun TaskParameters(title: String, icon: ImageVector, onClick: () -> Unit) {
+fun TaskParameters(title: String, icon: ImageVector, textItemColor: Color = Color.Black, onClick: () -> Unit) {
     Card(
         modifier = Modifier.background(Color.Transparent).wrapContentSize(),
         border = BorderStroke(1.dp, Color.LightGray),
@@ -344,9 +347,10 @@ fun TaskParameters(title: String, icon: ImageVector, onClick: () -> Unit) {
             Icon(
                 modifier = Modifier.size(20.dp),
                 imageVector = icon,
-                contentDescription = null
+                contentDescription = null,
+                tint = textItemColor
             )
-            Text(text = title, style = MaterialTheme.typography.labelLarge)
+            Text(text = title, style = MaterialTheme.typography.labelLarge, color = textItemColor)
         }
     }
 }
