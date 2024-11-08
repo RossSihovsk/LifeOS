@@ -45,6 +45,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import co.touchlab.kermit.Logger
 import com.project.lifeos.data.Priority
+import com.project.lifeos.data.Reminder
 import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.viewmodel.AddTaskViewModel
 import java.text.SimpleDateFormat
@@ -141,7 +142,8 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
                 description = taskDescription.value,
                 time = taskTime.value,
                 dates = dateFormatter.format(Date(taskDate.value!!)),
-                status = TaskStatus.PENDING
+                status = TaskStatus.PENDING,
+                reminder = Reminder.DAY_BEFORE
             )
         }
     }

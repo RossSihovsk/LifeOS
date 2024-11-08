@@ -72,8 +72,7 @@ const val COMPLETED_TITLE = "Completed"
 
 @Composable
 actual fun HomeScreenContent(
-    viewModel: HomeScreenViewModel,
-    navigator: Navigator?
+    viewModel: HomeScreenViewModel, navigator: Navigator?
 ) {
     val logger = Logger.withTag("HomeScreenContent")
     val scrollState = rememberScrollState()
@@ -84,8 +83,7 @@ actual fun HomeScreenContent(
 
     Column(modifier = Modifier.fillMaxWidth().verticalScroll(state = scrollState)) {
 
-        CalendarView(
-            modifier = Modifier.fillMaxWidth(),
+        CalendarView(modifier = Modifier.fillMaxWidth(),
             calendarUiModel = viewModel.calendarUiModel,
             onDateClickListener = { date ->
                 viewModel.onDateClicked(date)
@@ -104,25 +102,17 @@ actual fun HomeScreenContent(
 
             is HomeUiState.TaskUpdated -> {
                 logger.i("UpdateTaskStatus")
-                TaskExpandedSection(
-                    title = TO_COMPLETE_TITLE,
-                    content = {
-                        TasksContent(state.unCompletedTasks, onTaskStatusChanged = viewModel::onTaskStatusChanged)
-                    },
-                    isExpanded = ongoingTasksExpanded.value, // Bind state to isExpanded
-                    onToggleClick = { ongoingTasksExpanded.value = !ongoingTasksExpanded.value }
-                )
+                TaskExpandedSection(title = TO_COMPLETE_TITLE, content = {
+                    TasksContent(state.unCompletedTasks, onTaskStatusChanged = viewModel::onTaskStatusChanged)
+                }, isExpanded = ongoingTasksExpanded.value, // Bind state to isExpanded
+                    onToggleClick = { ongoingTasksExpanded.value = !ongoingTasksExpanded.value })
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                TaskExpandedSection(
-                    title = COMPLETED_TITLE,
-                    content = {
-                        TasksContent(state.completedTasks, onTaskStatusChanged = viewModel::onTaskStatusChanged)
-                    },
-                    isExpanded = completedTasksExpanded.value, // Bind state to isExpanded
-                    onToggleClick = { completedTasksExpanded.value = !completedTasksExpanded.value }
-                )
+                TaskExpandedSection(title = COMPLETED_TITLE, content = {
+                    TasksContent(state.completedTasks, onTaskStatusChanged = viewModel::onTaskStatusChanged)
+                }, isExpanded = completedTasksExpanded.value, // Bind state to isExpanded
+                    onToggleClick = { completedTasksExpanded.value = !completedTasksExpanded.value })
             }
         }
     }
@@ -135,10 +125,7 @@ actual fun HomeScreenContent(
 @Composable
 fun DisplayNoDataImage() {
     Column(
-        modifier = Modifier
-            .padding(top = 60.dp, start = 20.dp, end = 20.dp)
-            .fillMaxWidth()
-            .fillMaxHeight(),
+        modifier = Modifier.padding(top = 60.dp, start = 20.dp, end = 20.dp).fillMaxWidth().fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -169,10 +156,7 @@ fun TaskExpandedSection(
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { onToggleClick() },
-            horizontalArrangement = Arrangement.Start
+            modifier = Modifier.fillMaxWidth().clickable { onToggleClick() }, horizontalArrangement = Arrangement.Start
         ) {
             Text(
                 text = title,
@@ -189,9 +173,7 @@ fun TaskExpandedSection(
             }
         }
         Divider(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
-            color = Color.LightGray,
-            thickness = 1.dp
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp), color = Color.LightGray, thickness = 1.dp
         )
         Spacer(modifier = Modifier.height(10.dp))
 
@@ -214,10 +196,7 @@ fun TasksContent(tasks: List<Task>, onTaskStatusChanged: (status: Boolean, task:
 @Composable
 fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit) {
     Column(
-        modifier = Modifier
-            .wrapContentSize()
-            .padding(horizontal = 16.dp),
-        horizontalAlignment = Alignment.Start
+        modifier = Modifier.wrapContentSize().padding(horizontal = 16.dp), horizontalAlignment = Alignment.Start
     ) {
         MainInfoCard(task = task, onTaskStatusChanged = onTaskStatusChanged)
         Spacer(modifier = Modifier.height(4.dp))
@@ -230,18 +209,13 @@ fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> U
 @Composable
 fun MainInfoCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier.fillMaxWidth().wrapContentHeight(), verticalAlignment = Alignment.CenterVertically
     ) {
-        Checkbox(
-            modifier = Modifier.height(20.dp),
+        Checkbox(modifier = Modifier.height(20.dp),
             checked = task.status == TaskStatus.DONE,
             onCheckedChange = { status ->
                 onTaskStatusChanged(status, task)
-            }
-        )
+            })
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = task.title,
@@ -273,18 +247,13 @@ fun TaskCardDescription(description: String?) {
 @Composable
 fun AdditionalInfoCard(task: Task) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier.fillMaxWidth().padding(start = 16.dp), verticalAlignment = Alignment.CenterVertically
     ) {
         if (task.reminder != Reminder.NONE) {
             with(task.reminder) {
                 TaskInfoItem {
                     Text(
-                        text = title,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier
+                        text = title, style = MaterialTheme.typography.bodyMedium, modifier = Modifier
                     )
                     Image(
                         painter = painterResource(id = getReminderImageId(this)), // Replace with your image resource
