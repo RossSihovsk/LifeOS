@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.sqlDelight)
+    kotlin("plugin.serialization") version "1.8.0"
 }
 
 kotlin {
@@ -36,10 +37,17 @@ kotlin {
             implementation(compose.uiTooling)
             implementation(compose.material3)
 
-            implementation("com.kizitonwose.calendar:compose:2.5.1")
+            implementation(libs.kizitonwose.calendar)
+
+            //Calendar view
+            implementation (libs.glide.compose)
 
             //SQLDelight Android
             implementation(libs.sqldelight.android)
+
+            //auth android
+            implementation (libs.androidx.credentials)
+            implementation (libs.googleid)
 
 //            Maybe I'll use it for creating calendar view for android, but basically, we have to find smth multiplatform
 //            implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.3.0")
@@ -73,6 +81,12 @@ kotlin {
 
             //SQLDelight Desktop
             implementation(libs.sqldelight.jvm)
+
+            //Auth Desktop
+            implementation(libs.google.auth.desktop)
+            implementation(libs.ktor.client.core)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.ktor.client.cio) // Ktor engine for desktop
         }
     }
 }
