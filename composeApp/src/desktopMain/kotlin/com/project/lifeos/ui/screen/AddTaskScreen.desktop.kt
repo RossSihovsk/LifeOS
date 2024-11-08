@@ -31,11 +31,7 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerState
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberTimePickerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
@@ -48,6 +44,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import co.touchlab.kermit.Logger
+import com.project.lifeos.data.Priority
 import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.viewmodel.AddTaskViewModel
 import java.text.SimpleDateFormat
@@ -66,11 +63,13 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
         val taskDescription = remember { mutableStateOf("") }
         val taskTime = remember { mutableStateOf<Long?>(null) }
         val taskDate = remember { mutableStateOf<Long?>(null) }
+        var taskPriority by remember { mutableStateOf(Priority.NO_PRIORITY) }
 
         val keyboardController = LocalSoftwareKeyboardController.current
 
         val timePickerState = rememberTimePickerState()
         val showTimePicker = remember { mutableStateOf(false) }
+        val showPriorityPicker = remember { mutableStateOf(false) }
 
         val isMenuOpen = remember { mutableStateOf(false) }
         val timeFormatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
@@ -122,14 +121,14 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
                     Icons.Rounded.Timer, contentDescription = null
                 )
             }
-            Button(onClick = { isMenuOpen.value = true }) {
+            Button(onClick = { showPriorityPicker.value = true }) {
                 Icon(
                     Icons.Rounded.Flag, contentDescription = null
                 )
         }
         ShowTimePickerDialog(showTimePicker, timePickerState, taskTime)
         ShowDatePickerDialog(showDatePicker, datePickerState, taskDate)
-
+        ShowPriorityPickerDialog(showPriorityPicker,timePickerState ,taskPriority)
 
         Spacer(modifier = Modifier.height(60.dp))
 
@@ -270,8 +269,27 @@ fun ShowDatePickerDialog(
         ) { DatePicker(state = datePickerState) }
     }
 }
-
-
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ShowPriorityPickerDialog(
+    showPriorityPicker: MutableState<Boolean>,
+    priorityPickerState: TimePickerState,
+    taskPriority: Priority
+){
+    if (showPriorityPicker.value) {
+    PriorityPickerDialog(
+            onCancel = { showPriorityPicker.value = false },
+            onConfirm = {
+           // val cal = Calendar.getInstance()
+            //cal.set(Calendar.HOUR_OF_DAY, priorityPickerState)
+          //  cal.set(Calendar.MINUTE, priorityPickerState)
+           // cal.isLenient = false
+           // taskPriority.value = 3
+            showPriorityPicker.value = false
+        },)
+    { //PriorityPicker(state = priorityPickerState)
+     }
+}}
 @Composable
 fun TimePickerDialog(
     title: String = "Select Time",
@@ -327,4 +345,58 @@ fun TimePickerDialog(
         }
     }}
 
+@Composable
+fun PriorityPickerDialog(
+    title: String = "Select Priority",
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit,
+    toggle: @Composable () -> Unit = {},
+    content: @Composable () -> Unit,
+){
+    Dialog(
+        onDismissRequest = onCancel,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false
+        ),
+    ) {
+        Surface(
+            shape = MaterialTheme.shapes.extraLarge,
+            tonalElevation = 6.dp,
+            modifier = Modifier
+                .width(IntrinsicSize.Min)
+                .height(IntrinsicSize.Min)
+                .background(
+                    shape = MaterialTheme.shapes.extraLarge,
+                    color = MaterialTheme.colorScheme.surface
+                ),
+        ) {
+            Column(
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 20.dp),
+                    text = title,
+                    style = MaterialTheme.typography.labelMedium
+                )
+                content()
+                Row(
+                    modifier = Modifier
+                        .height(40.dp)
+                        .fillMaxWidth()
+                ) {
+                    toggle()
+                    Spacer(modifier = Modifier.weight(1f))
+                    TextButton(
+                        onClick = onCancel
+                    ) { Text("Cancel") }
+                    TextButton(
+                        onClick = onConfirm
+                    ) { Text("OK") }
+                }
+            }
+        }
+    }}
 

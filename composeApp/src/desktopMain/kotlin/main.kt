@@ -14,7 +14,7 @@ import com.project.lifeos.App
 import com.project.lifeos.di.DesktopAppModule
 
 fun main() = application {
-        val state = rememberWindowState(position = WindowPosition(Alignment.Center), size = DpSize(568.dp, 900.dp))
+        val state = rememberWindowState(position = WindowPosition(Alignment.Center), size = DpSize(1120.dp, 900.dp))
         Window(onCloseRequest = ::exitApplication, title = "LifeOS", state = state )
          {
         val appModule = DesktopAppModule()

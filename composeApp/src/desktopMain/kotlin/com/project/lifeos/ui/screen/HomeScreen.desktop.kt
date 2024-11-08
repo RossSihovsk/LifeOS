@@ -20,6 +20,9 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.DirectionsCar
+import androidx.compose.material.icons.rounded.Flag
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -162,10 +165,9 @@ fun TaskExpandedSection(
             )
             Spacer(modifier = Modifier.weight(1f))
             IconButton(onClick = onToggleClick) {
-//                Icon(
-//                    painter = if (isExpanded) painterResource(id = R.drawable.expand_less) else painterResource(id = R.drawable.expand_more),
-//                    contentDescription = null
-//                )
+                Icon(
+                    Icons.Rounded.DirectionsCar, contentDescription = null
+                )
             }
         }
         Divider(
