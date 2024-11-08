@@ -5,6 +5,7 @@ import com.project.lifeos.repository.local.LocalDataSource
 import com.project.lifeos.ui.view.calendar.CalendarDataSource
 import com.project.lifeos.viewmodel.AddTaskViewModel
 import com.project.lifeos.viewmodel.HomeScreenViewModel
+import com.project.lifeos.viewmodel.UserViewModel
 
 
 /* This Module is shared across both apps
@@ -29,5 +30,9 @@ abstract class AppModule {
 
     val addTaskViewModel: AddTaskViewModel by lazy {
         AddTaskViewModel(repository = taskRepository)
+    }
+
+    val userViewModel: UserViewModel by lazy {
+        UserViewModel()
     }
 }
