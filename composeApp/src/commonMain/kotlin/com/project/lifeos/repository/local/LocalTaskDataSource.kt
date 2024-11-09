@@ -9,7 +9,7 @@ import com.project.lifeos.data.Task
 import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.utils.convertToSingleLine
 
-class LocalDataSource(db: LifeOsDatabase) {
+class LocalTaskDataSource(db: LifeOsDatabase) {
 
     private val logger = Logger.withTag("LocalDataSource")
     private val queries = db.taskEntityQueries

@@ -2,7 +2,8 @@ package com.project.lifeos.di
 
 import com.lifeos.LifeOsDatabase
 import com.project.lifeos.repository.local.DatabaseDriverFactory
-import com.project.lifeos.repository.local.LocalDataSource
+import com.project.lifeos.repository.local.LocalTaskDataSource
+import com.project.lifeos.repository.local.LocalUserDataSource
 
 class DesktopAppModule : AppModule() {
 
@@ -11,8 +12,9 @@ class DesktopAppModule : AppModule() {
             driver = DatabaseDriverFactory().create()
         )
     }
-    override val localDataSource: LocalDataSource
-        get() = LocalDataSource(db)
+    override val localTaskDataSource: LocalTaskDataSource
+        get() = LocalTaskDataSource(db)
 
-
+    override val localUserDataSource: LocalUserDataSource
+        get() = LocalUserDataSource(db)
 }
