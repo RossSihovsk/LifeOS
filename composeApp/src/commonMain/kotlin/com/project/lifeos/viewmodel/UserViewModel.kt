@@ -4,20 +4,30 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import co.touchlab.kermit.Logger
 import com.project.lifeos.data.User
+import com.project.lifeos.repository.TaskRepository
+import com.project.lifeos.repository.UserRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 val logger = Logger.withTag("UserViewModel")
 
-class UserViewModel : ScreenModel {
-    suspend fun signIn(
+class UserViewModel(private val userRepository: UserRepository, private val taskRepository: TaskRepository) :
+    ScreenModel {
+    private val _uiState = MutableStateFlow<ProfileUiState>(ProfileUiState.NoUsers)
+    val uiState = _uiState.asStateFlow()
+
+    private val _user = MutableStateFlow<User?>(null)
+    val user = _user.asStateFlow()
+    fun signIn(
         signInPerform: suspend () -> User?
     ) = screenModelScope.launch {
         logger.d("Init")
         signInPerform()?.let { user ->
             logger.d("User founded: $user")
-            //save user
+            userRepository.saveNewUser(user)
+            _user.emit(userRepository.getLastUser())
             _uiState.emit(ProfileUiState.UserFounded(user))
             return@launch
         }
@@ -27,10 +37,21 @@ class UserViewModel : ScreenModel {
 
     fun signOut() = screenModelScope.launch {
         _uiState.emit(ProfileUiState.NoUsers)
+        userRepository.signOut()
+        _user.emit(null)
     }
 
-    private val _uiState = MutableStateFlow<ProfileUiState>(ProfileUiState.NoUsers)
-    val uiState = _uiState.asStateFlow()
+    fun getLastSignedUser() = screenModelScope.launch(Dispatchers.IO) {
+        logger.d("getLastSignedUser")
+        userRepository.getLastUser()?.let { user ->
+            logger.d("User founded: $user")
+            _user.emit(user)
+            _uiState.emit(ProfileUiState.UserFounded(user))
+            return@launch
+        }
+        logger.d("User was not founded")
+        _uiState.emit(ProfileUiState.NoUsers)
+    }
 
 
     companion object {
