@@ -25,7 +25,8 @@ class LocalTaskDataSource(db: LifeOsDatabase) {
             checkItems = task.checkItems.convertToSingleLine(),
             status = task.status.name,
             reminder = task.reminder.title,
-            priority = task.priority.title
+            priority = task.priority.title,
+            userMail = task.userEmail
         )
     }
 
@@ -34,14 +35,21 @@ class LocalTaskDataSource(db: LifeOsDatabase) {
         queries.updateStatus(status.name, id)
     }
 
-    fun getForSomeDay(date: String): List<Task> {
-        val result = queries.getTasksForDay(date).executeAsList().mapToTaskList()
+    fun getForSomeDay(date: String, userEmail: String?): List<Task> {
+        val result = queries.getTasksForDay(
+            date = date, userMail = userEmail
+        ).executeAsList().mapToTaskList()
         logger.d("getForDay $date result: $result")
         return result
     }
 
     fun delete(id: Long) {
         queries.delete(id = id)
+    }
+
+    fun deleteAllForUser(userEmail: String) {
+        logger.w("Delete all tasks for user: $userEmail")
+        queries.deleteAllForUser(userEmail)
     }
 
     private fun List<TaskEntity>.mapToTaskList(): List<Task> {

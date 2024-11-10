@@ -21,8 +21,14 @@ class TaskRepository(private val localTaskDataSource: LocalTaskDataSource) {
         logger.d("Init")
     }
 
-    fun getTasksForDay(day: String): List<Task> {
-        return localTaskDataSource.getForSomeDay(day)
+    fun getTasksForDay(day: String, userMail: String?): List<Task> {
+        logger.d("getTasksForDay day: $day, user: $userMail")
+        return localTaskDataSource.getForSomeDay(day, userMail)
+    }
+
+    fun deleteAllForUser(userMail: String) {
+        logger.d("deleteAllForUser: $userMail")
+        localTaskDataSource.deleteAllForUser(userMail)
     }
 
     fun addTask(task: Task) {

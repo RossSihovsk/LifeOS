@@ -41,6 +41,13 @@ class UserViewModel(private val userRepository: UserRepository, private val task
         _user.emit(null)
     }
 
+    fun deleteAllDataForUser(userMail: String){
+        screenModelScope.launch {
+            logger.d("deleteAllDataForUser: $userMail")
+            taskRepository.deleteAllForUser(userMail)
+        }
+    }
+
     fun getLastSignedUser() = screenModelScope.launch(Dispatchers.IO) {
         logger.d("getLastSignedUser")
         userRepository.getLastUser()?.let { user ->
