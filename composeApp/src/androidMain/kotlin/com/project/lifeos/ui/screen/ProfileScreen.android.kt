@@ -47,6 +47,7 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.project.lifeos.R
 import com.project.lifeos.data.User
+import com.project.lifeos.ui.view.makeToastMessage
 import com.project.lifeos.viewmodel.ProfileUiState
 import com.project.lifeos.viewmodel.UserViewModel
 import com.project.lifeos.viewmodel.UserViewModel.Companion.WEB_CLIENT_ID
@@ -121,12 +122,17 @@ actual fun ProfileScreenContent(
             }
 
             is ProfileUiState.UserFounded -> {
-                UserFoundedView(state.user) {
-                    coroutineScope.launch {
-                        credentialManager.clearCredentialState(ClearCredentialStateRequest())
-                        viewModel.signOut()
+                UserFoundedView(user = state.user,
+                    onClickSignOut = {
+                        coroutineScope.launch {
+                            credentialManager.clearCredentialState(ClearCredentialStateRequest())
+                            viewModel.signOut()
+                        }
+                    }, onClickDeleteUserData = {
+                        viewModel.deleteAllDataForUser(userMail = state.user.mail)
+                        makeToastMessage("All Data were deleted!", context)
                     }
-                }
+                )
             }
         }
     }
@@ -134,7 +140,7 @@ actual fun ProfileScreenContent(
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun UserFoundedView(user: User, onClickSignOut: () -> Unit) {
+fun UserFoundedView(user: User, onClickSignOut: () -> Unit, onClickDeleteUserData: () -> Unit) {
     ProfileInfo(user)
 
     Spacer(modifier = Modifier.height(20.dp))
@@ -150,7 +156,7 @@ fun UserFoundedView(user: User, onClickSignOut: () -> Unit) {
 
     Spacer(modifier = Modifier.height(60.dp))
 
-    SignInBox(onClickSignIn = onClickSignOut) {
+    AccountInteractionBox(onClickSignIn = onClickDeleteUserData) {
         Row(modifier = Modifier.wrapContentSize(), horizontalArrangement = Arrangement.Center) {
             Icon(
                 painter = painterResource(R.drawable.delete),
@@ -170,7 +176,7 @@ fun UserFoundedView(user: User, onClickSignOut: () -> Unit) {
 
     Spacer(modifier = Modifier.height(20.dp))
 
-    SignInBox(onClickSignIn = onClickSignOut) {
+    AccountInteractionBox(onClickSignIn = onClickSignOut) {
 
         Row(modifier = Modifier.wrapContentSize(), horizontalArrangement = Arrangement.Center) {
             Icon(
@@ -242,7 +248,7 @@ fun NoUserView(onClickSignIn: () -> Unit) {
 
     Spacer(modifier = Modifier.height(40.dp))
 
-    SignInBox(onClickSignIn = onClickSignIn) {
+    AccountInteractionBox(onClickSignIn = onClickSignIn) {
         Row(modifier = Modifier.wrapContentSize(), horizontalArrangement = Arrangement.Center) {
             Icon(
                 painter = painterResource(R.drawable.google),
@@ -259,7 +265,7 @@ fun NoUserView(onClickSignIn: () -> Unit) {
 }
 
 @Composable
-fun SignInBox(onClickSignIn: () -> Unit, content: @Composable () -> Unit) {
+fun AccountInteractionBox(onClickSignIn: () -> Unit, content: @Composable () -> Unit) {
     Card(
         modifier = Modifier.background(Color.Transparent).wrapContentSize(),
         onClick = onClickSignIn,

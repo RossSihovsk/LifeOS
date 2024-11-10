@@ -7,6 +7,7 @@ import com.project.lifeos.data.Reminder
 import com.project.lifeos.data.Task
 import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.repository.TaskRepository
+import com.project.lifeos.repository.UserRepository
 import com.project.lifeos.utils.convertLongToStringDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,7 +15,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Date
 
-class AddTaskViewModel(private val repository: TaskRepository) : ScreenModel {
+class AddTaskViewModel(
+    private val taskRepository: TaskRepository,
+    private val userRepository: UserRepository
+) : ScreenModel {
 
     // Flow of tasks for a specific date
     private val _tasks = MutableStateFlow<List<Task>>(emptyList())
@@ -43,10 +47,11 @@ class AddTaskViewModel(private val repository: TaskRepository) : ScreenModel {
                 checkItems = checkItems,
                 status = status,
                 priority = priority,
-                reminder = reminder
+                reminder = reminder,
+                userEmail = userRepository.getLastUser()?.mail
             )
             currentTasks.add(task)
-            repository.addTask(task)
+            taskRepository.addTask(task)
         }
     }
 

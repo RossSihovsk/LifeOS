@@ -30,15 +30,22 @@ abstract class AppModule {
     val homeScreenViewModel: HomeScreenViewModel by lazy {
         HomeScreenViewModel(
             calendarDataSource = calendarDataSource,
-            repository = taskRepository
+            taskRepository = taskRepository,
+            userRepository = userRepository
         )
     }
 
     val addTaskViewModel: AddTaskViewModel by lazy {
-        AddTaskViewModel(repository = taskRepository)
+        AddTaskViewModel(
+            taskRepository = taskRepository,
+            userRepository = userRepository
+        )
     }
 
     val userViewModel: UserViewModel by lazy {
-        UserViewModel(userRepository = userRepository, taskRepository = taskRepository)
+        UserViewModel(
+            userRepository = userRepository,
+            taskRepository = taskRepository
+        )
     }
 }

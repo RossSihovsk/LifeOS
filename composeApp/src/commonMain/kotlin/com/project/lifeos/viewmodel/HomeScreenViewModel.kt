@@ -9,6 +9,7 @@ import co.touchlab.kermit.Logger
 import com.project.lifeos.data.Task
 import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.repository.TaskRepository
+import com.project.lifeos.repository.UserRepository
 import com.project.lifeos.ui.view.calendar.CalendarDataSource
 import com.project.lifeos.ui.view.calendar.CalendarUiModel
 import com.project.lifeos.utils.convertLocalDateToString
@@ -25,7 +26,8 @@ import kotlinx.coroutines.withContext
 
 class HomeScreenViewModel(
     private val calendarDataSource: CalendarDataSource,
-    private val repository: TaskRepository
+    private val taskRepository: TaskRepository,
+    private val userRepository: UserRepository
 
 ) : ScreenModel {
     private val logger = Logger.withTag("HomeScreenViewModel")
@@ -58,7 +60,7 @@ class HomeScreenViewModel(
         if (status && task.status != TaskStatus.PENDING) return
 
         val updateJob = screenModelScope.async {
-            repository.onTaskStatusChanged(status, task)
+            taskRepository.onTaskStatusChanged(status, task)
         }
 
         updateTasksState(updateJob)
@@ -72,7 +74,9 @@ class HomeScreenViewModel(
 
     private fun updateTasksState(changeJob: Deferred<Unit>? = null) = screenModelScope.launch {
         changeJob?.onAwait
-        val updatedList = repository.getTasksForDay(currentDate)
+        val updatedList = taskRepository.getTasksForDay(
+            day = currentDate, userMail = userRepository.getLastUser()?.mail
+        )
         if (updatedList.isEmpty()) {
             logger.d("No tasks for this day")
             _uiState.emit(HomeUiState.NoTaskForSelectedDate)
@@ -86,8 +90,8 @@ class HomeScreenViewModel(
     fun init() {
         logger.i("Init")
 
-        screenModelScope.launch(context = Dispatchers.IO)  {
-            repository.tasksFlow.collect { tasks ->
+        screenModelScope.launch(context = Dispatchers.IO) {
+            taskRepository.tasksFlow.collect { tasks ->
                 logger.d("tasksFlow collect")
                 if (tasks.isEmpty()) _uiState.emit(HomeUiState.NoTaskForSelectedDate)
                 else {
@@ -101,7 +105,7 @@ class HomeScreenViewModel(
         val date = currentDate // Should be done on UI thread
 
         screenModelScope.launch(context = Dispatchers.IO) {
-            val tasks = repository.getTasksForDay(date)
+            val tasks = taskRepository.getTasksForDay(day = date, userMail = userRepository.getLastUser()?.mail)
             withContext(Dispatchers.Default) {
                 if (tasks.isEmpty()) {
                     logger.i("Tasks are not present for $date")

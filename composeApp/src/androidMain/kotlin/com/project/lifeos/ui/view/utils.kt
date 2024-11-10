@@ -1,8 +1,9 @@
 package com.project.lifeos.ui.view
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.material3.Icon
-
 
 
 import androidx.compose.foundation.LocalIndication
@@ -134,31 +135,36 @@ private fun CalendarLayoutInfo.firstMostVisibleMonth(viewportPercent: Float = 50
 
 
 fun recalculateDays(firstDay: CalendarDay, repeat: Repeat): List<CalendarDay> {
-    Log.d("JustForTest","recalculateDays")
+    Log.d("JustForTest", "recalculateDays")
     return when (repeat) {
         Repeat.NONE -> listOf(firstDay)
         Repeat.WEEKLY -> {
             val list = mutableListOf(firstDay)
-            var lastDay = CalendarDay(firstDay.date.plusWeeks(1),DayPosition.MonthDate)
+            var lastDay = CalendarDay(firstDay.date.plusWeeks(1), DayPosition.MonthDate)
             list.add(lastDay)
             for (i in 1..6) {
-                lastDay = CalendarDay(lastDay.date.plusWeeks(1),lastDay.position)
+                lastDay = CalendarDay(lastDay.date.plusWeeks(1), lastDay.position)
                 list.add(lastDay)
             }
-            Log.d("JustForTest","$list")
+            Log.d("JustForTest", "$list")
             list
         }
+
         Repeat.MONTHLY -> {
             val list = mutableListOf(firstDay)
-            var lastDay = CalendarDay(firstDay.date.plusMonths(1),DayPosition.MonthDate)
+            var lastDay = CalendarDay(firstDay.date.plusMonths(1), DayPosition.MonthDate)
             list.add(lastDay)
             for (i in 1..6) {
-                lastDay = CalendarDay(lastDay.date.plusMonths(1),lastDay.position)
+                lastDay = CalendarDay(lastDay.date.plusMonths(1), lastDay.position)
                 list.add(lastDay)
             }
 
             list
         }
+
         Repeat.CUSTOM -> listOf(firstDay)
     }
 }
+
+fun makeToastMessage(text: String, context: Context) = Toast.makeText(context, text, Toast.LENGTH_LONG).show()
+
