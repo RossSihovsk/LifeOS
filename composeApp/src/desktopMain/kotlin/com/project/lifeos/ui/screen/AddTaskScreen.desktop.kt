@@ -64,7 +64,7 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
         val taskDescription = remember { mutableStateOf("") }
         val taskTime = remember { mutableStateOf<Long?>(null) }
         val taskDate = remember { mutableStateOf<Long?>(null) }
-        var taskPriority by remember { mutableStateOf(Priority.NO_PRIORITY) }
+        val taskPriority by remember { mutableStateOf(Priority.NO_PRIORITY) }
 
         val keyboardController = LocalSoftwareKeyboardController.current
 
