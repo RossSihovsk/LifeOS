@@ -6,6 +6,7 @@ import co.touchlab.kermit.Logger
 import com.project.lifeos.di.AppModule
 import com.project.lifeos.ui.screen.GoalScreen
 import com.project.lifeos.ui.screen.HomeScreen
+import com.project.lifeos.ui.screen.ProfileScreen
 import com.project.lifeos.ui.screen.addTask.AddTaskBottomSheetView
 import com.project.lifeos.utils.safePush
 
@@ -32,6 +33,6 @@ actual fun bottomBarNavigation(
 
         BottomBarItems.ADD_TASK -> AddTaskBottomSheetView(viewModel, onDoneOrDismiss)
         BottomBarItems.STATS -> {}
-        BottomBarItems.PROFILE -> {}
+        BottomBarItems.PROFILE -> {navigator.safePush(ProfileScreen(appModule))}
     }
 }

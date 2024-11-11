@@ -17,11 +17,17 @@ fun formatTime(timeInMillis: Long): String = timeFormatter.format(Date(timeInMil
 fun convertLongToStringDate(date: Long): String = dateFormatter.format(date)
 fun convertLocalDateToString(localDate: LocalDate): String = localDate.format(dateTimeFormatter)
 
-//fun convertStringDateToLong(date: String): Long = dateFormatter.parse(date).toInstant().toEpochMilli()
-//
-//fun convertLocalDateTimeToLong(date: LocalDateTime): Long {
-//
-//    val zdt = ZonedDateTime.of(date, ZoneId.systemDefault())
-//
-//    return zdt.toInstant().toEpochMilli()
-//}
+//Print either today/tomorrow or oct 30 for example
+fun formatDateFromLocalDate(date: LocalDate): String {
+    // Convert Long timestamp to LocalDate
+    // Get today's and tomorrow's date
+    val today = LocalDate.now()
+    val tomorrow = today.plusDays(1)
+
+    // Compare and format the date accordingly
+    return when (date) {
+        today -> "Today"
+        tomorrow -> "Tomorrow"
+        else -> date.format(DateTimeFormatter.ofPattern("dd MMM")) // Example: "30 Oct"
+    }
+}

@@ -11,7 +11,8 @@ data class Task(
     val checkItems: List<String> = emptyList(),
     var status: TaskStatus = TaskStatus.PENDING,
     val reminder: Reminder = Reminder.NONE,
-    val priority: Priority = Priority.NO_PRIORITY
+    val priority: Priority = Priority.NO_PRIORITY,
+    val userEmail: String? = null
 )
 
 enum class TaskStatus {
@@ -48,7 +49,7 @@ enum class Repeat(val title: String) {
 
 enum class Priority(val title: String, val color: Color) {
     HIGH("High", Color.Red),
-    MEDIUM("Medium", Color(255,165,0)),
+    MEDIUM("Medium", Color(255, 165, 0)),
     LOW("Low", Color.Blue),
     NO_PRIORITY("No priority", Color.Black);
 

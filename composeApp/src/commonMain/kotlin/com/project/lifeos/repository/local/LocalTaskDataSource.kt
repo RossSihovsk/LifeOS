@@ -9,7 +9,7 @@ import com.project.lifeos.data.Task
 import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.utils.convertToSingleLine
 
-class LocalDataSource(db: LifeOsDatabase) {
+class LocalTaskDataSource(db: LifeOsDatabase) {
 
     private val logger = Logger.withTag("LocalDataSource")
     private val queries = db.taskEntityQueries
@@ -25,7 +25,8 @@ class LocalDataSource(db: LifeOsDatabase) {
             checkItems = task.checkItems.convertToSingleLine(),
             status = task.status.name,
             reminder = task.reminder.title,
-            priority = task.priority.title
+            priority = task.priority.title,
+            userMail = task.userEmail
         )
     }
 
@@ -34,8 +35,10 @@ class LocalDataSource(db: LifeOsDatabase) {
         queries.updateStatus(status.name, id)
     }
 
-    fun getForSomeDay(date: String): List<Task> {
-        val result = queries.getTasksForDay(date).executeAsList().mapToTaskList()
+    fun getForSomeDay(date: String, userEmail: String?): List<Task> {
+        val result = queries.getTasksForDay(
+            date = date, userMail = userEmail
+        ).executeAsList().mapToTaskList()
         logger.d("getForDay $date result: $result")
         val result2 = queries.getAllData().executeAsList().mapToTaskList()
         logger.d("getAllData result2: $result2")
@@ -44,6 +47,11 @@ class LocalDataSource(db: LifeOsDatabase) {
 
     fun delete(id: Long) {
         queries.delete(id = id)
+    }
+
+    fun deleteAllForUser(userEmail: String) {
+        logger.w("Delete all tasks for user: $userEmail")
+        queries.deleteAllForUser(userEmail)
     }
 
     private fun List<TaskEntity>.mapToTaskList(): List<Task> {

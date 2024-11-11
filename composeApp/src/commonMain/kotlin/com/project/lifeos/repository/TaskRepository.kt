@@ -3,12 +3,11 @@ package com.project.lifeos.repository
 import co.touchlab.kermit.Logger
 import com.project.lifeos.data.Task
 import com.project.lifeos.data.TaskStatus
-import com.project.lifeos.repository.local.LocalDataSource
-import com.project.lifeos.utils.generateTasks
+import com.project.lifeos.repository.local.LocalTaskDataSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class TaskRepository(private val localDataSource: LocalDataSource) {
+class TaskRepository(private val localTaskDataSource: LocalTaskDataSource) {
     // Initialize a MutableStateFlow to hold a list
     private val localList = emptyList<Task>().toMutableList()
     private val _tasksFlow = MutableStateFlow<List<Task>>(emptyList())
@@ -22,13 +21,19 @@ class TaskRepository(private val localDataSource: LocalDataSource) {
         logger.d("Init")
     }
 
-    fun getTasksForDay(day: String): List<Task> {
-        return localDataSource.getForSomeDay(day)
+    fun getTasksForDay(day: String, userMail: String?): List<Task> {
+        logger.d("getTasksForDay day: $day, user: $userMail")
+        return localTaskDataSource.getForSomeDay(day, userMail)
+    }
+
+    fun deleteAllForUser(userMail: String) {
+        logger.d("deleteAllForUser: $userMail")
+        localTaskDataSource.deleteAllForUser(userMail)
     }
 
     fun addTask(task: Task) {
         logger.d("add Task $task")
-        localDataSource.insert(task)
+        localTaskDataSource.insert(task)
         localList.add(task)
         logger.d("try to emit")
         _tasksFlow.tryEmit(localList)
@@ -41,7 +46,7 @@ class TaskRepository(private val localDataSource: LocalDataSource) {
 
 
 
-            localDataSource.updateStatus(task.id, if (status) TaskStatus.DONE else TaskStatus.PENDING)
+            localTaskDataSource.updateStatus(task.id, if (status) TaskStatus.DONE else TaskStatus.PENDING)
             _tasksFlow.tryEmit(localList)
             return
         }
