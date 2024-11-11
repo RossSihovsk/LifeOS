@@ -7,6 +7,10 @@ import androidx.compose.ui.window.rememberWindowState
 import com.project.lifeos.App
 import com.project.lifeos.di.DesktopAppModule
 import androidx.compose.ui.window.WindowPosition
+import api.GoogleAuthClient
+import kotlinx.coroutines.runBlocking
+import java.awt.Desktop
+import java.net.URI
 
 fun main() = application {
         val state = rememberWindowState(position = WindowPosition(Alignment.Center), size = DpSize(1120.dp, 900.dp))
@@ -15,15 +19,8 @@ fun main() = application {
         val appModule = DesktopAppModule()
         App(appModule)
 
-//      Desktop example of How to get the auth token
-//        runBlocking {
-//            val desktop = Desktop.getDesktop()
-//            val client = GoogleAuthClient(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
-//            println(client.authorizationUrl)
-//            desktop.browse(URI(client.authorizationUrl))
-//            val res = client.waitForOAuthIdToken()
-//            println(res)
-//        }
+            //Desktop example of How to get the auth token
+
     }
 }
 

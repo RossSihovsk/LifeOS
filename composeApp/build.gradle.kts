@@ -81,6 +81,7 @@ kotlin {
             implementation(compose.materialIconsExtended)
             //SQLDelight Desktop
             implementation(libs.sqldelight.jvm)
+            implementation(libs.java.jwt)
 
             //Auth Desktop
             implementation(libs.google.auth.desktop)

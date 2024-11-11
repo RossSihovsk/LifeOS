@@ -11,6 +11,7 @@ credentials = "1.3.0"
 githubCompose = "1.0.0-beta01"
 googleAuthDesktop = "1.1"
 googleid = "1.1.1"
+javaJwt = "3.18.2"
 kermit = "2.0.3"
 kizitonwoseCompose = "2.5.1"
 kotlin = "1.9.23"
@@ -23,6 +24,7 @@ material3Android = "1.2.1"
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
+java-jwt = { module = "com.auth0:java-jwt", version.ref = "javaJwt" }
 kizitonwose_calendar = { module = "com.kizitonwose.calendar:compose", version.ref = "kizitonwoseCompose" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }

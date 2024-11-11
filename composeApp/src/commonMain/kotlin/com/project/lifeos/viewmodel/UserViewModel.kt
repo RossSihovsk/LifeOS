@@ -22,7 +22,7 @@ class UserViewModel(private val userRepository: UserRepository, private val task
     val user = _user.asStateFlow()
     fun signIn(
         signInPerform: suspend () -> User?
-    ) = screenModelScope.launch {
+    ) = screenModelScope.launch(Dispatchers.IO) {
         logger.d("Init")
         signInPerform()?.let { user ->
             logger.d("User founded: $user")
@@ -35,14 +35,14 @@ class UserViewModel(private val userRepository: UserRepository, private val task
         _uiState.emit(ProfileUiState.NoUsers)
     }
 
-    fun signOut() = screenModelScope.launch {
+    fun signOut() = screenModelScope.launch(Dispatchers.IO) {
         _uiState.emit(ProfileUiState.NoUsers)
         userRepository.signOut()
         _user.emit(null)
     }
 
     fun deleteAllDataForUser(userMail: String){
-        screenModelScope.launch {
+        screenModelScope.launch(Dispatchers.IO) {
             logger.d("deleteAllDataForUser: $userMail")
             taskRepository.deleteAllForUser(userMail)
         }
