@@ -82,7 +82,7 @@ kotlin {
             //SQLDelight Desktop
             implementation(libs.sqldelight.jvm)
             implementation(libs.java.jwt)
-
+            implementation (libs.json)
             //Auth Desktop
             implementation(libs.google.auth.desktop)
             implementation(libs.ktor.client.core)

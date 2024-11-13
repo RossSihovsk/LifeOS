@@ -70,6 +70,7 @@ actual fun ProfileScreenContent(
                             println(res)
 
                             val userData = getUserDataFromToken(res)
+                            println(userData)
                             User(
                                 name = userData["name"].toString(),
                                 mail = if (userData["email"].toString().contains("@")) userData["email"].toString() else "Unknown email",
@@ -100,6 +101,7 @@ actual fun ProfileScreenContent(
 fun getUserDataFromToken(idToken: String): Map<String, String?> {
     // Розшифровуємо токен
     val decodedJWT: DecodedJWT = JWT.decode(idToken)
+    println("decoded JWT: ${decodedJWT.claims}")
     // Отримуємо інформацію про користувача
     val userData = mapOf(
         "userId" to decodedJWT.getClaim("iat").asString(), // Ідентифікатор користувача
