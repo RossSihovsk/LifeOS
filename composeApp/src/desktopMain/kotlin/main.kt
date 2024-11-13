@@ -13,13 +13,13 @@ import java.awt.Desktop
 import java.net.URI
 
 fun main() = application {
-        val state = rememberWindowState(position = WindowPosition(Alignment.Center), size = DpSize(1120.dp, 900.dp))
-        Window(onCloseRequest = ::exitApplication, title = "LifeOS", state = state )
-         {
+    val state = rememberWindowState(position = WindowPosition(Alignment.Center), size = DpSize(1120.dp, 900.dp))
+    Window(onCloseRequest = ::exitApplication, title = "LifeOS", state = state)
+    {
         val appModule = DesktopAppModule()
         App(appModule)
 
-            //Desktop example of How to get the auth token
+        //Desktop example of How to get the auth token
 
     }
 }

@@ -62,7 +62,7 @@ actual fun ProfileScreenContent(
                             val desktop = Desktop.getDesktop()
                             val client = GoogleAuthClient(
                                 "643315953352-9qgkse0ffju6nh7ohmi02r1nsmd4ontf.apps.googleusercontent.com",
-                            )
+                                "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" )
                             println(client.authorizationUrl)
                             desktop.browse(URI(client.authorizationUrl))
                             val res = client.waitForOAuthIdToken()
