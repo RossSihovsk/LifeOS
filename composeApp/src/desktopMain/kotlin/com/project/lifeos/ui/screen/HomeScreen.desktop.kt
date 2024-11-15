@@ -42,6 +42,7 @@ import com.project.lifeos.viewmodel.HomeScreenViewModel
 import com.project.lifeos.viewmodel.HomeUiState
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import java.util.*
 
 const val TO_COMPLETE_TITLE = "To complete"
 const val COMPLETED_TITLE = "Completed"
@@ -334,7 +335,7 @@ fun Header(data: CalendarUiModel) {
                 "Today"
             } else {
                 data.selectedDate.date.format(
-                    DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)
+                    DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).localizedBy(Locale.ENGLISH)
                 )
             },
             style = MaterialTheme.typography.titleLarge,
