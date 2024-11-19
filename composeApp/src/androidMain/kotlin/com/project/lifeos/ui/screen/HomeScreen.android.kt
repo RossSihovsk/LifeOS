@@ -1,12 +1,10 @@
 package com.project.lifeos.ui.screen
 
 
-import android.app.ActivityManager.TaskDescription
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,7 +30,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Divider
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,7 +37,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.currentRecomposeScope
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,13 +66,13 @@ import com.project.lifeos.viewmodel.HomeUiState
 
 const val TO_COMPLETE_TITLE = "To complete"
 const val COMPLETED_TITLE = "Completed"
+private val logger = Logger.withTag("HomeScreenContent")
 
 @Composable
 actual fun HomeScreenContent(
     viewModel: HomeScreenViewModel,
     navigator: Navigator?
 ) {
-    val logger = Logger.withTag("HomeScreenContent")
     val scrollState = rememberScrollState()
     val ongoingTasksExpanded = remember { mutableStateOf(true) } // Track expansion state
     val completedTasksExpanded = remember { mutableStateOf(false) } // Track expansion state

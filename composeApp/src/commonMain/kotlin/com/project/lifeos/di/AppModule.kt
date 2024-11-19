@@ -1,5 +1,6 @@
 package com.project.lifeos.di
 
+import com.project.lifeos.notification.NotificationScheduler
 import com.project.lifeos.repository.TaskRepository
 import com.project.lifeos.repository.UserRepository
 import com.project.lifeos.repository.local.LocalTaskDataSource
@@ -17,6 +18,7 @@ You just have to provide LocalDataSource object that requires
 abstract class AppModule {
     abstract val localTaskDataSource: LocalTaskDataSource
     abstract val localUserDataSource: LocalUserDataSource
+    abstract val notificationScheduler: NotificationScheduler
 
     private val calendarDataSource: CalendarDataSource
         get() = CalendarDataSource()
@@ -38,7 +40,8 @@ abstract class AppModule {
     val addTaskViewModel: AddTaskViewModel by lazy {
         AddTaskViewModel(
             taskRepository = taskRepository,
-            userRepository = userRepository
+            userRepository = userRepository,
+            notificationScheduler = notificationScheduler
         )
     }
 

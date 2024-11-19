@@ -7,3 +7,9 @@ fun List<String>.convertToSingleLine(): String {
     }
     return finalResult
 }
+
+fun formatNotificationText(userName: String?, title: String): String {
+    return if (userName.isNullOrEmpty()) {
+        "Hey, it's time to ${title}\nCheck your all To-Dos for today"
+    } else "Hey $userName, it's time to $title\nCheck your all To-Dos for today"
+}

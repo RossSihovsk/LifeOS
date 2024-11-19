@@ -5,8 +5,7 @@ import com.project.lifeos.di.DesktopAppModule
 
 fun main() = application {
     Window(onCloseRequest = ::exitApplication, title = "LifeOS") {
-        val appModule = DesktopAppModule()
-        App(appModule)
+        App()
 
 //      Desktop example of How to get the auth token
 //        runBlocking {

@@ -263,7 +263,7 @@ fun AddTaskView(addTaskViewModel: AddTaskViewModel?, onDismissRequest: () -> Uni
                                 title = taskTitle,
                                 description = taskDescription,
                                 time = taskTime,
-                                dates = taskDates.toList().toString(),
+                                dates = taskDates.toList().map { it.date.toString() },
                                 checkItems = taskCheckItems.toList(),
                                 reminder = taskReminder,
                                 priority = taskPriority

@@ -156,7 +156,7 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
                 title = taskTitle.value,
                 description = taskDescription.value,
                 time = taskTime.value,
-                dates = "",
+                dates = emptyList(),
                 status = TaskStatus.PENDING
             )
         }

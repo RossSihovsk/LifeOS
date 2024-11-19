@@ -1,5 +1,13 @@
 package com.project.lifeos.ui.screen.addTask
 
+import android.Manifest
+import android.app.AlertDialog
+import android.app.TimePickerDialog
+import android.content.Context
+import android.content.DialogInterface
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -17,6 +25,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,6 +50,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.vectorResource
@@ -51,6 +61,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.PopupProperties
+import androidx.core.content.ContextCompat
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.CalendarDay
@@ -201,9 +212,22 @@ fun MonthFooter(
     onReminderSelected: (reminder: Reminder) -> Unit,
     onRepeatSelected: (repeat: Repeat) -> Unit
 ) {
+    val context = LocalContext.current
+
+    var permissionGranted by remember { mutableStateOf(false) }
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted -> permissionGranted = isGranted }
+
+    permissionGranted = ContextCompat.checkSelfPermission(
+        context,
+        Manifest.permission.POST_NOTIFICATIONS
+    ) == PackageManager.PERMISSION_GRANTED
+
 
     var showTimePicker by remember { mutableStateOf(false) }
     var showReminderPicker by remember { mutableStateOf(false) }
+    var notificationPermissionGranted by remember { mutableStateOf(false) }
     var showRepeatPicker by remember { mutableStateOf(false) }
 
     var timeInfo by remember { mutableStateOf("None") }
@@ -254,20 +278,37 @@ fun MonthFooter(
     }
 
     if (showReminderPicker) {
-        ShowReminder(
-            offset = with(LocalDensity.current) {
-                DpOffset(
-                    dropdownMenuOffset.x.toDp() + 200.dp,
-                    dropdownMenuOffset.y.toDp()
-                )
-            },
-            onDismiss = { showReminderPicker = false },
-            onConfirmed = { reminder ->
-                reminderInfo = reminder.title
-                showReminderPicker = false
-                onReminderSelected(reminder)
+
+        if (!permissionGranted) {
+
+            showMessageOKCancel(
+                context,
+                "This Application needs notification access for some functionality. Please, provide provide permissions for better performance"
+            ) { _, p1 ->
+                if (DialogInterface.BUTTON_POSITIVE == p1) {
+                    notificationPermissionLauncher.launch(
+                        Manifest.permission.POST_NOTIFICATIONS
+                    )
+                }
             }
-        )
+        } else {
+            ShowReminder(
+                offset = with(LocalDensity.current) {
+                    DpOffset(
+                        dropdownMenuOffset.x.toDp() + 200.dp,
+                        dropdownMenuOffset.y.toDp()
+                    )
+                },
+                onDismiss = { showReminderPicker = false },
+                onConfirmed = { reminder ->
+                    reminderInfo = reminder.title
+                    showReminderPicker = false
+                    onReminderSelected(reminder)
+                }
+            )
+        }
+
+
     }
 
     if (showRepeatPicker) {
@@ -286,6 +327,24 @@ fun MonthFooter(
             }
         )
     }
+}
+
+private fun showMessageOKCancel(context: Context, message: String, okListener: DialogInterface.OnClickListener) {
+    val alertDialog = AlertDialog.Builder(context)
+        .setMessage(message)
+        .setTitle("App Request Permission")
+        .setPositiveButton("OK", okListener)
+        .setNegativeButton("Cancel", null)
+        .setIcon(R.drawable.alarm)
+        .create()
+
+    alertDialog.setOnShowListener {
+        // Change button colors
+        alertDialog.getButton(DialogInterface.BUTTON_POSITIVE)
+        alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE)
+    }
+
+    alertDialog.show()
 }
 
 @Composable
