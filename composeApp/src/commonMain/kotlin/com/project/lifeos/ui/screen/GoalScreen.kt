@@ -12,7 +12,7 @@ expect fun GoalScreenContent()
 private const val TAG = "GoalScreen"
 private val logger = Logger.withTag(TAG)
 
-class GoalScreen(private val appModule: AppModule) : Screen {
+class GoalScreen : Screen {
     @Composable
     override fun Content() {
 //        val viewModel = rememberScreenModel { appModule.addTaskViewModel }

@@ -21,7 +21,7 @@ class LocalTaskDataSource(db: LifeOsDatabase) {
             name = task.title,
             description = task.description,
             time = task.time,
-            date = task.date,
+            date = convertToSingleStringDate(task.dates),
             checkItems = task.checkItems.convertToSingleLine(),
             status = task.status.name,
             reminder = task.reminder.title,
@@ -61,7 +61,7 @@ class LocalTaskDataSource(db: LifeOsDatabase) {
                     title = taskEntity.name,
                     description = taskEntity.description,
                     time = taskEntity.time,
-                    date = taskEntity.date,
+                    dates = convertIntoDatesList(taskEntity.date),
                     checkItems = validateToList(taskEntity.checkItems),
                     status = TaskStatus.valueOf(taskEntity.status),
                     reminder = Reminder.getFromTitle(taskEntity.reminder),
@@ -80,5 +80,21 @@ class LocalTaskDataSource(db: LifeOsDatabase) {
             }.toList()
         }
         return emptyList()
+    }
+
+    private fun convertToSingleStringDate(dates: List<String>?): String {
+        var value = ""
+        dates?.forEach {
+            value += "$it;"
+        }
+        return value
+    }
+
+    private fun convertIntoDatesList(value: String?): List<String>? {
+        value?.let { date: String ->
+            return date.split(";")
+        }
+
+        return null
     }
 }
