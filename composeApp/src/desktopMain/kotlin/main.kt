@@ -18,9 +18,6 @@ fun main() = application {
     {
         val appModule = DesktopAppModule()
         App(appModule)
-
-        //Desktop example of How to get the auth token
-
     }
 }
 
