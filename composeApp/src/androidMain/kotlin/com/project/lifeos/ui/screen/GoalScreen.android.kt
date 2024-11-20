@@ -1,33 +1,31 @@
 package com.project.lifeos.ui.screen
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,61 +39,63 @@ import androidx.compose.ui.unit.sp
 import com.project.lifeos.R
 import com.project.lifeos.data.Category
 import com.project.lifeos.data.Goal
-import java.time.LocalDate
-
-val list = listOf(
-    Goal(
-        title = "Improve English",
-        shortPhrase = "Improve my english for work test",
-        category = Category.STUDY,
-        startDate = LocalDate.now(),
-        endDate = LocalDate.now(),
-        tasksId = emptyList()
-    ),
-    Goal(
-        title = "GYM",
-        shortPhrase = "I wanna make gym my habit",
-        category = Category.SPORT,
-        startDate = LocalDate.now(),
-        endDate = LocalDate.now(),
-        tasksId = emptyList()
-    ),
-    Goal(
-        title = "Traveling",
-        shortPhrase = "Visit new city each month",
-        category = Category.PERSONAL,
-        startDate = LocalDate.now(),
-        endDate = LocalDate.now(),
-        tasksId = emptyList()
-    ),
-    Goal(
-        title = "Udemy course",
-        shortPhrase = "Finish udemy course",
-        category = Category.WORK,
-        startDate = LocalDate.now(),
-        endDate = LocalDate.now(),
-        tasksId = emptyList()
-    ),
-)
+import com.project.lifeos.di.AppModuleProvider
+import com.project.lifeos.viewmodel.GoalsUIState
 
 @Composable
 actual fun GoalScreenContent() {
     Column(
         modifier = Modifier.fillMaxSize().padding(top = 25.dp, start = 15.dp, end = 15.dp),
-        horizontalAlignment = Alignment.Start,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        GoalHeader()
-        GoalCard()
-        AddNewGoalButton{
+        val viewModel = AppModuleProvider.getAppModule().goalScreenViewModel
+        val uiState by viewModel.uiState.collectAsState()
 
+        GoalHeader()
+
+        when (val state = uiState) {
+            is GoalsUIState.GoalsFounded -> {
+                GoalCard(state.goals)
+            }
+
+            is GoalsUIState.NoGoals -> {
+                NoGoalsView()
+            }
+        }
+        AddNewGoalButton {
+            viewModel.init()
         }
     }
 }
 
 @Composable
-fun GoalCard() {
+fun NoGoalsView() {
+    Column(
+        Modifier.height(height = 650.dp).fillMaxWidth(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(R.drawable.goals),
+            contentDescription = null,
+            modifier = Modifier.size(250.dp)
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Text(
+            text = "No goals yet \uD83E\uDD7A",
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.labelLarge,
+            fontSize = 25.sp
+        )
+    }
+}
+
+@Composable
+fun GoalCard(goals: List<Goal>) {
     LazyColumn(modifier = Modifier.height(height = 650.dp)) {
-        items(items = list){
+        items(items = goals) {
             GoalContent(it)
             Spacer(modifier = Modifier.height(30.dp))
         }
@@ -105,7 +105,11 @@ fun GoalCard() {
 
 @Composable
 fun AddNewGoalButton(onClick: () -> Unit) {
-    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center
+    ) {
         Card(
             modifier = Modifier.background(Color.Transparent).wrapContentSize(),
             onClick = onClick,
@@ -223,18 +227,12 @@ fun GoalCardFooterElement(text: String) {
 
 @Composable
 fun GoalHeader() {
-    Row(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = "Your long term archiving",
-            style = MaterialTheme.typography.displayLarge,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 25.sp
-        )
-    }
+    Text(
+        text = "Your long term archiving",
+        style = MaterialTheme.typography.displayLarge,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 25.sp
+    )
 }
 
 @Preview

@@ -7,6 +7,7 @@ import com.project.lifeos.repository.local.LocalTaskDataSource
 import com.project.lifeos.repository.local.LocalUserDataSource
 import com.project.lifeos.ui.view.calendar.CalendarDataSource
 import com.project.lifeos.viewmodel.AddTaskViewModel
+import com.project.lifeos.viewmodel.GoalScreenViewModel
 import com.project.lifeos.viewmodel.HomeScreenViewModel
 import com.project.lifeos.viewmodel.UserViewModel
 
@@ -50,5 +51,9 @@ abstract class AppModule {
             userRepository = userRepository,
             taskRepository = taskRepository
         )
+    }
+
+    val goalScreenViewModel: GoalScreenViewModel by lazy {
+        GoalScreenViewModel()
     }
 }
