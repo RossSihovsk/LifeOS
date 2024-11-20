@@ -18,20 +18,20 @@ actual fun bottomBarNavigation(
 ) {
     when (bottomBarItems) {
         BottomBarItems.HOME -> {
-            navigator.safePush(HomeScreen(appModule))
+            navigator.safePush(HomeScreen())
         }
 
         BottomBarItems.GOALS -> {
-            navigator.safePush(GoalScreen(appModule))
+            navigator.safePush(GoalScreen())
         }
 
         BottomBarItems.ADD_TASK -> {
-            navigator.safePush(AddTaskScreen(appModule))
+            navigator.safePush(AddTaskScreen())
         }
 
         BottomBarItems.STATS -> {}
         BottomBarItems.PROFILE -> {
-            navigator.safePush(ProfileScreen(appModule))
+            navigator.safePush(ProfileScreen())
         }
     }
 }
