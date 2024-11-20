@@ -7,10 +7,7 @@ import androidx.compose.ui.window.rememberWindowState
 import com.project.lifeos.App
 import com.project.lifeos.di.DesktopAppModule
 import androidx.compose.ui.window.WindowPosition
-import api.GoogleAuthClient
-import kotlinx.coroutines.runBlocking
-import java.awt.Desktop
-import java.net.URI
+
 
 fun main() = application {
     val state = rememberWindowState(position = WindowPosition(Alignment.Center), size = DpSize(1120.dp, 900.dp))
