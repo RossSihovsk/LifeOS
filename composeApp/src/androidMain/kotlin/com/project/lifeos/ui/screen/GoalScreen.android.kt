@@ -33,17 +33,18 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import cafe.adriel.voyager.navigator.Navigator
 import com.project.lifeos.R
 import com.project.lifeos.data.Category
 import com.project.lifeos.data.Goal
 import com.project.lifeos.di.AppModuleProvider
+import com.project.lifeos.utils.safePush
 import com.project.lifeos.viewmodel.GoalsUIState
 
 @Composable
-actual fun GoalScreenContent() {
+actual fun GoalScreenContent(navigator: Navigator) {
     Column(
         modifier = Modifier.fillMaxSize().padding(top = 25.dp, start = 15.dp, end = 15.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -63,7 +64,7 @@ actual fun GoalScreenContent() {
             }
         }
         AddNewGoalButton {
-            viewModel.init()
+            navigator.safePush(AddGoalScreen())
         }
     }
 }
@@ -233,10 +234,4 @@ fun GoalHeader() {
         fontWeight = FontWeight.SemiBold,
         fontSize = 25.sp
     )
-}
-
-@Preview
-@Composable
-fun GoalPreview(modifier: Modifier = Modifier) {
-    GoalScreenContent()
 }

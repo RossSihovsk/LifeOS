@@ -16,7 +16,7 @@ class GoalScreenViewModel : ScreenModel {
 
     fun init() {
         screenModelScope.launch {
-            _uiState.emit(GoalsUIState.GoalsFounded(list))
+//            _uiState.emit(GoalsUIState.GoalsFounded(list))
         }
     }
 }
@@ -25,38 +25,3 @@ sealed class GoalsUIState {
     data class GoalsFounded(val goals: List<Goal>) : GoalsUIState()
     data object NoGoals : GoalsUIState()
 }
-
-private val list = listOf(
-    Goal(
-        title = "Improve English",
-        shortPhrase = "Improve my english for work test",
-        category = Category.STUDY,
-        startDate = LocalDate.now(),
-        endDate = LocalDate.now(),
-        tasksId = emptyList()
-    ),
-    Goal(
-        title = "GYM",
-        shortPhrase = "I wanna make gym my habit",
-        category = Category.SPORT,
-        startDate = LocalDate.now(),
-        endDate = LocalDate.now(),
-        tasksId = emptyList()
-    ),
-    Goal(
-        title = "Traveling",
-        shortPhrase = "Visit new city each month",
-        category = Category.PERSONAL,
-        startDate = LocalDate.now(),
-        endDate = LocalDate.now(),
-        tasksId = emptyList()
-    ),
-    Goal(
-        title = "Udemy course",
-        shortPhrase = "Finish udemy course",
-        category = Category.WORK,
-        startDate = LocalDate.now(),
-        endDate = LocalDate.now(),
-        tasksId = emptyList()
-    ),
-)

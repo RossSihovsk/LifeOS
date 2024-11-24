@@ -1,9 +1,17 @@
 package com.project.lifeos.ui.bottomNavigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
+import com.project.lifeos.data.Priority
+import com.project.lifeos.data.Reminder
+import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.di.AppModule
+import com.project.lifeos.di.AppModuleProvider
 import com.project.lifeos.ui.screen.GoalScreen
 import com.project.lifeos.ui.screen.HomeScreen
 import com.project.lifeos.ui.screen.ProfileScreen
@@ -19,7 +27,8 @@ actual fun bottomBarNavigation(
     appModule: AppModule,
     onDoneOrDismiss: () -> Unit
 ) {
-    val viewModel = appModule.addTaskViewModel
+    var activeScreen by remember { mutableStateOf(BottomBarItems.HOME) }
+    if (activeScreen == bottomBarItems && bottomBarItems != BottomBarItems.ADD_TASK) return
     logger.i("Navigate $bottomBarItems")
 
     when (bottomBarItems) {
@@ -31,10 +40,18 @@ actual fun bottomBarNavigation(
             navigator.safePush(GoalScreen())
         }
 
-        BottomBarItems.ADD_TASK -> AddTaskBottomSheetView(viewModel, onDoneOrDismiss)
+        BottomBarItems.ADD_TASK -> {
+            AddTaskBottomSheetView(
+                appModule.addTaskViewModel,
+                onDismiss = onDoneOrDismiss,
+                onDone = { _, _, _, _, _, _, _, _ -> onDoneOrDismiss() })
+        }
+
         BottomBarItems.STATS -> {}
         BottomBarItems.PROFILE -> {
             navigator.safePush(ProfileScreen())
         }
     }
+
+    activeScreen = bottomBarItems
 }

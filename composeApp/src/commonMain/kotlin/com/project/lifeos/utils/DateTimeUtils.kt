@@ -14,6 +14,10 @@ import java.util.Locale
 private val timeFormatter = SimpleDateFormat("h:mm a", Locale.getDefault())
 private val dateFormatter = SimpleDateFormat("yyyy-MM-dd h:mm a", Locale.getDefault())
 private val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+
+fun stringToDate(value: String): LocalDate {
+    return LocalDate.parse(value, dateTimeFormatter)
+}
 fun formatTime(timeInMillis: Long): String = timeFormatter.format(Date(timeInMillis))
 fun convertLongToStringDate(date: Long): String = dateFormatter.format(date)
 fun convertLocalDateToString(localDate: LocalDate): String = localDate.format(dateTimeFormatter)

@@ -8,16 +8,21 @@ CREATE TABLE IF NOT EXISTS TaskEntity (
   status TEXT NOT NULL,
   reminder TEXT NOT NULL,
   priority TEXT NOT NULL,
-  userMail TEXT
+  userMail TEXT,
+  goalId TEXT
   );
 
   addNewTask:
-  INSERT OR REPLACE INTO TaskEntity(id, name, description, time, date, checkItems, status, reminder, priority, userMail)
-  VALUES (?,?,?,?,?,?,?,?, ?, ?);
+  INSERT OR REPLACE INTO TaskEntity(id, name, description, time, date, checkItems, status, reminder, priority, userMail, goalId)
+  VALUES (?,?,?,?,?,?,?,?, ?, ?, ?);
 
   getTasksForDay:
   SELECT * FROM TaskEntity
   WHERE date LIKE '%' || :date || '%' AND  userMail IS :userMail;
+
+  getTasksForGoal:
+    SELECT * FROM TaskEntity
+    WHERE goalId IS :goalid;
 
   updateStatus:
   UPDATE TaskEntity

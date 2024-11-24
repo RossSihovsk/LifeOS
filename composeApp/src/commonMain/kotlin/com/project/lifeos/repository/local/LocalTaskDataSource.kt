@@ -26,7 +26,8 @@ class LocalTaskDataSource(db: LifeOsDatabase) {
             status = task.status.name,
             reminder = task.reminder.title,
             priority = task.priority.title,
-            userMail = task.userEmail
+            userMail = task.userEmail,
+            goalId = task.goalId
         )
     }
 
@@ -65,7 +66,8 @@ class LocalTaskDataSource(db: LifeOsDatabase) {
                     checkItems = validateToList(taskEntity.checkItems),
                     status = TaskStatus.valueOf(taskEntity.status),
                     reminder = Reminder.getFromTitle(taskEntity.reminder),
-                    priority = Priority.getFromTitle(taskEntity.priority)
+                    priority = Priority.getFromTitle(taskEntity.priority),
+                    goalId = taskEntity.goalId
                 )
             )
         }
