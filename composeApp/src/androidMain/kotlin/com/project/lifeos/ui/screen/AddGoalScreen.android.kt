@@ -481,8 +481,32 @@ fun GoalTasksView(
     }
 
     Spacer(Modifier.height(5.dp))
-    if (goalTasks.size in 0..3) {
-        AddTaskButton(viewModel, getButtonText(goalTasks.size), onDone)
+    if (goalTasks.isEmpty()) {
+        AddTaskButton(viewModel, "Create up to 4 tasks for achieving this goal", onDone)
+    } else if (goalTasks.size in 1..3) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AddTaskButton(viewModel, "Add one more task", onDone)
+
+            CardWrapper(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                roundedCorners = 20.dp,
+                onClick = {
+                    onSaveGoal()
+                }
+            ) {
+                Text(
+                    text = "Save Goal",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Icon(imageVector = ImageVector.vectorResource(R.drawable.list), contentDescription = null)
+            }
+        }
     } else {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -553,7 +577,6 @@ fun AddTaskButton(viewModel: CreateGoalScreenViewModel, text: String, onDone: (t
     }
 
     Row(
-        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
     ) {
