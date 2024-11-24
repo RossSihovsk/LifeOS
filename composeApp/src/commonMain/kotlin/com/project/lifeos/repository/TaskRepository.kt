@@ -26,6 +26,11 @@ class TaskRepository(private val localTaskDataSource: LocalTaskDataSource) {
         return localTaskDataSource.getForSomeDay(day, userMail)
     }
 
+    fun getTaskForGoal(id: String?): List<Task> {
+        logger.d("getTaskForGoal: $id")
+        return localTaskDataSource.getTaskForGoal(id)
+    }
+
     fun deleteAllForUser(userMail: String) {
         logger.d("deleteAllForUser: $userMail")
         localTaskDataSource.deleteAllForUser(userMail)

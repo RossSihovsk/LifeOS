@@ -61,7 +61,11 @@ abstract class AppModule {
     }
 
     val goalScreenViewModel: GoalScreenViewModel by lazy {
-        GoalScreenViewModel()
+        GoalScreenViewModel(
+            goalRepository = goalRepository,
+            userRepository = userRepository,
+            taskRepository = taskRepository
+        )
     }
 
     val createGoalScreenViewModel: CreateGoalScreenViewModel by lazy {

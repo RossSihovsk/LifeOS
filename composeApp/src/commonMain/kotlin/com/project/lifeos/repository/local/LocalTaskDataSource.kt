@@ -44,6 +44,10 @@ class LocalTaskDataSource(db: LifeOsDatabase) {
         return result
     }
 
+    fun getTaskForGoal(id: String?): List<Task> {
+        return queries.getTasksForGoal(id).executeAsList().mapToTaskList()
+    }
+
     fun delete(id: Long) {
         queries.delete(id = id)
     }

@@ -39,24 +39,25 @@ import cafe.adriel.voyager.navigator.Navigator
 import com.project.lifeos.R
 import com.project.lifeos.data.Category
 import com.project.lifeos.data.Goal
-import com.project.lifeos.di.AppModuleProvider
 import com.project.lifeos.utils.safePush
+import com.project.lifeos.viewmodel.GoalScreenViewModel
 import com.project.lifeos.viewmodel.GoalsUIState
 
 @Composable
-actual fun GoalScreenContent(navigator: Navigator) {
+actual fun GoalScreenContent(navigator: Navigator, viewModel: GoalScreenViewModel) {
     Column(
         modifier = Modifier.fillMaxSize().padding(top = 25.dp, start = 15.dp, end = 15.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        val viewModel = AppModuleProvider.getAppModule().goalScreenViewModel
         val uiState by viewModel.uiState.collectAsState()
+
+        viewModel.init()
 
         GoalHeader()
 
         when (val state = uiState) {
             is GoalsUIState.GoalsFounded -> {
-                GoalCard(state.goals)
+                GoalCard(state.goals, viewModel)
             }
 
             is GoalsUIState.NoGoals -> {
@@ -94,10 +95,10 @@ fun NoGoalsView() {
 }
 
 @Composable
-fun GoalCard(goals: List<Goal>) {
+fun GoalCard(goals: List<Goal>, viewModel: GoalScreenViewModel) {
     LazyColumn(modifier = Modifier.height(height = 650.dp)) {
         items(items = goals) {
-            GoalContent(it)
+            GoalContent(it, viewModel)
             Spacer(modifier = Modifier.height(30.dp))
         }
     }
@@ -141,7 +142,7 @@ fun AddNewGoalButton(onClick: () -> Unit) {
 }
 
 @Composable
-fun GoalContent(goal: Goal) {
+fun GoalContent(goal: Goal, viewModel: GoalScreenViewModel) {
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
@@ -163,9 +164,9 @@ fun GoalContent(goal: Goal) {
                 GoalCardHeader(goal.title, goal.category)
 
                 Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
-                    GoalCardFooterElement("Duration: 3 month")
-                    GoalCardFooterElement("2 tasks this week")
-                    GoalCardFooterElement("78%")
+                    GoalCardFooterElement("Duration: ${goal.duration.title}")
+                    GoalCardFooterElement("${viewModel.tasksThisWeek(goal)} tasks this week")
+                    GoalCardFooterElement("${viewModel.percentageDone(goal)}%")
                 }
             }
         }

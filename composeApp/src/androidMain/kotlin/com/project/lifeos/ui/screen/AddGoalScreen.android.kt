@@ -55,7 +55,6 @@ import co.touchlab.kermit.Logger
 import com.project.lifeos.R
 import com.project.lifeos.data.Category
 import com.project.lifeos.data.Duration
-import com.project.lifeos.data.Goal
 import com.project.lifeos.data.Task
 import com.project.lifeos.ui.screen.addTask.AddTaskBottomSheetView
 import com.project.lifeos.utils.formatTime
@@ -97,6 +96,7 @@ actual fun AddGoalScreenContent(navigator: Navigator, viewModel: CreateGoalScree
         Spacer(Modifier.height(20.dp))
 
         GoalTasksView(
+            navigator,
             viewModel,
             goalTasks,
             onDone = { goalTasks = goalTasks.plus(it) },
@@ -131,12 +131,12 @@ fun CreateGoalHeader() {
 }
 
 @Composable
-fun BackButton(navigator: Navigator?) {
+fun BackButton(navigator: Navigator) {
     Icon(
         imageVector = ImageVector.vectorResource(R.drawable.back),
         contentDescription = null,
         modifier = Modifier.clickable {
-            navigator?.popUntil { it.key == GOAL_SCREEN_KEY }
+            navigator.popUntil { it.key == GOAL_SCREEN_KEY }
         }.size(40.dp)
     )
 }
@@ -455,6 +455,7 @@ fun getCategoryResourceId(category: Category): Int {
 
 @Composable
 fun GoalTasksView(
+    navigator: Navigator,
     viewModel: CreateGoalScreenViewModel,
     goalTasks: List<Task>,
     onDone: (task: Task) -> Unit,
@@ -496,6 +497,7 @@ fun GoalTasksView(
                 roundedCorners = 20.dp,
                 onClick = {
                     onSaveGoal()
+                    navigator.popUntil { it.key == GOAL_SCREEN_KEY }
                 }
             ) {
                 Text(
