@@ -87,7 +87,6 @@ class GoalScreenViewModel(
         return tasksNumber
     }
 
-
     fun percentageDone(goal: Goal): Int = goalMappers.first { goal == it.goal }.percentageDone
 
     fun tasksThisWeek(goal: Goal): Int = goalMappers.first { goal == it.goal }.tasksThisWeek

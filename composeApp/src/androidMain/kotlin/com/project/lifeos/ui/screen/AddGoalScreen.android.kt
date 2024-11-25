@@ -544,12 +544,6 @@ fun DisplayTask(task: Task, onDelete: (task: Task) -> Unit) {
     }
 }
 
-fun getButtonText(size: Int): String {
-    return if (size == 0) "Create up to 4 tasks for achieving this goal"
-    else if (size in 1..3) "Add one more task?"
-    else "Nice done"
-}
-
 @Composable
 fun AddTaskButton(viewModel: CreateGoalScreenViewModel, text: String, onDone: (task: Task) -> Unit) {
     var showModalBottomSheet by remember { mutableStateOf(false) }
@@ -657,7 +651,3 @@ fun TaskView(task: Task, onDelete: (task: Task) -> Unit) {
         AdditionalInfoCard(task = task)
     }
 }
-
-
-
-

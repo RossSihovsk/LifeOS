@@ -50,7 +50,6 @@ actual fun GoalScreenContent(navigator: Navigator, viewModel: GoalScreenViewMode
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val uiState by viewModel.uiState.collectAsState()
-
         viewModel.init()
 
         GoalHeader()
@@ -64,6 +63,7 @@ actual fun GoalScreenContent(navigator: Navigator, viewModel: GoalScreenViewMode
                 NoGoalsView()
             }
         }
+
         AddNewGoalButton {
             navigator.safePush(AddGoalScreen())
         }
