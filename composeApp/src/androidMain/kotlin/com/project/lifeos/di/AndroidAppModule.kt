@@ -5,6 +5,7 @@ import com.lifeos.LifeOsDatabase
 import com.project.lifeos.notification.AndroidNotificationScheduler
 import com.project.lifeos.notification.NotificationScheduler
 import com.project.lifeos.repository.local.DatabaseDriverFactory
+import com.project.lifeos.repository.local.LocalGoalDataSource
 import com.project.lifeos.repository.local.LocalTaskDataSource
 import com.project.lifeos.repository.local.LocalUserDataSource
 
@@ -25,4 +26,7 @@ class AndroidAppModule(
 
     override val notificationScheduler: NotificationScheduler
         get() = AndroidNotificationScheduler(context = context)
+
+    override val localGoalDataSource: LocalGoalDataSource
+        get() = LocalGoalDataSource(db)
 }

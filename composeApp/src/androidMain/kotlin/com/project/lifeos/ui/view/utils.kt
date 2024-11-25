@@ -3,45 +3,23 @@ package com.project.lifeos.ui.view
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
-import androidx.compose.material3.Icon
 
 
-import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.dp
 import com.kizitonwose.calendar.compose.CalendarLayoutInfo
 import com.kizitonwose.calendar.compose.CalendarState
-import com.kizitonwose.calendar.compose.weekcalendar.WeekCalendarState
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.CalendarMonth
 import com.kizitonwose.calendar.core.DayPosition
-import com.kizitonwose.calendar.core.Week
+import com.project.lifeos.data.Duration
 import com.project.lifeos.data.Repeat
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
+import java.time.LocalDate
 
 /**
  * Alternative way to find the first fully visible month in the layout.
@@ -134,15 +112,16 @@ private fun CalendarLayoutInfo.firstMostVisibleMonth(viewportPercent: Float = 50
 }
 
 
-fun recalculateDays(firstDay: CalendarDay, repeat: Repeat): List<CalendarDay> {
+fun recalculateDays(firstDay: CalendarDay, repeat: Repeat, duration: Duration): List<CalendarDay> {
     Log.d("JustForTest", "recalculateDays")
     return when (repeat) {
         Repeat.NONE -> listOf(firstDay)
         Repeat.WEEKLY -> {
             val list = mutableListOf(firstDay)
+            val endDate = calculateLastDate(firstDay.date, duration)
             var lastDay = CalendarDay(firstDay.date.plusWeeks(1), DayPosition.MonthDate)
             list.add(lastDay)
-            for (i in 1..6) {
+            while (lastDay.date.isBefore(endDate)) {
                 lastDay = CalendarDay(lastDay.date.plusWeeks(1), lastDay.position)
                 list.add(lastDay)
             }
@@ -152,9 +131,10 @@ fun recalculateDays(firstDay: CalendarDay, repeat: Repeat): List<CalendarDay> {
 
         Repeat.MONTHLY -> {
             val list = mutableListOf(firstDay)
+            val endDate = calculateLastDate(firstDay.date, duration)
             var lastDay = CalendarDay(firstDay.date.plusMonths(1), DayPosition.MonthDate)
             list.add(lastDay)
-            for (i in 1..6) {
+            while (lastDay.date.isBefore(endDate)) {
                 lastDay = CalendarDay(lastDay.date.plusMonths(1), lastDay.position)
                 list.add(lastDay)
             }
@@ -163,6 +143,16 @@ fun recalculateDays(firstDay: CalendarDay, repeat: Repeat): List<CalendarDay> {
         }
 
         Repeat.CUSTOM -> listOf(firstDay)
+    }
+}
+
+fun calculateLastDate(firstDay: LocalDate, duration: Duration): LocalDate {
+    return when (duration) {
+        Duration.TWO_WEEKS -> firstDay.plusWeeks(2)
+        Duration.MONTH -> firstDay.plusMonths(1)
+        Duration.THREE_MONTH -> firstDay.plusMonths(3)
+        Duration.SIX_MONTH -> firstDay.plusMonths(6)
+        Duration.YEAR -> firstDay.plusYears(1)
     }
 }
 

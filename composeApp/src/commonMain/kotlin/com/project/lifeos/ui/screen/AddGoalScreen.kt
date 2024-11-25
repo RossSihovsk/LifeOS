@@ -8,20 +8,19 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import co.touchlab.kermit.Logger
 import com.project.lifeos.di.AppModuleProvider
-import com.project.lifeos.viewmodel.GoalScreenViewModel
+import com.project.lifeos.viewmodel.CreateGoalScreenViewModel
 
 @Composable
-expect fun GoalScreenContent(navigator: Navigator, viewModel: GoalScreenViewModel)
+expect fun AddGoalScreenContent(navigator: Navigator, viewModel: CreateGoalScreenViewModel)
 
-private const val TAG = "GoalScreen"
-private val logger = Logger.withTag(TAG)
+private val logger = Logger.withTag("AddGoalScreen")
 
-class GoalScreen : Screen {
+class AddGoalScreen : Screen {
     @Composable
     override fun Content() {
-        logger.d("Active")
-        val taskViewModel = rememberScreenModel { AppModuleProvider.getAppModule().goalScreenViewModel }
+        val viewModel = rememberScreenModel { AppModuleProvider.getAppModule().createGoalScreenViewModel }
         val navigator = LocalNavigator.currentOrThrow
-        GoalScreenContent(navigator, taskViewModel)
+        logger.d("Active")
+        AddGoalScreenContent(navigator, viewModel)
     }
 }

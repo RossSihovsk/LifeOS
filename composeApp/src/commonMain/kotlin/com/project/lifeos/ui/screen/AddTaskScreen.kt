@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import co.touchlab.kermit.Logger
-import com.project.lifeos.di.AppModule
 import com.project.lifeos.di.AppModuleProvider
 import com.project.lifeos.viewmodel.AddTaskViewModel
 

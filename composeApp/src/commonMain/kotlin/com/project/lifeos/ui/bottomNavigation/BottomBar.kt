@@ -8,9 +8,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
 import com.project.lifeos.di.AppModule
+import com.project.lifeos.ui.screen.GoalScreen
+import com.project.lifeos.ui.screen.HomeScreen
+import com.project.lifeos.utils.safePush
 
 private val logger = Logger.withTag("bottomBarNavigationCommon")
 
