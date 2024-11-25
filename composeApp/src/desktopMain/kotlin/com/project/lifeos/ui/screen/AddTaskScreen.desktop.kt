@@ -138,7 +138,7 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
                         title = taskTitle.value,
                         description = taskDescription.value,
                         time = taskTime.value,
-                        dates = dateFormatter.format(Date(taskDate.value!!)),
+                        dates = listOf(dateFormatter.format(Date(taskDate.value!!))) ,
                         status = TaskStatus.PENDING,
                         reminder = Reminder.DAY_BEFORE,
                         priority = taskPriority.value,
@@ -196,7 +196,10 @@ fun getFormattedTimeText(taskTime: MutableState<Long?>, timeFormatter: SimpleDat
         "Entered Time: ${timeFormatter.format(time)}"
     } ?: "Time has not selected yet"
 }
-
+@Composable
+fun ReminderPicker(taskReminder: MutableState<Long?>) {
+    
+}
 @Composable
 fun ShowTitleTextField(taskTitle: MutableState<String>, keyboardController: SoftwareKeyboardController?) {
     TextField(
