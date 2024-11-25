@@ -13,8 +13,13 @@ data class Task(
     var status: TaskStatus = TaskStatus.PENDING,
     val reminder: Reminder = Reminder.NONE,
     val priority: Priority = Priority.NO_PRIORITY,
-    val userEmail: String? = null
-)
+    val userEmail: String? = null,
+    val goalId: String? = null
+) {
+    fun withGoalId(newGoalId: String?): Task {
+        return this.copy(goalId = newGoalId)
+    }
+}
 
 enum class TaskStatus {
     PENDING,

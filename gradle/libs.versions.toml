@@ -16,7 +16,7 @@ kizitonwoseCompose = "2.5.1"
 kotlin = "1.9.23"
 kotlinxSerializationJson = "1.5.0"
 ktorClientCio = "2.2.4"
-voyagerNavigator = "1.0.0"
+voyagerNavigator = "1.1.0-beta02"
 sqldelight = "2.0.2"
 material3Android = "1.2.1"
 

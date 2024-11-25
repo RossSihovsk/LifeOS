@@ -1,6 +1,11 @@
 package com.project.lifeos.ui.bottomNavigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.Navigator
 import com.project.lifeos.di.AppModule
 import com.project.lifeos.ui.screen.AddTaskScreen
@@ -16,6 +21,10 @@ actual fun bottomBarNavigation(
     appModule: AppModule,
     onDoneOrDismiss: () -> Unit
 ) {
+
+    var activeScreen by remember {  mutableStateOf(BottomBarItems.HOME) }
+    if (activeScreen == bottomBarItems) return
+
     when (bottomBarItems) {
         BottomBarItems.HOME -> {
             navigator.safePush(HomeScreen())
@@ -34,4 +43,6 @@ actual fun bottomBarNavigation(
             navigator.safePush(ProfileScreen())
         }
     }
+
+    activeScreen = bottomBarItems
 }

@@ -34,7 +34,8 @@ class AddTaskViewModel(
         checkItems: List<String> = emptyList(),
         status: TaskStatus = TaskStatus.PENDING,
         reminder: Reminder = Reminder.NONE,
-        priority: Priority = Priority.NO_PRIORITY
+        priority: Priority = Priority.NO_PRIORITY,
+        onTaskSaved: (task: Task) -> Unit = {}
     ) {
         val currentTasks = _tasks.value.toMutableList()
         screenModelScope.launch(Dispatchers.Default) {
@@ -52,8 +53,8 @@ class AddTaskViewModel(
             )
             currentTasks.add(task)
             taskRepository.addTask(task)
-
             notificationScheduler.scheduleNotificationIfNeeded(task, currentUser)
+            onTaskSaved(task)
         }
     }
 }

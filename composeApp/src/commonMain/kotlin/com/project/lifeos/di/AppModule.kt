@@ -1,12 +1,16 @@
 package com.project.lifeos.di
 
 import com.project.lifeos.notification.NotificationScheduler
+import com.project.lifeos.repository.GoalRepository
 import com.project.lifeos.repository.TaskRepository
 import com.project.lifeos.repository.UserRepository
+import com.project.lifeos.repository.local.LocalGoalDataSource
 import com.project.lifeos.repository.local.LocalTaskDataSource
 import com.project.lifeos.repository.local.LocalUserDataSource
 import com.project.lifeos.ui.view.calendar.CalendarDataSource
 import com.project.lifeos.viewmodel.AddTaskViewModel
+import com.project.lifeos.viewmodel.CreateGoalScreenViewModel
+import com.project.lifeos.viewmodel.GoalScreenViewModel
 import com.project.lifeos.viewmodel.HomeScreenViewModel
 import com.project.lifeos.viewmodel.UserViewModel
 
@@ -18,6 +22,7 @@ You just have to provide LocalDataSource object that requires
 abstract class AppModule {
     abstract val localTaskDataSource: LocalTaskDataSource
     abstract val localUserDataSource: LocalUserDataSource
+    abstract val localGoalDataSource: LocalGoalDataSource
     abstract val notificationScheduler: NotificationScheduler
 
     private val calendarDataSource: CalendarDataSource
@@ -28,6 +33,9 @@ abstract class AppModule {
 
     private val userRepository: UserRepository
         get() = UserRepository(localUserDataSource)
+
+    private val goalRepository: GoalRepository
+        get() = GoalRepository(localGoalDataSource = localGoalDataSource)
 
     val homeScreenViewModel: HomeScreenViewModel by lazy {
         HomeScreenViewModel(
@@ -49,6 +57,23 @@ abstract class AppModule {
         UserViewModel(
             userRepository = userRepository,
             taskRepository = taskRepository
+        )
+    }
+
+    val goalScreenViewModel: GoalScreenViewModel by lazy {
+        GoalScreenViewModel(
+            goalRepository = goalRepository,
+            userRepository = userRepository,
+            taskRepository = taskRepository
+        )
+    }
+
+    val createGoalScreenViewModel: CreateGoalScreenViewModel by lazy {
+        CreateGoalScreenViewModel(
+            taskRepository = taskRepository,
+            userRepository = userRepository,
+            goalRepository = goalRepository,
+            notificationScheduler = notificationScheduler,
         )
     }
 }

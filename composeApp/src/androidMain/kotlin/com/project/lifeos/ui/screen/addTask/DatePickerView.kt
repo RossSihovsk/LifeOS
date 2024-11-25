@@ -68,6 +68,7 @@ import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.DayPosition
 import com.kizitonwose.calendar.core.daysOfWeek
 import com.project.lifeos.R
+import com.project.lifeos.data.Duration
 import com.project.lifeos.data.Reminder
 import com.project.lifeos.data.Repeat
 import com.project.lifeos.ui.screen.TimePickerDialog
@@ -83,6 +84,7 @@ import java.util.Locale
 
 @Composable
 fun DateTimeSelectorView(
+    duration: Duration,
     onDone: (dates: List<CalendarDay>, time: Long?, reminder: Reminder) -> Unit,
     onCanceled: () -> Unit
 ) {
@@ -151,7 +153,7 @@ fun DateTimeSelectorView(
             },
             onRepeatSelected = { repeat ->
                 if (repeat != Repeat.CUSTOM && repeat != Repeat.NONE) with(selections) {
-                    val updatedList = recalculateDays(selections.first(), repeat)
+                    val updatedList = recalculateDays(selections.first(), repeat, duration)
                     clear()
                     addAll(updatedList)
                 }
@@ -484,13 +486,4 @@ fun ShowTimePicker(onCanceled: () -> Unit, onConfirmed: (state: TimePickerState)
             calendar.set(Calendar.MINUTE, timePickerState.minute)
             TimePicker(state = timePickerState)
         })
-}
-
-@Preview
-@Composable
-private fun Example1Preview() {
-    DateTimeSelectorView(
-        onCanceled = {},
-        onDone = { _, _, _ -> }
-    )
 }

@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS GoalEntity (
+ id TEXT NOT NULL,
+ name TEXT NOT NULL,
+ description TEXT NOT NULL,
+ duration TEXT NOT NULL,
+ category TEXT NOT NULL,
+ startDate TEXT NOT NULL,
+ userMail TEXT
+);
+
+ addNewGoal:
+ INSERT OR REPLACE INTO GoalEntity(id, name, description, duration, category, startDate, userMail)
+ VALUES (?,?,?,?,?,?, ?);
+
+ getForUser:
+ SELECT * FROM GoalEntity
+ WHERE userMail IS :userMail;
+
+ deleteGoal:
+ DELETE FROM GoalEntity
+   WHERE id IS :id;

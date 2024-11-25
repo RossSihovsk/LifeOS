@@ -65,8 +65,11 @@ import co.touchlab.kermit.Logger
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.DayPosition
 import com.project.lifeos.R
+import com.project.lifeos.data.Duration
 import com.project.lifeos.data.Priority
 import com.project.lifeos.data.Reminder
+import com.project.lifeos.data.Task
+import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.utils.formatDateFromLocalDate
 import com.project.lifeos.viewmodel.AddTaskViewModel
 import java.time.LocalDate
@@ -74,23 +77,53 @@ import java.time.LocalDate
 val logger: Logger = Logger.withTag("AddTaskBottomSheetView")
 
 @Composable
-fun AddTaskBottomSheetView(addTaskViewModel: AddTaskViewModel, onDoneOrDismiss: () -> Unit) {
+fun AddTaskBottomSheetView(
+    addTaskViewModel: AddTaskViewModel?,
+    duration: Duration = Duration.THREE_MONTH,
+    onDismiss: () -> Unit, onDone: (
+        title: String,
+        description: String?,
+        time: Long?,
+        dates: List<String>,
+        checkItems: List<String>,
+        status: TaskStatus,
+        reminder: Reminder,
+        priority: Priority,
+    ) -> Unit
+) {
 
     var showBottomSheet by remember { mutableStateOf(true) }
     logger.d("AddTaskBottomSheetView showBottomSheet $showBottomSheet")
     if (showBottomSheet) {
-        AddTaskView(addTaskViewModel) {
-            logger.i("Navigate back")
-            showBottomSheet = false
-            onDoneOrDismiss()
-        }
+        AddTaskView(
+            addTaskViewModel,
+            duration,
+            onDismiss = {
+                logger.i("Navigate back")
+                showBottomSheet = false
+                onDismiss()
+            }, onDone = onDone
+        )
     }
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun AddTaskView(addTaskViewModel: AddTaskViewModel?, onDismissRequest: () -> Unit) {
+fun AddTaskView(
+    addTaskViewModel: AddTaskViewModel?,
+    duration: Duration,
+    onDismiss: () -> Unit, onDone: (
+        title: String,
+        description: String?,
+        time: Long?,
+        dates: List<String>,
+        checkItems: List<String>,
+        status: TaskStatus,
+        reminder: Reminder,
+        priority: Priority,
+    ) -> Unit
+) {
     val keyboardController = LocalSoftwareKeyboardController.current
     var taskTitle by remember { mutableStateOf("") }
     var taskDescription by remember { mutableStateOf("") }
@@ -109,7 +142,7 @@ fun AddTaskView(addTaskViewModel: AddTaskViewModel?, onDismissRequest: () -> Uni
 
     ModalBottomSheet(
         containerColor = Color.White,
-        onDismissRequest = onDismissRequest,
+        onDismissRequest = onDismiss,
         sheetState = sheetState
     ) {
 
@@ -245,17 +278,9 @@ fun AddTaskView(addTaskViewModel: AddTaskViewModel?, onDismissRequest: () -> Uni
 
             Row(
                 modifier = Modifier.fillMaxWidth().wrapContentHeight().padding(10.dp),
-                horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically
             ) {
-                Row {
-                    Icon(
-                        modifier = Modifier.size(20.dp),
-                        imageVector = ImageVector.vectorResource(R.drawable.move),
-                        contentDescription = null
-                    )
-                    Spacer(modifier = Modifier.width(5.dp))
-                    Text(text = "Move to the goal")
-                }
+
                 if (taskTitle.isNotBlank()) {
                     Button(
                         onClick = {
@@ -268,8 +293,16 @@ fun AddTaskView(addTaskViewModel: AddTaskViewModel?, onDismissRequest: () -> Uni
                                 reminder = taskReminder,
                                 priority = taskPriority
                             )
-                            onDismissRequest()
-
+                            onDone(
+                                taskTitle,
+                                taskDescription,
+                                taskTime,
+                                taskDates.toList().map { it.date.toString() },
+                                taskCheckItems.toList(),
+                                TaskStatus.PENDING,
+                                taskReminder,
+                                taskPriority
+                            )
                         },
                         modifier = Modifier.wrapContentSize(),
                         shape = CircleShape,
@@ -293,6 +326,7 @@ fun AddTaskView(addTaskViewModel: AddTaskViewModel?, onDismissRequest: () -> Uni
                 confirmButton = {}
             ) {
                 DateTimeSelectorView(
+                    duration,
                     onDone = { dates, time, reminder ->
                         taskDates.clear()
                         taskDates.addAll(dates)
@@ -353,10 +387,4 @@ fun TaskParameters(title: String, icon: ImageVector, textItemColor: Color = Colo
             Text(text = title, style = MaterialTheme.typography.labelLarge, color = textItemColor)
         }
     }
-}
-
-@Composable
-@Preview
-fun ModalBottomSheetPreview() {
-    AddTaskView(null) {}
 }
