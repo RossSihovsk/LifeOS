@@ -3,11 +3,12 @@ package com.project.lifeos.repository.local
 import co.touchlab.kermit.Logger
 import com.lifeos.LifeOsDatabase
 import com.lifeos.TaskEntity
+import com.project.lifeos.data.DateStatus
 import com.project.lifeos.data.Priority
 import com.project.lifeos.data.Reminder
 import com.project.lifeos.data.Task
-import com.project.lifeos.data.TaskStatus
-import com.project.lifeos.utils.convertToSingleLine
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 class LocalTaskDataSource(db: LifeOsDatabase) {
 
@@ -21,9 +22,8 @@ class LocalTaskDataSource(db: LifeOsDatabase) {
             name = task.title,
             description = task.description,
             time = task.time,
-            date = convertToSingleStringDate(task.dates),
-            checkItems = task.checkItems.convertToSingleLine(),
-            status = task.status.name,
+            dateStatuses = Json.encodeToString(task.dateStatuses),
+            checkItems = Json.encodeToString(task.checkItems),
             reminder = task.reminder.title,
             priority = task.priority.title,
             userMail = task.userEmail,
@@ -31,9 +31,9 @@ class LocalTaskDataSource(db: LifeOsDatabase) {
         )
     }
 
-    fun updateStatus(id: Long, status: TaskStatus) {
-        logger.d("Update task id: $id new status: $status")
-        queries.updateStatus(status.name, id)
+    fun updateStatus(id: Long, dateStatuses: List<DateStatus>) {
+        logger.d("Update task id: $id new dateStatus: $dateStatuses")
+        queries.updateStatus(Json.encodeToString(dateStatuses), id)
     }
 
     fun getForSomeDay(date: String, userEmail: String?): List<Task> {
@@ -66,9 +66,8 @@ class LocalTaskDataSource(db: LifeOsDatabase) {
                     title = taskEntity.name,
                     description = taskEntity.description,
                     time = taskEntity.time,
-                    dates = convertIntoDatesList(taskEntity.date),
-                    checkItems = validateToList(taskEntity.checkItems),
-                    status = TaskStatus.valueOf(taskEntity.status),
+                    dateStatuses = Json.decodeFromString(taskEntity.dateStatuses),
+                    checkItems = taskEntity.checkItems?.let { Json.decodeFromString(it) },
                     reminder = Reminder.getFromTitle(taskEntity.reminder),
                     priority = Priority.getFromTitle(taskEntity.priority),
                     goalId = taskEntity.goalId
@@ -76,31 +75,5 @@ class LocalTaskDataSource(db: LifeOsDatabase) {
             )
         }
         return taskList
-    }
-
-    private fun validateToList(checkItems: String?): List<String> {
-        checkItems?.let { checkItemsList ->
-            return checkItemsList.split(";").filter { value -> value.isNotBlank() }.map { value ->
-                value.trimStart()
-                value.trimEnd()
-            }.toList()
-        }
-        return emptyList()
-    }
-
-    private fun convertToSingleStringDate(dates: List<String>?): String {
-        var value = ""
-        dates?.forEach {
-            value += "$it;"
-        }
-        return value
-    }
-
-    private fun convertIntoDatesList(value: String?): List<String>? {
-        value?.let { date: String ->
-            return date.split(";")
-        }
-
-        return null
     }
 }

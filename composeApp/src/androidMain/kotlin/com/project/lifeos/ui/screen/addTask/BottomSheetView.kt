@@ -58,18 +58,16 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import co.touchlab.kermit.Logger
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.DayPosition
 import com.project.lifeos.R
+import com.project.lifeos.data.DateStatus
 import com.project.lifeos.data.Duration
 import com.project.lifeos.data.Priority
 import com.project.lifeos.data.Reminder
-import com.project.lifeos.data.Task
-import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.utils.formatDateFromLocalDate
 import com.project.lifeos.viewmodel.AddTaskViewModel
 import java.time.LocalDate
@@ -84,9 +82,8 @@ fun AddTaskBottomSheetView(
         title: String,
         description: String?,
         time: Long?,
-        dates: List<String>,
+        dates: List<DateStatus>,
         checkItems: List<String>,
-        status: TaskStatus,
         reminder: Reminder,
         priority: Priority,
     ) -> Unit
@@ -117,9 +114,8 @@ fun AddTaskView(
         title: String,
         description: String?,
         time: Long?,
-        dates: List<String>,
+        dates: List<DateStatus>,
         checkItems: List<String>,
-        status: TaskStatus,
         reminder: Reminder,
         priority: Priority,
     ) -> Unit
@@ -297,9 +293,8 @@ fun AddTaskView(
                                 taskTitle,
                                 taskDescription,
                                 taskTime,
-                                taskDates.toList().map { it.date.toString() },
+                                taskDates.toList().map { DateStatus(it.date.toString(), false)   },
                                 taskCheckItems.toList(),
-                                TaskStatus.PENDING,
                                 taskReminder,
                                 taskPriority
                             )

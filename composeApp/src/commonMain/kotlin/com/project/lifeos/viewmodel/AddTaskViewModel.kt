@@ -2,10 +2,10 @@ package com.project.lifeos.viewmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.project.lifeos.data.DateStatus
 import com.project.lifeos.data.Priority
 import com.project.lifeos.data.Reminder
 import com.project.lifeos.data.Task
-import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.notification.NotificationScheduler
 import com.project.lifeos.repository.TaskRepository
 import com.project.lifeos.repository.UserRepository
@@ -32,7 +32,6 @@ class AddTaskViewModel(
         time: Long? = null,
         dates: List<String>,
         checkItems: List<String> = emptyList(),
-        status: TaskStatus = TaskStatus.PENDING,
         reminder: Reminder = Reminder.NONE,
         priority: Priority = Priority.NO_PRIORITY,
         onTaskSaved: (task: Task) -> Unit = {}
@@ -44,9 +43,8 @@ class AddTaskViewModel(
                 title = title,
                 description = description,
                 time = time,
-                dates = dates,
+                dateStatuses = dates.map { date -> DateStatus(date, false) },
                 checkItems = checkItems,
-                status = status,
                 priority = priority,
                 reminder = reminder,
                 userEmail = currentUser?.mail

@@ -58,7 +58,6 @@ import com.project.lifeos.R
 import com.project.lifeos.data.Priority
 import com.project.lifeos.data.Reminder
 import com.project.lifeos.data.Task
-import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.ui.view.CalendarView
 import com.project.lifeos.utils.formatTime
 import com.project.lifeos.viewmodel.HomeScreenViewModel
@@ -104,7 +103,11 @@ actual fun HomeScreenContent(
                 TaskExpandedSection(
                     title = TO_COMPLETE_TITLE,
                     content = {
-                        TasksContent(state.unCompletedTasks, onTaskStatusChanged = viewModel::onTaskStatusChanged)
+                        TasksContent(
+                            state.unCompletedTasks,
+                            onTaskStatusChanged = viewModel::onTaskStatusChanged,
+                            completed = false
+                        )
                     },
                     isExpanded = ongoingTasksExpanded.value, // Bind state to isExpanded
                     onToggleClick = { ongoingTasksExpanded.value = !ongoingTasksExpanded.value }
@@ -115,7 +118,11 @@ actual fun HomeScreenContent(
                 TaskExpandedSection(
                     title = COMPLETED_TITLE,
                     content = {
-                        TasksContent(state.completedTasks, onTaskStatusChanged = viewModel::onTaskStatusChanged)
+                        TasksContent(
+                            state.completedTasks,
+                            onTaskStatusChanged = viewModel::onTaskStatusChanged,
+                            completed = true
+                        )
                     },
                     isExpanded = completedTasksExpanded.value, // Bind state to isExpanded
                     onToggleClick = { completedTasksExpanded.value = !completedTasksExpanded.value }
@@ -199,24 +206,24 @@ fun TaskExpandedSection(
 }
 
 @Composable
-fun TasksContent(tasks: List<Task>, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit) {
+fun TasksContent(tasks: List<Task>, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean) {
     LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 600.dp)) {
         items(tasks) { task ->
-            TaskCard(task = task, onTaskStatusChanged = onTaskStatusChanged)
+            TaskCard(task = task, onTaskStatusChanged = onTaskStatusChanged, completed)
             Spacer(modifier = Modifier.height(25.dp))
         }
     }
 }
 
 @Composable
-fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit) {
+fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean) {
     Column(
         modifier = Modifier
             .wrapContentSize()
             .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.Start
     ) {
-        MainInfoCard(task = task, onTaskStatusChanged = onTaskStatusChanged)
+        MainInfoCard(task = task, onTaskStatusChanged = onTaskStatusChanged, completed)
         Spacer(modifier = Modifier.height(4.dp))
         TaskCardDescription(description = task.description)
         Spacer(modifier = Modifier.height(6.dp))
@@ -225,7 +232,7 @@ fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> U
 }
 
 @Composable
-fun MainInfoCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit) {
+fun MainInfoCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -234,9 +241,9 @@ fun MainInfoCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) 
     ) {
         Checkbox(
             modifier = Modifier.height(20.dp),
-            checked = task.status == TaskStatus.DONE,
+            checked = completed,
             onCheckedChange = { status ->
-                onTaskStatusChanged(status, task)
+                onTaskStatusChanged(!status, task)
             }
         )
         Spacer(modifier = Modifier.width(8.dp))
@@ -294,7 +301,7 @@ fun AdditionalInfoCard(task: Task) {
             }
         }
 
-        if (task.checkItems.isNotEmpty()) {
+        if (task.checkItems?.isNotEmpty() == true) {
             TaskInfoItem {
                 Text(
                     text = "Check list:",

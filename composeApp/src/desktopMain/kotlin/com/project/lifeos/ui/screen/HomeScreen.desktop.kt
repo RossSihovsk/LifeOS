@@ -40,7 +40,6 @@ import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
 
 import com.project.lifeos.data.Task
-import com.project.lifeos.data.TaskStatus
 
 import com.project.lifeos.utils.formatTime
 import com.project.lifeos.viewmodel.HomeScreenViewModel
@@ -83,7 +82,7 @@ actual fun HomeScreenContent(
                 TaskExpandedSection(
                     title = "TO_COMPLETE_TITLE",
                     content = {
-                        TasksContent(state.unCompletedTasks, onTaskStatusChanged = viewModel::onTaskStatusChanged)
+                        TasksContent(state.unCompletedTasks, onTaskStatusChanged = viewModel::onTaskStatusChanged,completed = false)
                     },
                     isExpanded = ongoingTasksExpanded.value, // Bind state to isExpanded
                     onToggleClick = { ongoingTasksExpanded.value = !ongoingTasksExpanded.value }
@@ -94,7 +93,7 @@ actual fun HomeScreenContent(
                 TaskExpandedSection(
                     title = "COMPLETED_TITLE",
                     content = {
-                        TasksContent(state.completedTasks, onTaskStatusChanged = viewModel::onTaskStatusChanged)
+                        TasksContent(state.completedTasks, onTaskStatusChanged = viewModel::onTaskStatusChanged, completed = true)
                     },
                     isExpanded = completedTasksExpanded.value, // Bind state to isExpanded
                     onToggleClick = { completedTasksExpanded.value = !completedTasksExpanded.value }
@@ -177,16 +176,16 @@ fun TaskExpandedSection(
 }
 
 @Composable
-fun TasksContent(tasks: List<Task>, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit) {
+fun TasksContent(tasks: List<Task>, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean) {
     LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 600.dp)) {
         items(tasks) { task ->
-            TaskCard(task = task, onTaskStatusChanged = onTaskStatusChanged)
+            TaskCard(task = task, onTaskStatusChanged = onTaskStatusChanged, completed)
         }
     }
 }
 
 @Composable
-fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit) {
+fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -194,8 +193,10 @@ fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> U
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(
-            checked = task.status == TaskStatus.DONE,
-            onCheckedChange = { status -> onTaskStatusChanged(status, task) }
+            checked = completed,
+            onCheckedChange = { status ->
+                onTaskStatusChanged(!status, task)
+            }
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
