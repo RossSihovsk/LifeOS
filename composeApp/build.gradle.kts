@@ -76,7 +76,7 @@ kotlin {
             //SQLDelight Common
             implementation(libs.sqldelight.coroutines)
 
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+            implementation(libs.kotlinx.serialization.json)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
