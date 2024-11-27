@@ -3,12 +3,12 @@ package com.project.lifeos.viewmodel
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.project.lifeos.data.Category
+import com.project.lifeos.data.DateStatus
 import com.project.lifeos.data.Duration
 import com.project.lifeos.data.Goal
 import com.project.lifeos.data.Priority
 import com.project.lifeos.data.Reminder
 import com.project.lifeos.data.Task
-import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.notification.NotificationScheduler
 import com.project.lifeos.repository.GoalRepository
 import com.project.lifeos.repository.TaskRepository
@@ -27,9 +27,8 @@ class CreateGoalScreenViewModel(
         title: String,
         description: String?,
         time: Long?,
-        dates: List<String>,
+        dates: List<DateStatus>,
         checkItems: List<String>,
-        status: TaskStatus,
         reminder: Reminder,
         priority: Priority,
     ): Task {
@@ -38,9 +37,8 @@ class CreateGoalScreenViewModel(
             title = title,
             description = description,
             time = time,
-            dates = dates,
+            dateStatuses = dates,
             checkItems = checkItems,
-            status = status,
             priority = priority,
             reminder = reminder,
             userEmail = currentUser?.mail
@@ -74,5 +72,4 @@ class CreateGoalScreenViewModel(
             notificationScheduler.scheduleNotificationIfNeeded(it, user)
         }
     }
-
 }

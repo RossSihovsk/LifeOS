@@ -4,7 +4,6 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.project.lifeos.data.Goal
 import com.project.lifeos.data.Task
-import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.repository.GoalRepository
 import com.project.lifeos.repository.TaskRepository
 import com.project.lifeos.repository.UserRepository
@@ -36,8 +35,8 @@ class GoalScreenViewModel(
             if (goals.isEmpty()) {
                 _uiState.emit(GoalsUIState.NoGoals)
             } else {
-                _uiState.emit(GoalsUIState.GoalsFounded(goals))
                 addToDataList(goals)
+                _uiState.emit(GoalsUIState.GoalsFounded(goals))
             }
         }
     }
@@ -60,10 +59,11 @@ class GoalScreenViewModel(
     }
 
     private fun countPercentageDone(tasks: List<Task>): Int {
-        val completedTasks = tasks.count { it.status == TaskStatus.DONE }
+        val completedTasks = tasks.sumOf { task -> task.dateStatuses.count { it.status } }
+        val totalTasks = tasks.sumOf { it.dateStatuses.size }
 
         return if (tasks.isNotEmpty()) {
-            ((completedTasks.toDouble() / tasks.size) * 100).toInt()
+            ((completedTasks.toDouble() / totalTasks) * 100).toInt()
         } else {
             0
         }
@@ -79,7 +79,7 @@ class GoalScreenViewModel(
         var tasksNumber = 0
 
         tasks.forEach { task ->
-            tasksNumber += task.dates?.map { if (it.isNotEmpty()) stringToDate(it) else null }
+            tasksNumber += task.dateStatuses.map { stringToDate(it.date) }
                 ?.count { it?.isAfter(firstDayOfWeek.minusDays(1)) == true && it.isBefore(lastDayOfWeek.plusDays(1)) }
                 ?: 0
         }

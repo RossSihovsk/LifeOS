@@ -1,6 +1,7 @@
 package com.project.lifeos.data
 
 import androidx.compose.ui.graphics.Color
+import kotlinx.serialization.Serializable
 import java.time.Duration
 
 data class Task(
@@ -8,9 +9,8 @@ data class Task(
     val title: String,
     val description: String? = null,
     val time: Long?,
-    val dates: List<String>?,
-    val checkItems: List<String> = emptyList(),
-    var status: TaskStatus = TaskStatus.PENDING,
+    val dateStatuses: List<DateStatus>,
+    val checkItems: List<String>? = emptyList(),
     val reminder: Reminder = Reminder.NONE,
     val priority: Priority = Priority.NO_PRIORITY,
     val userEmail: String? = null,
@@ -21,11 +21,11 @@ data class Task(
     }
 }
 
-enum class TaskStatus {
-    PENDING,
-    DONE,
-    SKIPPED
-}
+@Serializable
+data class DateStatus(
+    val date: String,
+    val status: Boolean
+)
 
 enum class Reminder(val title: String, val duration: Duration) {
     NONE("None", Duration.ZERO),

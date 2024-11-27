@@ -40,7 +40,6 @@ import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
 
 import com.project.lifeos.data.Task
-import com.project.lifeos.data.TaskStatus
 
 import com.project.lifeos.utils.formatTime
 import com.project.lifeos.viewmodel.HomeScreenViewModel
@@ -194,7 +193,7 @@ fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> U
         verticalAlignment = Alignment.CenterVertically
     ) {
         Checkbox(
-            checked = task.status == TaskStatus.DONE,
+            checked = false,
             onCheckedChange = { status -> onTaskStatusChanged(status, task) }
         )
         Spacer(modifier = Modifier.width(8.dp))
