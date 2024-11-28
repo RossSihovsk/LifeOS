@@ -35,7 +35,6 @@ import co.touchlab.kermit.Logger
 import com.project.lifeos.data.Priority
 import com.project.lifeos.data.Reminder
 import com.project.lifeos.data.Task
-import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.ui.view.calendar.CalendarUiModel
 
 import com.project.lifeos.utils.formatTime
@@ -166,20 +165,18 @@ fun TaskExpandedSection(
 fun TasksContent(tasks: List<Task>, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean) {
     LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 600.dp)) {
         items(tasks) { task ->
-            TaskCard(task = task, onTaskStatusChanged = onTaskStatusChanged)
-            Spacer(modifier = Modifier.height(25.dp))
             TaskCard(task = task, onTaskStatusChanged = onTaskStatusChanged, completed)
+            Spacer(modifier = Modifier.height(25.dp))
         }
     }
 }
 
 @Composable
 fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean) {
-fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit) {
     Column(
         modifier = Modifier.wrapContentSize().padding(horizontal = 16.dp), horizontalAlignment = Alignment.Start
     ) {
-        MainInfoCard(task = task, onTaskStatusChanged = onTaskStatusChanged)
+        MainInfoCard(task = task, onTaskStatusChanged = onTaskStatusChanged, completed)
         Spacer(modifier = Modifier.height(4.dp))
         TaskCardDescription(description = task.description)
         Spacer(modifier = Modifier.height(6.dp))
@@ -188,7 +185,7 @@ fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> U
 }
 
 @Composable
-fun MainInfoCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit) {
+fun MainInfoCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean) {
     Row(
         modifier = Modifier.fillMaxWidth().wrapContentHeight(), verticalAlignment = Alignment.CenterVertically
     ) {
@@ -198,11 +195,6 @@ fun MainInfoCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) 
                 onTaskStatusChanged(!status, task)
             }
         )
-            modifier = Modifier.height(20.dp),
-            checked = task.status == TaskStatus.DONE,
-            onCheckedChange = { status ->
-                onTaskStatusChanged(status, task)
-            })
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = task.title,
@@ -253,7 +245,7 @@ fun AdditionalInfoCard(task: Task) {
             }
         }
 
-        if (task.checkItems.isNotEmpty()) {
+        if (task.checkItems?.isNotEmpty() == true) {
             TaskInfoItem {
                 Text(
                     text = "Check list:",

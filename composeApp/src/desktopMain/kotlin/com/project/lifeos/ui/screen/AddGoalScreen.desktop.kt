@@ -35,6 +35,7 @@ import androidx.compose.ui.window.DialogProperties
 import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
 import com.project.lifeos.data.Category
+import com.project.lifeos.data.DateStatus
 import com.project.lifeos.data.Duration
 import com.project.lifeos.data.Task
 import com.project.lifeos.di.AppModuleProvider
@@ -527,14 +528,13 @@ fun AddTaskButton(viewModel: CreateGoalScreenViewModel, text: String, onDone: (t
                     AddTaskScreenContent(
                         null,
                         logger
-                    ) { title, description, time, dates, checkItems, status, reminder, priority ->
+                    ) { title, description, time, dates, checkItems, reminder, priority ->
                         val task = Task(
                             title = title,
                             description = description,
                             time = time,
-                            dates = dates,
+                            dateStatuses = dates.map{ DateStatus(it,false) },
                             checkItems = checkItems,
-                            status = status,
                             reminder = reminder,
                             priority = priority
                         )

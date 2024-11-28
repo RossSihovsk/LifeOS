@@ -6,7 +6,6 @@ import cafe.adriel.voyager.core.screen.Screen
 import co.touchlab.kermit.Logger
 import com.project.lifeos.data.Priority
 import com.project.lifeos.data.Reminder
-import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.di.AppModuleProvider
 import com.project.lifeos.viewmodel.AddTaskViewModel
 
@@ -17,7 +16,6 @@ expect fun AddTaskScreenContent(viewModel: AddTaskViewModel?, logger: Logger?,on
     time: Long?,
     dates: List<String>,
     checkItems: List<String>,
-    status: TaskStatus,
     reminder: Reminder,
     priority: Priority,
 ) -> Unit)
@@ -29,6 +27,6 @@ class AddTaskScreen : Screen {
     @Composable
     override fun Content() {
         val taskViewModel = rememberScreenModel { AppModuleProvider.getAppModule().addTaskViewModel }
-        AddTaskScreenContent(taskViewModel, logger){title, description, time, dates, checkItems, status, reminder, priority ->  }
+        AddTaskScreenContent(taskViewModel, logger){title, description, time, dates, checkItems, reminder, priority ->  }
     }
 }

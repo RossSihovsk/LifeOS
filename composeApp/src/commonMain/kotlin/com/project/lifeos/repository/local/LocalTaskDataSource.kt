@@ -41,8 +41,6 @@ class LocalTaskDataSource(db: LifeOsDatabase) {
             date = date, userMail = userEmail
         ).executeAsList().mapToTaskList()
         logger.d("getForDay $date result: $result")
-        val result2 = queries.getAllData().executeAsList().mapToTaskList()
-        logger.d("getAllData result2: $result2")
         return result
     }
 

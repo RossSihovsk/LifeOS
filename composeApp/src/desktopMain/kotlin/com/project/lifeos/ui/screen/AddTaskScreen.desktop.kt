@@ -32,7 +32,6 @@ import androidx.compose.ui.window.DialogProperties
 import co.touchlab.kermit.Logger
 import com.project.lifeos.data.Priority
 import com.project.lifeos.data.Reminder
-import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.viewmodel.AddTaskViewModel
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -47,7 +46,6 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel?, logger: Logger?, o
     time: Long?,
     dates: List<String>,
     checkItems: List<String>,
-    status: TaskStatus,
     reminder: Reminder,
     priority: Priority,
 ) -> Unit) {
@@ -168,13 +166,12 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel?, logger: Logger?, o
             logger?.i(
                 "Save task with title: ${taskTitle.value}, description: ${taskDescription.value}, time: ${taskTime.value}, date: ${taskDate.value}"
             )
-            onDone(taskTitle.value, taskDescription.value, taskTime.value, listOf(dateFormatter.format(Date(taskDate.value!!))),taskCheckItems.toList(),TaskStatus.PENDING, Reminder.DAY_BEFORE, taskPriority.value)
+            onDone(taskTitle.value, taskDescription.value, taskTime.value, listOf(dateFormatter.format(Date(taskDate.value!!))),taskCheckItems.toList(), Reminder.DAY_BEFORE, taskPriority.value)
             viewModel?.saveTask(
                 title = taskTitle.value,
                 description = taskDescription.value,
                 time = taskTime.value,
                 dates = listOf(dateFormatter.format(Date(taskDate.value!!))) ,
-                status = TaskStatus.PENDING,
                 reminder = taskReminder.value,
                 priority = taskPriority.value,
                 checkItems = taskCheckItems.toList(),
