@@ -15,18 +15,18 @@ private val logger = Logger.withTag("NotificationScheduler")
 
 abstract class NotificationScheduler {
     fun scheduleNotificationIfNeeded(task: Task, user: User?) {
-//        if (task.dates.isNullOrEmpty() || task.time == null) {
-//            logger.d("Dates are empty for this task")
-//            return
-//        }
-//
-//        if (task.reminder == Reminder.NONE) {
-//            logger.d("Reminder is not required")
-//            return
-//        }
+        if (task.dateStatuses.isEmpty() || task.time == null) {
+            logger.d("Dates are empty for this task")
+            return
+        }
+
+        if (task.reminder == Reminder.NONE) {
+            logger.d("Reminder is not required")
+            return
+        }
 
         val validatedTimeForNotification = mutableListOf<Long>()
-        convertToCombinedDateTime(task.dates, task.time)?.forEach { dateTime ->
+        convertToCombinedDateTime(task.dateStatuses.map { it.date }, task.time)?.forEach { dateTime ->
             logger.d("Check ${convertLongToStringDate(dateTime)} for ${task.reminder}")
             val result = isReminderStillValid(dateTime, task.reminder)
             if (result.first) {

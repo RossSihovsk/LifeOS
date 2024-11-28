@@ -1,8 +1,8 @@
 package com.project.lifeos.repository
 
 import co.touchlab.kermit.Logger
+import com.project.lifeos.data.DateStatus
 import com.project.lifeos.data.Task
-import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.repository.local.LocalTaskDataSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,22 +44,13 @@ class TaskRepository(private val localTaskDataSource: LocalTaskDataSource) {
         _tasksFlow.tryEmit(localList)
     }
 
-    fun onTaskStatusChanged(status: Boolean, task: Task) {
-        task.id?.let {
-            val find = localList.find { localTask -> localTask == task }
-            find?.status = if (status) TaskStatus.DONE else TaskStatus.PENDING
+    fun onTaskStatusChanged(newTaskStatus: DateStatus, task: Task) {
+        task.dateStatuses.let { dateStatuses ->
+            val list = dateStatuses.toMutableList()
+            list.removeIf { it.date == newTaskStatus.date }
+            list.add(newTaskStatus)
 
-
-
-            localTaskDataSource.updateStatus(task.id, if (status) TaskStatus.DONE else TaskStatus.PENDING)
-            _tasksFlow.tryEmit(localList)
-            return
+            localTaskDataSource.updateStatus(task.id!!, list)
         }
-
-        logger.e("Task ID is null. Cannot change status")
-    }
-
-    fun updateList(newItems: List<Task>) {
-        _tasksFlow.tryEmit(newItems)
     }
 }

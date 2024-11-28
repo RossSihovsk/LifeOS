@@ -73,7 +73,7 @@ actual fun GoalScreenContent(navigator: Navigator, viewModel: GoalScreenViewMode
 @Composable
 fun NoGoalsView() {
     Column(
-        Modifier.height(height = 450.dp).fillMaxWidth(),
+        Modifier.height(height = 650.dp).fillMaxWidth(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -186,17 +186,21 @@ fun GoalCardHeader(title: String, category: Category) {
             fontSize = 22.sp
         )
 
-        Row {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
             Text(
                 text = category.title,
                 style = MaterialTheme.typography.titleMedium,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold
             )
-            Spacer(modifier = Modifier.width(5.dp))
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.flag),
-                contentDescription = null
+            Spacer(modifier = Modifier.width(8.dp))
+            Image(
+                painter = painterResource(getCategoryResourceId(category = category)),
+                contentDescription = null,
+                modifier = Modifier.size(23.dp)
             )
         }
     }

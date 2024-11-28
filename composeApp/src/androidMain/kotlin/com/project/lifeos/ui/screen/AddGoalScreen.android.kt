@@ -547,12 +547,13 @@ fun DisplayTask(task: Task, onDelete: (task: Task) -> Unit) {
 @Composable
 fun AddTaskButton(viewModel: CreateGoalScreenViewModel, text: String, onDone: (task: Task) -> Unit) {
     var showModalBottomSheet by remember { mutableStateOf(false) }
-    
+
+
     if (showModalBottomSheet) {
         AddTaskBottomSheetView(
             addTaskViewModel = null,
             duration = Duration.THREE_MONTH,
-            onDone = { title, description, time, dates, checkItems, status, reminder, priority ->
+            onDone = { title, description, time, dates, checkItems, reminder, priority ->
                 onDone(
                     viewModel.validateDataAndGetTask(
                         title,
@@ -560,7 +561,6 @@ fun AddTaskButton(viewModel: CreateGoalScreenViewModel, text: String, onDone: (t
                         time,
                         dates,
                         checkItems,
-                        status,
                         reminder,
                         priority
                     )

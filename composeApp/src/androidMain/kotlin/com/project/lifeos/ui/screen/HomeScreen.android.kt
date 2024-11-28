@@ -58,7 +58,6 @@ import com.project.lifeos.R
 import com.project.lifeos.data.Priority
 import com.project.lifeos.data.Reminder
 import com.project.lifeos.data.Task
-import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.ui.view.CalendarView
 import com.project.lifeos.utils.formatTime
 import com.project.lifeos.viewmodel.HomeScreenViewModel
@@ -70,7 +69,8 @@ private val logger = Logger.withTag("HomeScreenContent")
 
 @Composable
 actual fun HomeScreenContent(
-    viewModel: HomeScreenViewModel, navigator: Navigator?
+    viewModel: HomeScreenViewModel,
+    navigator: Navigator?
 ) {
     val scrollState = rememberScrollState()
     val ongoingTasksExpanded = remember { mutableStateOf(true) } // Track expansion state
@@ -80,7 +80,8 @@ actual fun HomeScreenContent(
 
     Column(modifier = Modifier.fillMaxWidth().verticalScroll(state = scrollState)) {
 
-        CalendarView(modifier = Modifier.fillMaxWidth(),
+        CalendarView(
+            modifier = Modifier.fillMaxWidth(),
             calendarUiModel = viewModel.calendarUiModel,
             onDateClickListener = { date ->
                 viewModel.onDateClicked(date)
@@ -99,17 +100,33 @@ actual fun HomeScreenContent(
 
             is HomeUiState.TaskUpdated -> {
                 logger.i("UpdateTaskStatus")
-                TaskExpandedSection(title = TO_COMPLETE_TITLE, content = {
-                    TasksContent(state.unCompletedTasks, onTaskStatusChanged = viewModel::onTaskStatusChanged)
-                }, isExpanded = ongoingTasksExpanded.value, // Bind state to isExpanded
-                    onToggleClick = { ongoingTasksExpanded.value = !ongoingTasksExpanded.value })
+                TaskExpandedSection(
+                    title = TO_COMPLETE_TITLE,
+                    content = {
+                        TasksContent(
+                            state.unCompletedTasks,
+                            onTaskStatusChanged = viewModel::onTaskStatusChanged,
+                            completed = false
+                        )
+                    },
+                    isExpanded = ongoingTasksExpanded.value, // Bind state to isExpanded
+                    onToggleClick = { ongoingTasksExpanded.value = !ongoingTasksExpanded.value }
+                )
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                TaskExpandedSection(title = COMPLETED_TITLE, content = {
-                    TasksContent(state.completedTasks, onTaskStatusChanged = viewModel::onTaskStatusChanged)
-                }, isExpanded = completedTasksExpanded.value, // Bind state to isExpanded
-                    onToggleClick = { completedTasksExpanded.value = !completedTasksExpanded.value })
+                TaskExpandedSection(
+                    title = COMPLETED_TITLE,
+                    content = {
+                        TasksContent(
+                            state.completedTasks,
+                            onTaskStatusChanged = viewModel::onTaskStatusChanged,
+                            completed = true
+                        )
+                    },
+                    isExpanded = completedTasksExpanded.value, // Bind state to isExpanded
+                    onToggleClick = { completedTasksExpanded.value = !completedTasksExpanded.value }
+                )
             }
         }
     }
@@ -122,7 +139,10 @@ actual fun HomeScreenContent(
 @Composable
 fun DisplayNoDataImage() {
     Column(
-        modifier = Modifier.padding(top = 60.dp, start = 20.dp, end = 20.dp).fillMaxWidth().fillMaxHeight(),
+        modifier = Modifier
+            .padding(top = 60.dp, start = 20.dp, end = 20.dp)
+            .fillMaxWidth()
+            .fillMaxHeight(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
@@ -153,7 +173,10 @@ fun TaskExpandedSection(
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Row(
-            modifier = Modifier.fillMaxWidth().clickable { onToggleClick() }, horizontalArrangement = Arrangement.Start
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onToggleClick() },
+            horizontalArrangement = Arrangement.Start
         ) {
             Text(
                 text = title,
@@ -170,7 +193,9 @@ fun TaskExpandedSection(
             }
         }
         Divider(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp), color = Color.LightGray, thickness = 1.dp
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+            color = Color.LightGray,
+            thickness = 1.dp
         )
         Spacer(modifier = Modifier.height(10.dp))
 
@@ -181,21 +206,24 @@ fun TaskExpandedSection(
 }
 
 @Composable
-fun TasksContent(tasks: List<Task>, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit) {
+fun TasksContent(tasks: List<Task>, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean) {
     LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 600.dp)) {
         items(tasks) { task ->
-            TaskCard(task = task, onTaskStatusChanged = onTaskStatusChanged)
+            TaskCard(task = task, onTaskStatusChanged = onTaskStatusChanged, completed)
             Spacer(modifier = Modifier.height(25.dp))
         }
     }
 }
 
 @Composable
-fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit) {
+fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean) {
     Column(
-        modifier = Modifier.wrapContentSize().padding(horizontal = 16.dp), horizontalAlignment = Alignment.Start
+        modifier = Modifier
+            .wrapContentSize()
+            .padding(horizontal = 16.dp),
+        horizontalAlignment = Alignment.Start
     ) {
-        MainInfoCard(task = task, onTaskStatusChanged = onTaskStatusChanged)
+        MainInfoCard(task = task, onTaskStatusChanged = onTaskStatusChanged, completed)
         Spacer(modifier = Modifier.height(4.dp))
         TaskCardDescription(description = task.description)
         Spacer(modifier = Modifier.height(6.dp))
@@ -204,15 +232,20 @@ fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> U
 }
 
 @Composable
-fun MainInfoCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit) {
+fun MainInfoCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean) {
     Row(
-        modifier = Modifier.fillMaxWidth().wrapContentHeight(), verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Checkbox(modifier = Modifier.height(20.dp),
-            checked = task.status == TaskStatus.DONE,
+        Checkbox(
+            modifier = Modifier.height(20.dp),
+            checked = completed,
             onCheckedChange = { status ->
-                onTaskStatusChanged(status, task)
-            })
+                onTaskStatusChanged(!status, task)
+            }
+        )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = task.title,
@@ -244,13 +277,18 @@ fun TaskCardDescription(description: String?) {
 @Composable
 fun AdditionalInfoCard(task: Task) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(start = 16.dp), verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
         if (task.reminder != Reminder.NONE) {
             with(task.reminder) {
                 TaskInfoItem {
                     Text(
-                        text = title, style = MaterialTheme.typography.bodyMedium, modifier = Modifier
+                        text = title,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier
                     )
                     Image(
                         painter = painterResource(id = getReminderImageId(this)), // Replace with your image resource
@@ -263,7 +301,7 @@ fun AdditionalInfoCard(task: Task) {
             }
         }
 
-        if (task.checkItems.isNotEmpty()) {
+        if (task.checkItems?.isNotEmpty() == true) {
             TaskInfoItem {
                 Text(
                     text = "Check list:",

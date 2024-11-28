@@ -7,7 +7,6 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import co.touchlab.kermit.Logger
 import com.project.lifeos.data.Task
-import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.repository.TaskRepository
 import com.project.lifeos.repository.UserRepository
 import com.project.lifeos.ui.view.calendar.CalendarDataSource
@@ -18,8 +17,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.observeOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -57,18 +54,21 @@ class HomeScreenViewModel(
 
     fun onTaskStatusChanged(status: Boolean, task: Task) {
         logger.i("Task $task finished $status")
-        if (status && task.status != TaskStatus.PENDING) return
+        val newStatus = task.dateStatuses.first { it.date.contains(currentDate) }.copy(status = !status)
 
-        val updateJob = screenModelScope.async(context = Dispatchers.IO) {
-            taskRepository.onTaskStatusChanged(status, task)
+        logger.d("newStatus: $newStatus")
+        val updateJob = screenModelScope.async {
+            taskRepository.onTaskStatusChanged(newStatus, task)
         }
 
         updateTasksState(updateJob)
     }
 
     private fun separateTasks(tasks: List<Task>): Pair<List<Task>, List<Task>> {
-        val completedTasks = tasks.filter { it.status == TaskStatus.DONE }
-        val uncompletedTasks = tasks.filter { it.status == TaskStatus.PENDING }
+        val completedTasks =
+            tasks.filter { task -> task.dateStatuses.any { it.date.contains(currentDate) && it.status } }
+        val uncompletedTasks =
+            tasks.filter { task -> task.dateStatuses.any { it.date.contains(currentDate) && !it.status } }
         return Pair(completedTasks, uncompletedTasks)
     }
 
@@ -84,7 +84,8 @@ class HomeScreenViewModel(
         }
 
         val (completed, uncompleted) = separateTasks(updatedList)
-        _uiState.value = HomeUiState.TaskUpdated(completedTasks = completed, unCompletedTasks = uncompleted)
+        _uiState.value =
+            HomeUiState.TaskUpdated(completedTasks = completed, unCompletedTasks = uncompleted, currentDate)
     }
 
     fun init() {
@@ -96,7 +97,8 @@ class HomeScreenViewModel(
                 if (tasks.isEmpty()) _uiState.emit(HomeUiState.NoTaskForSelectedDate)
                 else {
                     val (completed, uncompleted) = separateTasks(tasks)
-                    _uiState.value = HomeUiState.TaskUpdated(completedTasks = completed, unCompletedTasks = uncompleted)
+                    _uiState.value =
+                        HomeUiState.TaskUpdated(completedTasks = completed, unCompletedTasks = uncompleted, currentDate)
                 }
             }
         }
@@ -114,7 +116,8 @@ class HomeScreenViewModel(
                 } else {
                     logger.i("${tasks.size} Tasks are present for $date")
                     val (completed, uncompleted) = separateTasks(tasks)
-                    _uiState.value = HomeUiState.TaskUpdated(completedTasks = completed, unCompletedTasks = uncompleted)
+                    _uiState.value =
+                        HomeUiState.TaskUpdated(completedTasks = completed, unCompletedTasks = uncompleted, currentDate)
                 }
             }
         }
@@ -123,6 +126,8 @@ class HomeScreenViewModel(
 
 sealed class HomeUiState {
     data object Loading : HomeUiState()
-    data class TaskUpdated(val completedTasks: List<Task>, val unCompletedTasks: List<Task>) : HomeUiState()
+    data class TaskUpdated(val completedTasks: List<Task>, val unCompletedTasks: List<Task>, val currentDate: String) :
+        HomeUiState()
+
     data object NoTaskForSelectedDate : HomeUiState()
 }
