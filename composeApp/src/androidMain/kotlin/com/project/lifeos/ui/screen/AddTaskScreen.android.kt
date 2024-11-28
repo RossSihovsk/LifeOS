@@ -54,6 +54,8 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import co.touchlab.kermit.Logger
 import com.project.lifeos.R
+import com.project.lifeos.data.Priority
+import com.project.lifeos.data.Reminder
 import com.project.lifeos.data.TaskStatus
 import com.project.lifeos.viewmodel.AddTaskViewModel
 import java.text.SimpleDateFormat
@@ -63,7 +65,16 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
+actual fun AddTaskScreenContent(viewModel: AddTaskViewModel?, logger: Logger?,onDone: (
+    title: String,
+    description: String?,
+    time: Long?,
+    dates: List<String>,
+    checkItems: List<String>,
+    status: TaskStatus,
+    reminder: Reminder,
+    priority: Priority,
+) -> Unit) {
     ModalBottomSheet(
         onDismissRequest = {},
 

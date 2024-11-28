@@ -41,7 +41,16 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
+actual fun AddTaskScreenContent(viewModel: AddTaskViewModel?, logger: Logger?, onDone: (
+    title: String,
+    description: String?,
+    time: Long?,
+    dates: List<String>,
+    checkItems: List<String>,
+    status: TaskStatus,
+    reminder: Reminder,
+    priority: Priority,
+) -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.Start
@@ -53,7 +62,7 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
         val taskPriority = remember { mutableStateOf(Priority.NO_PRIORITY) }
         val taskCheckItems = remember { mutableStateListOf<String>() }
         val keyboardController = LocalSoftwareKeyboardController.current
-
+        val taskReminder = remember { mutableStateOf<Reminder>(Reminder.NONE) }
         val timePickerState = rememberTimePickerState()
         val showTimePicker = remember { mutableStateOf(false) }
 
@@ -77,6 +86,7 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
         Spacer(modifier = Modifier.padding(5.dp))
         ShowDescriptionTextField(taskDescription = taskDescription)
         Spacer(modifier = Modifier.padding(10.dp))
+        Column {
         Row {
             PriorityPicker(taskPriority)
 
@@ -127,24 +137,8 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
                 }
                 ShowTimePickerDialog(showTimePicker, timePickerState, taskTime)
                 ShowDatePickerDialog(showDatePicker, datePickerState, taskDate)
-                Spacer(modifier = Modifier.height(60.dp))
+                Spacer(modifier = Modifier.height(5.dp))
 
-                EnableSaveButton(taskDate, taskDescription, taskTime, taskTitle) {
-
-                    logger.i(
-                        "Save task with title: ${taskTitle.value}, description: ${taskDescription.value}, time: ${taskTime.value}, date: ${taskDate.value}"
-                    )
-                    viewModel.saveTask(
-                        title = taskTitle.value,
-                        description = taskDescription.value,
-                        time = taskTime.value,
-                        dates = listOf(dateFormatter.format(Date(taskDate.value!!))) ,
-                        status = TaskStatus.PENDING,
-                        reminder = Reminder.DAY_BEFORE,
-                        priority = taskPriority.value,
-                        checkItems = taskCheckItems.toList(),
-                    )
-                }
             }
             Column(modifier = Modifier.padding(horizontal = 30.dp)) {
                 Text(text = "Check list items",
@@ -162,9 +156,33 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel, logger: Logger) {
                 ){Icon(Icons.Rounded.List,contentDescription = null)
 
                 }
+
             }
 
         }
+
+            ReminderPicker(taskReminder)
+            Row(Modifier.padding(start = 200.dp)) {
+            EnableSaveButton(taskDate, taskDescription, taskTime, taskTitle) {
+
+            logger?.i(
+                "Save task with title: ${taskTitle.value}, description: ${taskDescription.value}, time: ${taskTime.value}, date: ${taskDate.value}"
+            )
+            onDone(taskTitle.value, taskDescription.value, taskTime.value, listOf(dateFormatter.format(Date(taskDate.value!!))),taskCheckItems.toList(),TaskStatus.PENDING, Reminder.DAY_BEFORE, taskPriority.value)
+            viewModel?.saveTask(
+                title = taskTitle.value,
+                description = taskDescription.value,
+                time = taskTime.value,
+                dates = listOf(dateFormatter.format(Date(taskDate.value!!))) ,
+                status = TaskStatus.PENDING,
+                reminder = taskReminder.value,
+                priority = taskPriority.value,
+                checkItems = taskCheckItems.toList(),
+            )
+        }}
+
+        }
+
         Spacer(modifier = Modifier.padding(10.dp))
     }
 }
@@ -197,8 +215,67 @@ fun getFormattedTimeText(taskTime: MutableState<Long?>, timeFormatter: SimpleDat
     } ?: "Time has not selected yet"
 }
 @Composable
-fun ReminderPicker(taskReminder: MutableState<Long?>) {
-    
+fun ReminderPicker(taskReminder: MutableState<Reminder>) {
+    Column(modifier = Modifier.padding(start = 32.dp)) {
+        Text(
+            text = "Select Reminder",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            fontFamily = MaterialTheme.typography.headlineLarge.fontFamily,
+            modifier = Modifier.padding(start = 2.dp)
+        )
+        Row {
+        Row {
+            Checkbox(
+                checked = taskReminder.value == Reminder.NONE,
+                onCheckedChange = { taskReminder.value = Reminder.NONE },
+            )
+            Text(
+                modifier = Modifier.padding(top = 10.dp),
+                text = Reminder.NONE.title,
+            )
+        }
+        Row {
+            Checkbox(
+                checked = taskReminder.value == Reminder.FIVE_MIN_BEFORE,
+                onCheckedChange = { taskReminder.value = Reminder.FIVE_MIN_BEFORE },
+            )
+            Text(
+                modifier = Modifier.padding(top = 10.dp),
+                text = Reminder.FIVE_MIN_BEFORE.title,
+            )
+        }
+        Row {
+            Checkbox(
+                checked = taskReminder.value == Reminder.THIRTY_MIN_BEFORE,
+                onCheckedChange = { taskReminder.value = Reminder.THIRTY_MIN_BEFORE },
+            )
+            Text(
+                modifier = Modifier.padding(top = 10.dp),
+                text = Reminder.THIRTY_MIN_BEFORE.title,
+            )
+        }
+        Row {
+            Checkbox(
+                checked = taskReminder.value == Reminder.HOUR_BEFORE,
+                onCheckedChange = { taskReminder.value = Reminder.HOUR_BEFORE },
+            )
+            Text(
+                modifier = Modifier.padding(top = 10.dp),
+                text = Reminder.HOUR_BEFORE.title,
+            )
+        }
+        Row {
+            Checkbox(
+                checked = taskReminder.value == Reminder.DAY_BEFORE,
+                onCheckedChange = { taskReminder.value = Reminder.DAY_BEFORE },
+            )
+            Text(
+                modifier = Modifier.padding(top = 10.dp),
+                text = Reminder.DAY_BEFORE.title,
+            )
+        }}
+    }
 }
 @Composable
 fun ShowTitleTextField(taskTitle: MutableState<String>, keyboardController: SoftwareKeyboardController?) {

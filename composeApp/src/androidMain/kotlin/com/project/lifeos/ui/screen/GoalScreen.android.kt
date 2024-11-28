@@ -73,7 +73,7 @@ actual fun GoalScreenContent(navigator: Navigator, viewModel: GoalScreenViewMode
 @Composable
 fun NoGoalsView() {
     Column(
-        Modifier.height(height = 650.dp).fillMaxWidth(),
+        Modifier.height(height = 450.dp).fillMaxWidth(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
