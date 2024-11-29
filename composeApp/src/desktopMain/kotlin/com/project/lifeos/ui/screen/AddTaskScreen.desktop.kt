@@ -1,16 +1,9 @@
 package com.project.lifeos.ui.screen
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,8 +13,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.SoftwareKeyboardController
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -49,6 +43,15 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel?, logger: Logger?, o
     reminder: Reminder,
     priority: Priority,
 ) -> Unit) {
+    Box(Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource("bg.png"),
+            contentDescription = "Background",
+            modifier = Modifier.fillMaxSize().graphicsLayer(alpha = 0.5f),
+            contentScale = ContentScale.FillBounds // Scales the image to cover the whole background
+        )
+    }
+   Box{
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.Start
@@ -59,7 +62,6 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel?, logger: Logger?, o
         val taskDate = remember { mutableStateOf<Long?>(null) }
         val taskPriority = remember { mutableStateOf(Priority.NO_PRIORITY) }
         val taskCheckItems = remember { mutableStateListOf<String>() }
-        val keyboardController = LocalSoftwareKeyboardController.current
         val taskReminder = remember { mutableStateOf<Reminder>(Reminder.NONE) }
         val timePickerState = rememberTimePickerState()
         val showTimePicker = remember { mutableStateOf(false) }
@@ -80,7 +82,7 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel?, logger: Logger?, o
             fontFamily = MaterialTheme.typography.headlineLarge.fontFamily
         )
         Spacer(modifier = Modifier.padding(10.dp))
-        ShowTitleTextField(taskTitle = taskTitle, keyboardController = keyboardController)
+        ShowTitleTextField(taskTitle = taskTitle)
         Spacer(modifier = Modifier.padding(5.dp))
         ShowDescriptionTextField(taskDescription = taskDescription)
         Spacer(modifier = Modifier.padding(10.dp))
@@ -160,7 +162,7 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel?, logger: Logger?, o
         }
 
             ReminderPicker(taskReminder)
-            Row(Modifier.padding(start = 200.dp)) {
+            Row(Modifier.padding(start = 30.dp)) {
             EnableSaveButton(taskDate, taskDescription, taskTime, taskTitle) {
 
             logger?.i(
@@ -181,7 +183,7 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel?, logger: Logger?, o
         }
 
         Spacer(modifier = Modifier.padding(10.dp))
-    }
+    }}
 }
 
 @Composable
@@ -275,7 +277,7 @@ fun ReminderPicker(taskReminder: MutableState<Reminder>) {
     }
 }
 @Composable
-fun ShowTitleTextField(taskTitle: MutableState<String>, keyboardController: SoftwareKeyboardController?) {
+fun ShowTitleTextField(taskTitle: MutableState<String>) {
     TextField(
         modifier = Modifier
             .fillMaxWidth()
@@ -383,7 +385,6 @@ fun CheckList(taskCheckItems: MutableList<String>) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun InputCheckItem(textFieldValue: String, onValueChange: (String) -> Unit) {
     HorizontalDivider(Modifier.height(1.dp))

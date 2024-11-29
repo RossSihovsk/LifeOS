@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -41,7 +42,15 @@ import javax.imageio.ImageIO
 @Composable
 actual fun ProfileScreenContent(
     viewModel: UserViewModel, navigator: Navigator?
-) {
+) {    Box(Modifier.fillMaxSize()) {
+    Image(
+        painter = painterResource("bg.png"),
+        contentDescription = "Background",
+        modifier = Modifier.fillMaxSize().graphicsLayer(alpha = 0.5f),
+        contentScale = ContentScale.FillBounds // Scales the image to cover the whole background
+    )
+}
+    Box{
     Column(
         modifier = Modifier.fillMaxSize().padding(top = 50.dp),
         verticalArrangement = Arrangement.Center,
@@ -94,7 +103,7 @@ actual fun ProfileScreenContent(
                 })
             }
         }
-    }
+    }}
 }
 
 fun getUserDataFromToken(idToken: String): Map<String, String?> {

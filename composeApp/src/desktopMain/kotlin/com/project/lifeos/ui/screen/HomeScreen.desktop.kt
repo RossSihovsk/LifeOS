@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -57,7 +58,15 @@ actual fun HomeScreenContent(
     val completedTasksExpanded = remember { mutableStateOf(false) } // Track expansion state
 
     val uiState by viewModel.uiState.collectAsState()
-
+    Box(Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource("bg.png"),
+            contentDescription = "Background",
+            modifier = Modifier.fillMaxSize().graphicsLayer(alpha = 0.5f),
+            contentScale = ContentScale.FillBounds // Scales the image to cover the whole background
+        )
+    }
+Box{
     Column(modifier = Modifier.fillMaxWidth().verticalScroll(state = scrollState)) {
 
         CalendarView(modifier = Modifier.fillMaxWidth(),
@@ -92,7 +101,7 @@ actual fun HomeScreenContent(
                     onToggleClick = { completedTasksExpanded.value = !completedTasksExpanded.value })
             }
         }
-    }
+    }}
     LaunchedEffect(Unit) {
         // Call your ViewModel function
         viewModel.init()
@@ -115,7 +124,7 @@ fun DisplayNoDataImage() {
 
         Spacer(modifier = Modifier.height(60.dp))
         Image(
-            painter = painterResource("no_data.jpg"), // Load the image from the drawable folder
+            painter = painterResource("no_data.png"), // Load the image from the drawable folder
             contentDescription = "No data available",
             modifier = Modifier.width(500.dp), // Adjust the size or any modifiers as needed
             contentScale = ContentScale.Fit // Adjust content scaling if necessary

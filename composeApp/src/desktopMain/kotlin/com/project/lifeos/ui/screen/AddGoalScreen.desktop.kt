@@ -13,6 +13,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Backup
 import androidx.compose.material.icons.rounded.List
 import androidx.compose.material3.*
@@ -116,7 +117,7 @@ fun CreateGoalHeader() {
 @Composable
 fun BackButton(navigator: Navigator) {
     Icon(
-        imageVector = Icons.Rounded.Backup,
+        imageVector = Icons.Rounded.ArrowBack,
         contentDescription = null,
         modifier = Modifier.clickable {
             navigator.popUntil { it.key == GOAL_SCREEN_KEY }
@@ -124,7 +125,6 @@ fun BackButton(navigator: Navigator) {
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GoalTitleAndDescription(onDone: (title: String, description: String) -> Unit) {
     val keyboardController = LocalSoftwareKeyboardController.current
