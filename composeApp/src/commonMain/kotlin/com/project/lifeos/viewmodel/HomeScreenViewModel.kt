@@ -57,7 +57,7 @@ class HomeScreenViewModel(
         val newStatus = task.dateStatuses.first { it.date.contains(currentDate) }.copy(status = !status)
 
         logger.d("newStatus: $newStatus")
-        val updateJob = screenModelScope.async {
+        val updateJob = screenModelScope.async(Dispatchers.IO) {
             taskRepository.onTaskStatusChanged(newStatus, task)
         }
 

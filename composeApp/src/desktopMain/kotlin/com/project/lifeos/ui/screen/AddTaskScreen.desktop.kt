@@ -29,6 +29,7 @@ import com.project.lifeos.data.Reminder
 import com.project.lifeos.viewmodel.AddTaskViewModel
 import java.text.SimpleDateFormat
 import java.time.Instant
+import java.time.LocalDate
 import java.util.*
 
 
@@ -59,7 +60,7 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel?, logger: Logger?, o
         val taskTitle = remember { mutableStateOf("") }
         val taskDescription = remember { mutableStateOf("") }
         val taskTime = remember { mutableStateOf<Long?>(null) }
-        val taskDate = remember { mutableStateOf<Long?>(null) }
+        val taskDate = remember { mutableListOf<Long?>(System.currentTimeMillis()) }
         val taskPriority = remember { mutableStateOf(Priority.NO_PRIORITY) }
         val taskCheckItems = remember { mutableStateListOf<String>() }
         val taskReminder = remember { mutableStateOf<Reminder>(Reminder.NONE) }
@@ -105,13 +106,6 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel?, logger: Logger?, o
                             contentDescription = null
                         )
                     }
-                    Text(
-                        text = getFormattedDateText(taskDate, dateFormatter),
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = MaterialTheme.typography.bodyMedium.fontFamily,
-                        modifier = Modifier.padding(start = 2.dp)
-                    )
                 }
                 Spacer(modifier = Modifier.padding(10.dp))
                 Column {
@@ -163,17 +157,17 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel?, logger: Logger?, o
 
             ReminderPicker(taskReminder)
             Row(Modifier.padding(start = 30.dp)) {
-            EnableSaveButton(taskDate, taskDescription, taskTime, taskTitle) {
+            EnableSaveButton(taskDescription, taskTime, taskTitle) {
 
             logger?.i(
-                "Save task with title: ${taskTitle.value}, description: ${taskDescription.value}, time: ${taskTime.value}, date: ${taskDate.value}"
+                "Save task with title: ${taskTitle.value}, description: ${taskDescription.value}, time: ${taskTime.value}, date: $taskDate"
             )
-            onDone(taskTitle.value, taskDescription.value, taskTime.value, listOf(dateFormatter.format(Date(taskDate.value!!))),taskCheckItems.toList(), Reminder.DAY_BEFORE, taskPriority.value)
+            onDone(taskTitle.value, taskDescription.value, taskTime.value, taskDate.map { dateFormatter.format(it?.let { it1 -> Date(it1) }) },taskCheckItems.toList(), Reminder.DAY_BEFORE, taskPriority.value)
             viewModel?.saveTask(
                 title = taskTitle.value,
                 description = taskDescription.value,
                 time = taskTime.value,
-                dates = listOf(dateFormatter.format(Date(taskDate.value!!))) ,
+                dates = taskDate.map { dateFormatter.format(it?.let { it1 -> Date(it1) }) } ,
                 reminder = taskReminder.value,
                 priority = taskPriority.value,
                 checkItems = taskCheckItems.toList(),
@@ -188,14 +182,13 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel?, logger: Logger?, o
 
 @Composable
 fun EnableSaveButton(
-    taskDate: MutableState<Long?>,
     taskDescription: MutableState<String>,
     taskTime: MutableState<Long?>,
     taskTitle: MutableState<String>,
     onClick: () -> Unit
 ) {
     val enabled =
-        taskDate.value != null && taskDescription.value.isNotEmpty() && taskTime.value != null && taskTitle.value.isNotEmpty()
+        taskDescription.value.isNotEmpty() && taskTime.value != null && taskTitle.value.isNotEmpty()
 
     Button(enabled = enabled, onClick = onClick,shape = RoundedCornerShape(10.dp)) {
         Text("Save Task")
@@ -433,7 +426,7 @@ fun ShowTimePickerDialog(
 fun ShowDatePickerDialog(
     showDatePicker: MutableState<Boolean>,
     datePickerState: DatePickerState,
-    taskDate: MutableState<Long?>
+    taskDate: MutableList<Long?>
 ) {
     if (showDatePicker.value) {
         val confirmEnabled = remember {
@@ -445,17 +438,18 @@ fun ShowDatePickerDialog(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        showDatePicker.value = false
-                        taskDate.value = datePickerState.selectedDateMillis
+                        taskDate.add(datePickerState.selectedDateMillis)
                     },
                     enabled = confirmEnabled.value
-                ) { Text("OK") }
+                ) { Text("To List") }
             },
+
             dismissButton = {
                 TextButton(
                     onClick = { showDatePicker.value = false }
-                ) { Text("Cancel") }
+                ) { Text("Exit") }
             }
+
         ) { DatePicker(state = datePickerState) }
     }
 }

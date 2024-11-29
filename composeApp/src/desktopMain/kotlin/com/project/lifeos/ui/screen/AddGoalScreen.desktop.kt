@@ -21,6 +21,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -49,6 +51,15 @@ private const val GOAL_SCREEN_KEY = "com.project.lifeos.ui.screen.GoalScreen"
 
 @Composable
 actual fun AddGoalScreenContent(navigator: Navigator, viewModel: CreateGoalScreenViewModel) {
+    Box(Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource("bg.png"),
+            contentDescription = "Background",
+            modifier = Modifier.fillMaxSize().graphicsLayer(alpha = 0.5f),
+            contentScale = ContentScale.FillBounds // Scales the image to cover the whole background
+        )
+    }
+    Box{
     Column(modifier = Modifier.fillMaxWidth().padding(vertical = 25.dp, horizontal = 20.dp)) {
 
         var goalTitle by remember { mutableStateOf("") }
@@ -95,7 +106,7 @@ actual fun AddGoalScreenContent(navigator: Navigator, viewModel: CreateGoalScree
                 )
             }
         )
-    }
+    }}
 }
 
 @Composable
@@ -512,10 +523,6 @@ fun AddTaskButton(viewModel: CreateGoalScreenViewModel, text: String, onDone: (t
         initialSelectedDateMillis = Instant.now().toEpochMilli()
     )
     if (showModalBottomSheet) {
-
-        val confirmEnabled = remember {
-            derivedStateOf { datePickerState.selectedDateMillis != null }
-        }
         Dialog(
             onDismissRequest = { showDatePicker.value = false },
             properties = DialogProperties(
@@ -524,7 +531,7 @@ fun AddTaskButton(viewModel: CreateGoalScreenViewModel, text: String, onDone: (t
 
             ) {
             Column(Modifier.background(color = Color.White).widthIn(max = 1000.dp).heightIn(max = 640.dp)) {
-                Column(Modifier.heightIn(max = 600.dp)) {
+                Box(Modifier.heightIn(max = 600.dp)) {
                     AddTaskScreenContent(
                         null,
                         logger
@@ -542,6 +549,11 @@ fun AddTaskButton(viewModel: CreateGoalScreenViewModel, text: String, onDone: (t
                         showModalBottomSheet = false
                     }
                 }
+            }
+            Button(onClick = { showModalBottomSheet = !showModalBottomSheet },shape = RoundedCornerShape(10.dp),
+                modifier = Modifier.padding(start = 870.dp).padding(top = 540.dp)
+            ) {
+            Text("Cancel")
             }
         }
     }

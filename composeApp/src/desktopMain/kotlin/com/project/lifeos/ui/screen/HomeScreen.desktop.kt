@@ -89,7 +89,9 @@ Box{
             is HomeUiState.TaskUpdated -> {
                 logger.i("UpdateTaskStatus")
                 TaskExpandedSection(title = TO_COMPLETE_TITLE, content = {
+
                     TasksContent(state.unCompletedTasks, onTaskStatusChanged = viewModel::onTaskStatusChanged,completed = false)
+
                 }, isExpanded = ongoingTasksExpanded.value, // Bind state to isExpanded
                     onToggleClick = { ongoingTasksExpanded.value = !ongoingTasksExpanded.value })
 
@@ -175,6 +177,11 @@ fun TasksContent(tasks: List<Task>, onTaskStatusChanged: (status: Boolean, task:
     LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 600.dp)) {
         items(tasks) { task ->
             TaskCard(task = task, onTaskStatusChanged = onTaskStatusChanged, completed)
+            HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+            thickness = 1.dp,
+            color = Color.Black
+            )
             Spacer(modifier = Modifier.height(25.dp))
         }
     }

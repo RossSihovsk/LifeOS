@@ -7,20 +7,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -43,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -77,7 +65,15 @@ actual fun HomeScreenContent(
     val completedTasksExpanded = remember { mutableStateOf(false) } // Track expansion state
 
     val uiState by viewModel.uiState.collectAsState()
-
+    Box(Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(R.drawable.bg),
+            contentDescription = "Background",
+            modifier = Modifier.fillMaxSize().graphicsLayer(alpha = 0.5f),
+            contentScale = ContentScale.FillBounds // Scales the image to cover the whole background
+        )
+    }
+    Box{
     Column(modifier = Modifier.fillMaxWidth().verticalScroll(state = scrollState)) {
 
         CalendarView(
@@ -129,7 +125,7 @@ actual fun HomeScreenContent(
                 )
             }
         }
-    }
+    }}
     LaunchedEffect(Unit) {
         // Call your ViewModel function
         viewModel.init()
@@ -155,7 +151,7 @@ fun DisplayNoDataImage() {
 
         Spacer(modifier = Modifier.height(60.dp))
         Image(
-            painter = painterResource(id = R.drawable.no_data), // Load the image from the drawable folder
+            painter = painterResource(id = R.drawable.no_data2), // Load the image from the drawable folder
             contentDescription = "No data available",
             modifier = Modifier.fillMaxWidth(), // Adjust the size or any modifiers as needed
             contentScale = ContentScale.Fit // Adjust content scaling if necessary

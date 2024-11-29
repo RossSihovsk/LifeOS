@@ -39,6 +39,7 @@ abstract class NotificationScheduler {
         }
 
         schedulePlatformNotification(task, user, validatedTimeForNotification)
+
     }
 
     private fun isReminderStillValid(dateTime: Long, reminder: Reminder): Pair<Boolean, Long> {

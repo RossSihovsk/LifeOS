@@ -1,12 +1,13 @@
 package com.project.lifeos.notification
-
 import com.project.lifeos.data.Task
 import com.project.lifeos.data.User
 import java.awt.*
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class DesktopNotificationScheduler : NotificationScheduler() {
     override fun schedulePlatformNotification(task: Task, user: User?, validatedTimeForNotification: List<Long>) {
-        showDesktopNotification("zxc","xczzx")
+        task.description?.let { scheduleNotificationWithExecutor(task.title, it, validatedTimeForNotification) }
     }
 
     private fun showDesktopNotification(title: String, message: String) {
@@ -16,7 +17,7 @@ class DesktopNotificationScheduler : NotificationScheduler() {
         }
 
         val tray = SystemTray.getSystemTray()
-        val image = Toolkit.getDefaultToolkit().createImage("no_data.png") // Provide a small icon here
+        val image = Toolkit.getDefaultToolkit().createImage("on_time.png") // Provide a small icon here
 
         val trayIcon = TrayIcon(image, "Notification Example")
         trayIcon.isImageAutoSize = true
@@ -29,4 +30,29 @@ class DesktopNotificationScheduler : NotificationScheduler() {
             e.printStackTrace()
         }
     }
+
+    private fun scheduleNotificationWithExecutor(
+        title: String,
+        message: String,
+        targetDateTime: List<Long>
+    ) {
+        val scheduler = Executors.newSingleThreadScheduledExecutor()
+        targetDateTime.forEach {
+            val delay = it - System.currentTimeMillis()
+            if (delay <= 0) {
+                return
+            }
+            scheduler.schedule({
+                showDesktopNotification(title, message)
+                scheduler.shutdown()
+            }, delay, TimeUnit.MILLISECONDS)
+        }
+
+    }
+
+
+
+
+
+
 }

@@ -79,6 +79,8 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
         }
         desktopMain.dependencies {
+            implementation(libs.notify)
+
             implementation(compose.desktop.currentOs)
             implementation(compose.materialIconsExtended)
             //SQLDelight Desktop
