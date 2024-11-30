@@ -19,3 +19,12 @@ CREATE TABLE IF NOT EXISTS GoalEntity (
  deleteGoal:
  DELETE FROM GoalEntity
    WHERE id IS :id;
+
+ updateGoal:
+   UPDATE GoalEntity
+   SET
+     name = :name,
+     description = :description,
+     duration = :duration,
+     category = :category
+   WHERE id = :id;

@@ -2,18 +2,20 @@ package com.project.lifeos.viewmodel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import com.project.lifeos.data.Category
+import com.project.lifeos.data.Duration
 import com.project.lifeos.data.Goal
 import com.project.lifeos.data.Task
 import com.project.lifeos.repository.GoalRepository
 import com.project.lifeos.repository.TaskRepository
 import com.project.lifeos.repository.UserRepository
+import com.project.lifeos.utils.stringToDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import com.project.lifeos.utils.stringToDate
 import java.time.temporal.WeekFields
 import java.util.Locale
 
@@ -80,7 +82,7 @@ class GoalScreenViewModel(
 
         tasks.forEach { task ->
             tasksNumber += task.dateStatuses.map { stringToDate(it.date) }
-                ?.count { it?.isAfter(firstDayOfWeek.minusDays(1)) == true && it.isBefore(lastDayOfWeek.plusDays(1)) }
+                .count { it.isAfter(firstDayOfWeek.minusDays(1)) && it.isBefore(lastDayOfWeek.plusDays(1)) }
                 ?: 0
         }
 
@@ -96,6 +98,24 @@ class GoalScreenViewModel(
             goalToDelete?.let { goal: Goal ->
                 goalRepository.deleteGoal(goal.id)
                 taskRepository.deleteTaskForGoal(goal.id)
+            }
+            init()
+        }
+    }
+
+    fun updateGoal(
+        id: String,
+        title: String,
+        description: String,
+        duration: Duration,
+        category: Category,
+        tasks: List<Task>
+    ) {
+        screenModelScope.launch(Dispatchers.IO) {
+            goalRepository.updateGoal(id, title, description, duration, category)
+            taskRepository.deleteTaskForGoal(id)
+            tasks.forEach {
+                taskRepository.addTask(it.copy(goalId = id))
             }
             init()
         }

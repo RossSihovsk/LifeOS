@@ -37,6 +37,20 @@ class LocalGoalDataSource(db: LifeOsDatabase) {
         logger.d("deleteGoal: $id")
         queries.deleteGoal(id)
     }
+
+    fun updateGoal(id: String, title: String, description: String, category: Category, duration: Duration) {
+        logger.d(
+            "updateGoal - id: $id, title: $title, description: $description, " +
+                    "category: $category, duration: $duration"
+        )
+        queries.updateGoal(
+            name = title,
+            description = description,
+            duration = duration.name,
+            category = category.name,
+            id = id
+        )
+    }
 }
 
 private fun List<GoalEntity>.mapToGoalList(): List<Goal> {
