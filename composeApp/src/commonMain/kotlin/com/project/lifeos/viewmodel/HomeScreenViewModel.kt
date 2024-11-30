@@ -122,6 +122,35 @@ class HomeScreenViewModel(
             }
         }
     }
+
+    fun deleteForToday(task: Task?) {
+        logger.i("deleteForToday $task")
+        screenModelScope.launch(Dispatchers.IO) {
+            task?.let { taskToDelete ->
+                val updateJob = screenModelScope.async {
+                    val updatedDates = task.dateStatuses.toMutableList().apply {
+                        removeIf { it.date.contains(currentDate) }
+                    }
+                    taskRepository.updateTaskDates(updatedDates, taskToDelete.id!!)
+                }
+
+                updateTasksState(updateJob)
+            }
+        }
+    }
+
+    fun deleteCompletely(task: Task?) {
+        logger.i("deleteCompletely $task")
+        screenModelScope.launch(Dispatchers.IO) {
+            task?.let { taskToDelete ->
+                val updateJob = screenModelScope.async {
+                    taskRepository.deleteCompletely(taskToDelete.id!!)
+                }
+
+                updateTasksState(updateJob)
+            }
+        }
+    }
 }
 
 sealed class HomeUiState {

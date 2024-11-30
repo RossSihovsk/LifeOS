@@ -53,4 +53,12 @@ class TaskRepository(private val localTaskDataSource: LocalTaskDataSource) {
             localTaskDataSource.updateStatus(task.id!!, list)
         }
     }
+
+    fun updateTaskDates(dates: List<DateStatus>, id: Long) {
+        localTaskDataSource.updateStatus(id, dates)
+    }
+
+    fun deleteCompletely(id: Long) {
+        localTaskDataSource.delete(id)
+    }
 }
