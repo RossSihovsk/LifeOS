@@ -59,7 +59,7 @@ class NotificationSenderReceiver : BroadcastReceiver() {
             .setContentIntent(pendingIntent)
             .setPublicVersion(
                 NotificationCompat.Builder(context, CHANNEL_ID)
-                    .setContentText("Hey $userName")
+                    .setContentText("Hey ${userName?:""}, check your list")
                     .setSmallIcon(R.drawable.ic_done)
                     .setPriority(NotificationCompat.PRIORITY_HIGH)
                     .setAutoCancel(true)

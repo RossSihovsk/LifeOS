@@ -70,7 +70,8 @@ class LocalTaskDataSource(db: LifeOsDatabase) {
                     checkItems = taskEntity.checkItems?.let { Json.decodeFromString(it) },
                     reminder = Reminder.getFromTitle(taskEntity.reminder),
                     priority = Priority.getFromTitle(taskEntity.priority),
-                    goalId = taskEntity.goalId
+                    goalId = taskEntity.goalId,
+                    userEmail = taskEntity.userMail
                 )
             )
         }
