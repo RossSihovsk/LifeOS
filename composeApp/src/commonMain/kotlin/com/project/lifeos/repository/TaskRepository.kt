@@ -61,4 +61,8 @@ class TaskRepository(private val localTaskDataSource: LocalTaskDataSource) {
     fun deleteCompletely(id: Long) {
         localTaskDataSource.delete(id)
     }
+
+    fun deleteTaskForGoal(id: String) {
+        localTaskDataSource.deleteTaskForGoal(id)
+    }
 }
