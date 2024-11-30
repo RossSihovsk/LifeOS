@@ -3,10 +3,12 @@ package com.project.lifeos.ui.screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,6 +28,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -34,12 +39,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -106,7 +113,8 @@ actual fun HomeScreenContent(
                         TasksContent(
                             state.unCompletedTasks,
                             onTaskStatusChanged = viewModel::onTaskStatusChanged,
-                            completed = false
+                            completed = false,
+                            viewModel
                         )
                     },
                     isExpanded = ongoingTasksExpanded.value, // Bind state to isExpanded
@@ -121,7 +129,8 @@ actual fun HomeScreenContent(
                         TasksContent(
                             state.completedTasks,
                             onTaskStatusChanged = viewModel::onTaskStatusChanged,
-                            completed = true
+                            completed = true,
+                            viewModel
                         )
                     },
                     isExpanded = completedTasksExpanded.value, // Bind state to isExpanded
@@ -205,22 +214,119 @@ fun TaskExpandedSection(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TasksContent(tasks: List<Task>, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean) {
+fun TasksContent(
+    tasks: List<Task>,
+    onTaskStatusChanged: (status: Boolean, task: Task) -> Unit,
+    completed: Boolean,
+    viewModel: HomeScreenViewModel
+) {
+    var showDeleteView by remember { mutableStateOf(false) }
+    var taskToDelete: Task? by remember { mutableStateOf(null) }
+
+    if (showDeleteView) {
+        DeleteTaskDialog(
+            onDismissRequest = { showDeleteView = false },
+            onSingleDelete = {
+                viewModel.deleteForToday(taskToDelete)
+                showDeleteView = false
+                println("Confirmation registered") // Add logic here to handle confirmation.
+            },
+            onDeleteCompletely = {
+                viewModel.deleteCompletely(taskToDelete)
+                showDeleteView = false
+            },
+            dialogTitle = "Delete Task",
+            dialogText = "Do you want to delete task \"${taskToDelete?.title}\" just for today or completely?",
+        )
+    }
+
     LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 600.dp)) {
         items(tasks) { task ->
-            TaskCard(task = task, onTaskStatusChanged = onTaskStatusChanged, completed)
+
+            TaskCard(
+                task = task,
+                onTaskStatusChanged = onTaskStatusChanged,
+                completed,
+                onDeleteTask = {
+                    taskToDelete = it
+                    showDeleteView = true
+                }
+            )
             Spacer(modifier = Modifier.height(25.dp))
         }
     }
 }
 
 @Composable
-fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean) {
+fun DeleteTaskDialog(
+    onDismissRequest: () -> Unit,
+    onSingleDelete: () -> Unit,
+    onDeleteCompletely: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+) {
+    AlertDialog(
+        icon = {
+            Icon(Icons.Default.Delete, contentDescription = "Example Icon")
+        },
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            Text(text = dialogText)
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            Row {
+                TextButton(
+                    onClick = {
+                        onSingleDelete()
+                    }
+                ) {
+                    Text("Today")
+                }
+
+                TextButton(
+                    onClick = {
+                        onDeleteCompletely()
+                    }
+                ) {
+                    Text("Completely")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun TaskCard(
+    task: Task,
+    onTaskStatusChanged: (status: Boolean, task: Task) -> Unit,
+    completed: Boolean,
+    onDeleteTask: (task: Task) -> Unit,
+) {
     Column(
         modifier = Modifier
             .wrapContentSize()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 16.dp)
+            .combinedClickable(
+                onClick = {},
+                onLongClick = {onDeleteTask(task)}
+            ),
         horizontalAlignment = Alignment.Start
     ) {
         MainInfoCard(task = task, onTaskStatusChanged = onTaskStatusChanged, completed)
@@ -232,7 +338,11 @@ fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> U
 }
 
 @Composable
-fun MainInfoCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean) {
+fun MainInfoCard(
+    task: Task,
+    onTaskStatusChanged: (status: Boolean, task: Task) -> Unit,
+    completed: Boolean,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
