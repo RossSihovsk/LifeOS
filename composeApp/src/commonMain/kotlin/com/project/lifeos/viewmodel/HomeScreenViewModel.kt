@@ -6,6 +6,9 @@ import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import co.touchlab.kermit.Logger
+import com.project.lifeos.data.DateStatus
+import com.project.lifeos.data.Priority
+import com.project.lifeos.data.Reminder
 import com.project.lifeos.data.Task
 import com.project.lifeos.repository.TaskRepository
 import com.project.lifeos.repository.UserRepository
@@ -148,6 +151,34 @@ class HomeScreenViewModel(
                 }
 
                 updateTasksState(updateJob)
+            }
+        }
+    }
+
+    fun updateTask(
+        id: Long?,
+        title: String,
+        description: String?,
+        time: Long?,
+        dates: List<DateStatus>,
+        checkItems: List<String>,
+        reminder: Reminder,
+        priority: Priority
+    ) {
+        id?.let { taskId ->
+            logger.i(
+                "updateTask - id: $taskId, title: $title, description: $description, time: $time, " +
+                        "dates: ${dates.joinToString { it.toString() }}, " +
+                        "checkItems: ${checkItems.joinToString()}, reminder: $reminder, priority: $priority"
+            )
+
+            screenModelScope.launch(Dispatchers.IO) {
+                val updateJob = screenModelScope.async {
+                    taskRepository.updateTask(taskId, title, description, time, dates, checkItems, reminder, priority)
+                }
+
+                updateTasksState(updateJob)
+
             }
         }
     }

@@ -14,6 +14,7 @@ import com.project.lifeos.repository.GoalRepository
 import com.project.lifeos.repository.TaskRepository
 import com.project.lifeos.repository.UserRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 class CreateGoalScreenViewModel(
@@ -72,4 +73,10 @@ class CreateGoalScreenViewModel(
             notificationScheduler.scheduleNotificationIfNeeded(it, user)
         }
     }
+
+    suspend fun findTasksForGoal(id: String?): List<Task> = screenModelScope.async(Dispatchers.IO) {
+        if (id == null) emptyList()
+        else taskRepository.getTaskForGoal(id)
+    }.await()
+
 }

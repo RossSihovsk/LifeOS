@@ -62,9 +62,11 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
 import com.project.lifeos.R
+import com.project.lifeos.data.Duration
 import com.project.lifeos.data.Priority
 import com.project.lifeos.data.Reminder
 import com.project.lifeos.data.Task
+import com.project.lifeos.ui.screen.addTask.AddTaskBottomSheetView
 import com.project.lifeos.ui.view.CalendarView
 import com.project.lifeos.utils.formatTime
 import com.project.lifeos.viewmodel.HomeScreenViewModel
@@ -222,25 +224,9 @@ fun TasksContent(
     completed: Boolean,
     viewModel: HomeScreenViewModel
 ) {
+    var showModalBottomSheet by remember { mutableStateOf(false) }
     var showDeleteView by remember { mutableStateOf(false) }
-    var taskToDelete: Task? by remember { mutableStateOf(null) }
-
-    if (showDeleteView) {
-        DeleteTaskDialog(
-            onDismissRequest = { showDeleteView = false },
-            onSingleDelete = {
-                viewModel.deleteForToday(taskToDelete)
-                showDeleteView = false
-                println("Confirmation registered") // Add logic here to handle confirmation.
-            },
-            onDeleteCompletely = {
-                viewModel.deleteCompletely(taskToDelete)
-                showDeleteView = false
-            },
-            dialogTitle = "Delete Task",
-            dialogText = "Do you want to delete task \"${taskToDelete?.title}\" just for today or completely?",
-        )
-    }
+    var taskToDeleteOrOpen: Task? by remember { mutableStateOf(null) }
 
     LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 600.dp)) {
         items(tasks) { task ->
@@ -250,12 +236,46 @@ fun TasksContent(
                 onTaskStatusChanged = onTaskStatusChanged,
                 completed,
                 onDeleteTask = {
-                    taskToDelete = it
+                    taskToDeleteOrOpen = it
                     showDeleteView = true
+                },
+                onClick = {
+                    taskToDeleteOrOpen = it
+                    showModalBottomSheet = true
                 }
             )
             Spacer(modifier = Modifier.height(25.dp))
         }
+    }
+
+    if (showModalBottomSheet){
+        AddTaskBottomSheetView(
+            addTaskViewModel = null,
+            duration = Duration.THREE_MONTH,
+            onDone = { title, description, time, dates, checkItems, reminder, priority ->
+                viewModel.updateTask(taskToDeleteOrOpen?.id, title, description, time, dates, checkItems, reminder, priority)
+                showModalBottomSheet = false
+            },
+            onDismiss = { showModalBottomSheet = false },
+            task = taskToDeleteOrOpen
+        )
+    }
+
+    if (showDeleteView) {
+        DeleteTaskDialog(
+            onDismissRequest = { showDeleteView = false },
+            onSingleDelete = {
+                viewModel.deleteForToday(taskToDeleteOrOpen)
+                showDeleteView = false
+                println("Confirmation registered") // Add logic here to handle confirmation.
+            },
+            onDeleteCompletely = {
+                viewModel.deleteCompletely(taskToDeleteOrOpen)
+                showDeleteView = false
+            },
+            dialogTitle = "Delete Task",
+            dialogText = "Do you want to delete task \"${taskToDeleteOrOpen?.title}\" just for today or completely?",
+        )
     }
 }
 
@@ -318,14 +338,15 @@ fun TaskCard(
     onTaskStatusChanged: (status: Boolean, task: Task) -> Unit,
     completed: Boolean,
     onDeleteTask: (task: Task) -> Unit,
+    onClick: (task: Task) -> Unit
 ) {
     Column(
         modifier = Modifier
             .wrapContentSize()
             .padding(horizontal = 16.dp)
             .combinedClickable(
-                onClick = {},
-                onLongClick = {onDeleteTask(task)}
+                onClick = {onClick(task)},
+                onLongClick = { onDeleteTask(task) }
             ),
         horizontalAlignment = Alignment.Start
     ) {

@@ -2,6 +2,8 @@ package com.project.lifeos.repository
 
 import co.touchlab.kermit.Logger
 import com.project.lifeos.data.DateStatus
+import com.project.lifeos.data.Priority
+import com.project.lifeos.data.Reminder
 import com.project.lifeos.data.Task
 import com.project.lifeos.repository.local.LocalTaskDataSource
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,7 +57,8 @@ class TaskRepository(private val localTaskDataSource: LocalTaskDataSource) {
     }
 
     fun updateTaskDates(dates: List<DateStatus>, id: Long) {
-        localTaskDataSource.updateStatus(id, dates)
+        if (dates.isEmpty()) deleteCompletely(id)
+        else localTaskDataSource.updateStatus(id, dates)
     }
 
     fun deleteCompletely(id: Long) {
@@ -64,5 +67,18 @@ class TaskRepository(private val localTaskDataSource: LocalTaskDataSource) {
 
     fun deleteTaskForGoal(id: String) {
         localTaskDataSource.deleteTaskForGoal(id)
+    }
+
+    fun updateTask(
+        id: Long,
+        title: String,
+        description: String?,
+        time: Long?,
+        dates: List<DateStatus>,
+        checkItems: List<String>,
+        reminder: Reminder,
+        priority: Priority
+    ) {
+        localTaskDataSource.updateTask(id, title, description, time, dates, checkItems, reminder, priority)
     }
 }

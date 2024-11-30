@@ -38,9 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,7 +46,6 @@ import cafe.adriel.voyager.navigator.Navigator
 import com.project.lifeos.R
 import com.project.lifeos.data.Category
 import com.project.lifeos.data.Goal
-import com.project.lifeos.data.Task
 import com.project.lifeos.utils.safePush
 import com.project.lifeos.viewmodel.GoalScreenViewModel
 import com.project.lifeos.viewmodel.GoalsUIState
@@ -66,7 +63,7 @@ actual fun GoalScreenContent(navigator: Navigator, viewModel: GoalScreenViewMode
 
         when (val state = uiState) {
             is GoalsUIState.GoalsFounded -> {
-                GoalCard(state.goals, viewModel)
+                GoalCard(state.goals, viewModel, navigator)
             }
 
             is GoalsUIState.NoGoals -> {
@@ -105,16 +102,21 @@ fun NoGoalsView() {
 }
 
 @Composable
-fun GoalCard(goals: List<Goal>, viewModel: GoalScreenViewModel) {
+fun GoalCard(goals: List<Goal>, viewModel: GoalScreenViewModel, navigator: Navigator?) {
     var showDeleteView by remember { mutableStateOf(false) }
-    var goalToDelete: Goal? by remember { mutableStateOf(null) }
+    var goalToDeleteOrOpen: Goal? by remember { mutableStateOf(null) }
 
     LazyColumn(modifier = Modifier.height(height = 650.dp)) {
         items(items = goals) { goal ->
-            GoalContent(goal, viewModel) {
-                goalToDelete = it
+            GoalContent(goal, viewModel, onDelete = {
+                goalToDeleteOrOpen = it
                 showDeleteView = true
-            }
+            }, onClick = {
+                goalToDeleteOrOpen = it
+                navigator?.safePush(AddGoalScreen(goal = it) { title, description, duration, category, tasks ->
+                    viewModel.updateGoal(it.id, title, description, duration, category, tasks)
+                })
+            })
             Spacer(modifier = Modifier.height(30.dp))
         }
     }
@@ -122,12 +124,12 @@ fun GoalCard(goals: List<Goal>, viewModel: GoalScreenViewModel) {
     if (showDeleteView) {
         DeleteGoalDialog(
             dialogTitle = "Delete Goal",
-            dialogText = "Do you want to delete goal \"${goalToDelete?.title}\"?",
+            dialogText = "Do you want to delete goal \"${goalToDeleteOrOpen?.title}\"?",
             onDismissRequest = {
                 showDeleteView = false
             },
             onDeleteCompletely = {
-                viewModel.deleteGoal(goalToDelete)
+                viewModel.deleteGoal(goalToDeleteOrOpen)
                 showDeleteView = false
             }
         )
@@ -173,7 +175,12 @@ fun AddNewGoalButton(onClick: () -> Unit) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun GoalContent(goal: Goal, viewModel: GoalScreenViewModel, onDelete: (goal: Goal) -> Unit) {
+fun GoalContent(
+    goal: Goal,
+    viewModel: GoalScreenViewModel,
+    onDelete: (goal: Goal) -> Unit,
+    onClick: (goal: Goal) -> Unit
+) {
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
@@ -184,7 +191,7 @@ fun GoalContent(goal: Goal, viewModel: GoalScreenViewModel, onDelete: (goal: Goa
                 .width(380.dp)
                 .height(120.dp)
                 .combinedClickable(
-                    onClick = {},
+                    onClick = { onClick(goal) },
                     onLongClick = { onDelete(goal) }
                 ),
             border = BorderStroke(1.dp, Color.Black),

@@ -11,6 +11,18 @@ CREATE TABLE IF NOT EXISTS TaskEntity (
   goalId TEXT
   );
 
+  updateTask:
+  UPDATE TaskEntity
+  SET
+    name = :name,
+    description = :description,
+    time = :time,
+    dateStatuses = :dateStatuses,
+    checkItems = :checkItems,
+    reminder = :reminder,
+    priority = :priority
+  WHERE id = :id;
+
   addNewTask:
   INSERT OR REPLACE INTO TaskEntity(id, name, description, time, dateStatuses, checkItems, reminder, priority, userMail, goalId)
   VALUES (?,?,?,?,?,?,?, ?, ?, ?);

@@ -80,4 +80,26 @@ class LocalTaskDataSource(db: LifeOsDatabase) {
     fun deleteTaskForGoal(id: String) {
         queries.deleteForGoal(id)
     }
+
+    fun updateTask(
+        id: Long,
+        title: String,
+        description: String?,
+        time: Long?,
+        dates: List<DateStatus>,
+        checkItems: List<String>,
+        reminder: Reminder,
+        priority: Priority
+    ) {
+        queries.updateTask(
+            name = title,
+            description = description,
+            time = time,
+            dateStatuses = Json.encodeToString(dates),
+            checkItems = Json.encodeToString(checkItems),
+            reminder = reminder.title,
+            priority = priority.title,
+            id = id
+        )
+    }
 }
