@@ -1,8 +1,10 @@
 package com.project.lifeos.ui.screen
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,14 +20,21 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -39,6 +48,7 @@ import cafe.adriel.voyager.navigator.Navigator
 import com.project.lifeos.R
 import com.project.lifeos.data.Category
 import com.project.lifeos.data.Goal
+import com.project.lifeos.data.Task
 import com.project.lifeos.utils.safePush
 import com.project.lifeos.viewmodel.GoalScreenViewModel
 import com.project.lifeos.viewmodel.GoalsUIState
@@ -96,11 +106,31 @@ fun NoGoalsView() {
 
 @Composable
 fun GoalCard(goals: List<Goal>, viewModel: GoalScreenViewModel) {
+    var showDeleteView by remember { mutableStateOf(false) }
+    var goalToDelete: Goal? by remember { mutableStateOf(null) }
+
     LazyColumn(modifier = Modifier.height(height = 650.dp)) {
-        items(items = goals) {
-            GoalContent(it, viewModel)
+        items(items = goals) { goal ->
+            GoalContent(goal, viewModel) {
+                goalToDelete = it
+                showDeleteView = true
+            }
             Spacer(modifier = Modifier.height(30.dp))
         }
+    }
+
+    if (showDeleteView) {
+        DeleteGoalDialog(
+            dialogTitle = "Delete Goal",
+            dialogText = "Do you want to delete goal \"${goalToDelete?.title}\"?",
+            onDismissRequest = {
+                showDeleteView = false
+            },
+            onDeleteCompletely = {
+                viewModel.deleteGoal(goalToDelete)
+                showDeleteView = false
+            }
+        )
     }
 }
 
@@ -141,8 +171,9 @@ fun AddNewGoalButton(onClick: () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun GoalContent(goal: Goal, viewModel: GoalScreenViewModel) {
+fun GoalContent(goal: Goal, viewModel: GoalScreenViewModel, onDelete: (goal: Goal) -> Unit) {
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
@@ -151,11 +182,14 @@ fun GoalContent(goal: Goal, viewModel: GoalScreenViewModel) {
         Card(
             modifier = Modifier.background(Color.Transparent)
                 .width(380.dp)
-                .height(120.dp),
+                .height(120.dp)
+                .combinedClickable(
+                    onClick = {},
+                    onLongClick = { onDelete(goal) }
+                ),
             border = BorderStroke(1.dp, Color.Black),
             shape = RoundedCornerShape(35.dp),
             colors = CardDefaults.outlinedCardColors(containerColor = goal.category.color),
-            onClick = {}
         ) {
             Column(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 25.dp, vertical = 20.dp),
@@ -228,6 +262,47 @@ fun GoalCardFooterElement(text: String) {
             )
         }
     }
+}
+
+@Composable
+fun DeleteGoalDialog(
+    onDismissRequest: () -> Unit,
+    onDeleteCompletely: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+) {
+    AlertDialog(
+        icon = {
+            Icon(Icons.Default.Delete, contentDescription = "Example Icon")
+        },
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            Text(text = dialogText)
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onDeleteCompletely()
+                }
+            ) {
+                Text("Delete")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Cancel")
+            }
+        }
+    )
 }
 
 

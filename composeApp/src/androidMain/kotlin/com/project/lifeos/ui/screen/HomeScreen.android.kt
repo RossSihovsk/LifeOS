@@ -8,6 +8,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -310,6 +311,7 @@ fun DeleteTaskDialog(
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TaskCard(
     task: Task,
@@ -321,7 +323,10 @@ fun TaskCard(
         modifier = Modifier
             .wrapContentSize()
             .padding(horizontal = 16.dp)
-            .clickable { onDeleteTask(task) },
+            .combinedClickable(
+                onClick = {},
+                onLongClick = {onDeleteTask(task)}
+            ),
         horizontalAlignment = Alignment.Start
     ) {
         MainInfoCard(task = task, onTaskStatusChanged = onTaskStatusChanged, completed)

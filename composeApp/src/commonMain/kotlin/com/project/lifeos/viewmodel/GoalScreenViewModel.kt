@@ -90,6 +90,11 @@ class GoalScreenViewModel(
     fun percentageDone(goal: Goal): Int = goalMappers.first { goal == it.goal }.percentageDone
 
     fun tasksThisWeek(goal: Goal): Int = goalMappers.first { goal == it.goal }.tasksThisWeek
+
+    fun deleteGoal(goalToDelete: Goal?) {
+        goalRepository.deleteGoal(goalToDelete?.id!!)
+        init()
+    }
 }
 
 data class GoalDataMapper(
