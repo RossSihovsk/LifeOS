@@ -76,4 +76,8 @@ class LocalTaskDataSource(db: LifeOsDatabase) {
         }
         return taskList
     }
+
+    fun deleteTaskForGoal(id: String) {
+        queries.deleteForGoal(id)
+    }
 }

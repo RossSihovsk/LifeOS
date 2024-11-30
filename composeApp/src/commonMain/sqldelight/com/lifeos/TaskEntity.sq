@@ -32,6 +32,10 @@ CREATE TABLE IF NOT EXISTS TaskEntity (
   DELETE FROM TaskEntity
   WHERE id IS :id;
 
+ deleteForGoal:
+  DELETE FROM TaskEntity
+  WHERE goalId IS :id;
+
   deleteAllForUser:
   DELETE FROM TaskEntity
   WHERE userMail IS :userMail;

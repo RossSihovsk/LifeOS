@@ -92,8 +92,13 @@ class GoalScreenViewModel(
     fun tasksThisWeek(goal: Goal): Int = goalMappers.first { goal == it.goal }.tasksThisWeek
 
     fun deleteGoal(goalToDelete: Goal?) {
-        goalRepository.deleteGoal(goalToDelete?.id!!)
-        init()
+        screenModelScope.launch(Dispatchers.IO) {
+            goalToDelete?.let { goal: Goal ->
+                goalRepository.deleteGoal(goal.id)
+                taskRepository.deleteTaskForGoal(goal.id)
+            }
+            init()
+        }
     }
 }
 
