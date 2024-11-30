@@ -49,9 +49,7 @@ kotlin {
             implementation (libs.androidx.credentials)
             implementation (libs.googleid)
 
-//            Maybe I'll use it for creating calendar view for android, but basically, we have to find smth multiplatform
-//            implementation("com.maxkeppeler.sheets-compose-dialogs:core:1.3.0")
-//            implementation("com.maxkeppeler.sheets-compose-dialogs:calendar:1.3.0")
+            implementation (libs.androidx.core.splashscreen)
         }
         commonMain.dependencies {
             //compose
