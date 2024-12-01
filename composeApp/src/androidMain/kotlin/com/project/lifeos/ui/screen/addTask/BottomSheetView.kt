@@ -80,7 +80,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-val logger: Logger = Logger.withTag("AddTaskBottomSheetView")
+private val logger: Logger = Logger.withTag("AddTaskBottomSheetView")
 
 @Composable
 fun AddTaskBottomSheetView(

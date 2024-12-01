@@ -23,12 +23,15 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -56,6 +59,7 @@ import androidx.compose.ui.window.Dialog
 import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
 import com.project.lifeos.R
+import com.project.lifeos.ai.TaskResponse
 import com.project.lifeos.data.Category
 import com.project.lifeos.data.Duration
 import com.project.lifeos.data.Goal
@@ -139,7 +143,12 @@ actual fun AddGoalScreenContent(
                         goalTasks
                     )
                 }
-            }
+            },
+            onTasksGenerated = { tasks: List<Task> -> goalTasks.addAll(tasks) },
+            useAi = goalTitle.isNotEmpty() && goalDescription.isNotEmpty() && goalDuration != null,
+            title = goalTitle,
+            description = goalDescription,
+            duration = goalDuration
         )
     }
 }
@@ -488,14 +497,81 @@ fun getCategoryResourceId(category: Category): Int {
 
 
 @Composable
+fun TasksGeneratedDialog(
+    onDismissRequest: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    AlertDialog(
+        icon = {
+            Image(
+                painter = painterResource(R.drawable.ai),
+                contentDescription = null,
+                modifier = Modifier.size(30.dp)
+            )
+        },
+        title = {
+            Text(text = "AI generation done")
+        },
+        text = {
+            Text(text = "Do you want to see tasks that AI generated for you based on the provided data?")
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm
+            ) {
+                Text("Confirm")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismissRequest
+            ) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
 fun GoalTasksView(
     navigator: Navigator,
     viewModel: CreateGoalScreenViewModel?,
     goalTasks: List<Task>,
     onDone: (task: Task) -> Unit,
     onDelete: (task: Task) -> Unit,
-    onSaveGoal: () -> Unit
+    onSaveGoal: () -> Unit,
+    title: String,
+    description: String,
+    duration: Duration?,
+    useAi: Boolean,
+    onTasksGenerated: (tasks: List<Task>) -> Unit
 ) {
+    var showAiDialog by remember { mutableStateOf(false) }
+    var showErrorDialog by remember { mutableStateOf(false) }
+    val generatedTasks = remember { mutableStateListOf<TaskResponse>() }
+    val scope = rememberCoroutineScope()
+
+    if (showAiDialog) {
+        TasksGeneratedDialog(onDismissRequest = { showAiDialog = false }, onConfirm = {
+            scope.launch {
+                viewModel?.convertGeneratedTasks(generatedTasks.toList())?.let {
+                    onTasksGenerated(
+                        it
+                    )
+                }
+            }
+
+            showAiDialog = false
+        })
+    }
+
+    if (showErrorDialog) {
+        AiErrorDialog(onClick = { showErrorDialog = false })
+    }
+
 
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
         if (goalTasks.isEmpty()) {
@@ -516,8 +592,50 @@ fun GoalTasksView(
     }
 
     Spacer(Modifier.height(5.dp))
+
     if (goalTasks.isEmpty()) {
-        AddTaskButton(viewModel, "Create up to 4 tasks for achieving this goal", onDone)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AddTaskButton(viewModel, "Create tasks", onDone)
+            if (useAi) {
+                CardWrapper(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    roundedCorners = 20.dp,
+                    onClick = {
+                        viewModel?.generateTasksWithAI(
+                            goalTitle = title,
+                            goalDescription = description,
+                            duration = duration!!
+                        ) {
+                            if (it.isEmpty()) {
+                                showErrorDialog = true
+                            } else {
+                                showAiDialog = true
+                                generatedTasks.addAll(it)
+                            }
+
+                        }
+
+                    }
+                ) {
+                    Text(
+                        text = "Try AI",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Image(
+                        painter = painterResource(R.drawable.ai),
+                        contentDescription = null,
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+            }
+        }
+
     } else if (goalTasks.size in 1..3) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -554,6 +672,7 @@ fun GoalTasksView(
                 roundedCorners = 20.dp,
                 onClick = {
                     onSaveGoal()
+                    navigator.popUntil { it.key == GOAL_SCREEN_KEY }
                 }
             ) {
                 Text(
@@ -649,6 +768,31 @@ fun CardWrapper(
             content()
         }
     }
+}
+
+@Composable
+fun AiErrorDialog(
+    onClick: () -> Unit,
+) {
+    AlertDialog(
+        icon = {
+            Icon(Icons.Default.Delete, contentDescription = "Example Icon")
+        },
+        title = {
+            Text(text = "Unexpected error occurs")
+        },
+        text = {
+            Text(text = "Error fails during generation, but you can validate your data and try again")
+        },
+        onDismissRequest = onClick,
+        confirmButton = {
+            TextButton(
+                onClick = onClick
+            ) {
+                Text("Okay")
+            }
+        }
+    )
 }
 
 @Composable

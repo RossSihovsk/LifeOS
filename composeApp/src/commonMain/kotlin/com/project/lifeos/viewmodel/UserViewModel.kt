@@ -4,6 +4,7 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import co.touchlab.kermit.Logger
 import com.project.lifeos.data.User
+import com.project.lifeos.repository.GoalRepository
 import com.project.lifeos.repository.TaskRepository
 import com.project.lifeos.repository.UserRepository
 import kotlinx.coroutines.Dispatchers
@@ -11,9 +12,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-val logger = Logger.withTag("UserViewModel")
+private val logger = Logger.withTag("UserViewModel")
 
-class UserViewModel(private val userRepository: UserRepository, private val taskRepository: TaskRepository) :
+class UserViewModel(
+    private val userRepository: UserRepository,
+    private val taskRepository: TaskRepository,
+    private val goalRepository: GoalRepository
+) :
     ScreenModel {
     private val _uiState = MutableStateFlow<ProfileUiState>(ProfileUiState.NoUsers)
     val uiState = _uiState.asStateFlow()
@@ -41,10 +46,11 @@ class UserViewModel(private val userRepository: UserRepository, private val task
         _user.emit(null)
     }
 
-    fun deleteAllDataForUser(userMail: String){
+    fun deleteAllDataForUser(userMail: String) {
         screenModelScope.launch {
             logger.d("deleteAllDataForUser: $userMail")
             taskRepository.deleteAllForUser(userMail)
+            goalRepository.deleteAllForUser(userMail)
         }
     }
 

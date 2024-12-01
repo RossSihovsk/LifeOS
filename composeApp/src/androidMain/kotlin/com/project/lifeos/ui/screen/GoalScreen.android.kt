@@ -43,12 +43,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.Navigator
+import co.touchlab.kermit.Logger
 import com.project.lifeos.R
+import com.project.lifeos.ai.GeminiApi
 import com.project.lifeos.data.Category
+import com.project.lifeos.data.Duration
 import com.project.lifeos.data.Goal
 import com.project.lifeos.utils.safePush
 import com.project.lifeos.viewmodel.GoalScreenViewModel
 import com.project.lifeos.viewmodel.GoalsUIState
+
+private val logger = Logger.withTag("GoalScreenContent")
+
+suspend fun generateContent(api: GeminiApi, prompt: String): String {
+    val result = api.generateTasksForGoal(
+        "Buddy muscle",
+        "Wanna improve budy muscle",
+        duration = Duration.THREE_MONTH
+    )
+    logger.d("Result: ${result}")
+    return ""
+}
 
 @Composable
 actual fun GoalScreenContent(navigator: Navigator, viewModel: GoalScreenViewModel) {
