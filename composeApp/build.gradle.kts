@@ -90,6 +90,9 @@ kotlin {
 
             // Ktor serialization with JSON support
             implementation(libs.ktor.serialization.kotlinx.json)
+
+            // Extended icons pack
+            implementation(compose.materialIconsExtended)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
