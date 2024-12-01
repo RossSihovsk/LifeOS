@@ -35,6 +35,7 @@ import co.touchlab.kermit.Logger
 import com.project.lifeos.data.*
 import com.project.lifeos.utils.formatTime
 import com.project.lifeos.viewmodel.CreateGoalScreenViewModel
+import kotlinx.coroutines.launch
 import java.time.Instant
 
 private val logger = Logger.withTag("AddGoalScreenContent")
@@ -56,16 +57,25 @@ actual fun AddGoalScreenContent(navigator: Navigator,
     Box{
     Column(modifier = Modifier.fillMaxWidth().padding(vertical = 25.dp, horizontal = 20.dp)) {
 
-        var goalTitle by remember { mutableStateOf("") }
-        var goalDescription by remember { mutableStateOf("") }
-        var goalDuration: Duration? by remember { mutableStateOf(null) }
-        var goalCategory: Category? by remember { mutableStateOf(null) }
-        var goalTasks: List<Task> by remember { mutableStateOf(mutableListOf()) }
+        var goalTitle by remember { mutableStateOf(goal?.title ?: "") }
+        var goalDescription by remember { mutableStateOf(goal?.shortPhrase ?: "") }
+        var goalDuration: Duration? by remember { mutableStateOf(goal?.duration) }
+        var goalCategory: Category? by remember { mutableStateOf(goal?.category) }
+        val goalTasks = remember { mutableStateListOf<Task>() }
 
+        val scope = rememberCoroutineScope()
+
+        LaunchedEffect(Unit) {
+            scope.launch {
+                viewModel?.let {
+                    goalTasks.addAll(viewModel.findTasksForGoal(goal?.id))
+                }
+            }
+        }
         BackButton(navigator = navigator)
         CreateGoalHeader()
         Spacer(modifier = Modifier.height(50.dp))
-        GoalTitleAndDescription { title, description ->
+        GoalTitleAndDescription(goalTitle,goalDescription) { title, description ->
             goalTitle = title
             goalDescription = description
         }
@@ -73,11 +83,11 @@ actual fun AddGoalScreenContent(navigator: Navigator,
         Spacer(modifier = Modifier.height(20.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            SelectDuration {
+            SelectDuration(goalDuration) {
                 goalDuration = it
             }
 
-            SelectCategory {
+            SelectCategory(goalCategory) {
                 goalCategory = it
             }
         }
@@ -89,16 +99,26 @@ actual fun AddGoalScreenContent(navigator: Navigator,
                 navigator,
                 viewModel,
                 goalTasks,
-                onDone = { goalTasks = goalTasks.plus(it) },
-                onDelete = { goalTasks = goalTasks.minus(it) },
+                onDone = { goalTasks.add(it) },
+                onDelete = { goalTasks.remove(it) },
                 onSaveGoal = {
-                    viewModel.saveGoal(
-                        title = goalTitle,
-                        description = goalDescription,
-                        duration = goalDuration ?: Duration.THREE_MONTH,
-                        category = goalCategory ?: Category.PERSONAL,
-                        tasks = goalTasks
-                    )
+                    if (goal == null) {
+                        viewModel.saveGoal(
+                            title = goalTitle,
+                            description = goalDescription,
+                            duration = goalDuration ?: Duration.THREE_MONTH,
+                            category = goalCategory ?: Category.PERSONAL,
+                            tasks = goalTasks
+                        )
+                    } else {
+                        onDone(
+                            goalTitle,
+                            goalDescription,
+                            goalDuration ?: Duration.THREE_MONTH,
+                            goalCategory ?: Category.PERSONAL,
+                            goalTasks
+                        )
+                    }
                 }
             )
         }
@@ -133,10 +153,10 @@ fun BackButton(navigator: Navigator) {
 }
 
 @Composable
-fun GoalTitleAndDescription(onDone: (title: String, description: String) -> Unit) {
+fun GoalTitleAndDescription(title: String, description: String, onDone: (title: String, description: String) -> Unit) {
     val keyboardController = LocalSoftwareKeyboardController.current
-    var goalTitle by remember { mutableStateOf("") }
-    var goalDescription by remember { mutableStateOf("") }
+    var goalTitle by remember { mutableStateOf(title) }
+    var goalDescription by remember { mutableStateOf(description) }
 
     TextField(
         modifier = Modifier.fillMaxWidth().wrapContentHeight(),
@@ -172,9 +192,9 @@ fun GoalTitleAndDescription(onDone: (title: String, description: String) -> Unit
 }
 
 @Composable
-fun SelectCategory(onDone: (category: Category) -> Unit) {
+fun SelectCategory(category_two: Category?, onDone: (category: Category) -> Unit) {
     var showDialog by remember { mutableStateOf(false) }
-    var category: Category? by remember { mutableStateOf(null) }
+    var category: Category? by remember { mutableStateOf(category_two) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -253,10 +273,10 @@ fun SelectCategory(onDone: (category: Category) -> Unit) {
 }
 
 @Composable
-fun SelectDuration(onDone: (duration: Duration) -> Unit) {
+fun SelectDuration(duraion_two:Duration?, onDone: (duration: Duration) -> Unit) {
 
     var showDialog by remember { mutableStateOf(false) }
-    var duration: Duration? by remember { mutableStateOf(null) }
+    var duration: Duration? by remember { mutableStateOf(duraion_two) }
 
 
     Column(
@@ -515,9 +535,6 @@ fun DisplayTask(task: Task, onDelete: (task: Task) -> Unit) {
 fun AddTaskButton(viewModel: CreateGoalScreenViewModel, text: String, onDone: (task: Task) -> Unit) {
     var showModalBottomSheet by remember { mutableStateOf(false) }
     val showDatePicker = remember { mutableStateOf(false) }
-    val datePickerState = rememberDatePickerState(
-        initialSelectedDateMillis = Instant.now().toEpochMilli()
-    )
     if (showModalBottomSheet) {
         Dialog(
             onDismissRequest = { showDatePicker.value = false },
@@ -530,6 +547,7 @@ fun AddTaskButton(viewModel: CreateGoalScreenViewModel, text: String, onDone: (t
                 Box(Modifier.heightIn(max = 600.dp)) {
                     AddTaskScreenContent(
                         null,
+                        task = null,
                         logger
                     ) { title, description, time, dates, checkItems, reminder, priority ->
                         val task = Task(

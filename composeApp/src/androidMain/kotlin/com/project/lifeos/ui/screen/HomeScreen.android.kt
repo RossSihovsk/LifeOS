@@ -217,7 +217,6 @@ fun TaskExpandedSection(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TasksContent(
     tasks: List<Task>,

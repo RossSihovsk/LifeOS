@@ -1,16 +1,8 @@
 package com.project.lifeos.ui.bottomNavigation
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Favorite
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.ui.graphics.vector.ImageVector
 
 enum class BottomBarItems(
@@ -25,8 +17,8 @@ enum class BottomBarItems(
     ),
     GOALS(
         title = "Goals",
-        selectedIcon = Icons.Filled.Favorite,
-        unSelectedIcon = Icons.Outlined.Favorite
+        selectedIcon = Icons.Filled.Assistant,
+        unSelectedIcon = Icons.Outlined.Assistant
     ),
     ADD_TASK(
         title = "Add Task",
@@ -35,8 +27,8 @@ enum class BottomBarItems(
     ),
     STATS(
         title = "Stats",
-        selectedIcon = Icons.Filled.Star,
-        unSelectedIcon = Icons.Outlined.Star
+        selectedIcon = Icons.Filled.AlignVerticalBottom,
+        unSelectedIcon = Icons.Outlined.AlignVerticalBottom
     ),
     PROFILE(
         title = "Profile",

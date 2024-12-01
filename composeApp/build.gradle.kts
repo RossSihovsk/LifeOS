@@ -90,12 +90,13 @@ kotlin {
 
             // Ktor serialization with JSON support
             implementation(libs.ktor.serialization.kotlinx.json)
+            implementation(compose.materialIconsExtended)
+
         }
         desktopMain.dependencies {
             implementation(libs.notify)
 
             implementation(compose.desktop.currentOs)
-            implementation(compose.materialIconsExtended)
             //SQLDelight Desktop
             implementation(libs.sqldelight.jvm)
             implementation(libs.java.jwt)

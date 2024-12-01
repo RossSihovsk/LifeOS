@@ -1,6 +1,4 @@
 package com.project.lifeos.ui.screen
-
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -23,19 +21,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
 import com.project.lifeos.data.Priority
 import com.project.lifeos.data.Reminder
+import com.project.lifeos.data.Task
+import com.project.lifeos.utils.stringToDate
 import com.project.lifeos.viewmodel.AddTaskViewModel
 import java.text.SimpleDateFormat
 import java.time.Instant
-import java.time.LocalDate
 import java.util.*
+private const val GOAL_SCREEN_KEY = "com.project.lifeos.ui.screen.HomeScreen"
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-actual fun AddTaskScreenContent(viewModel: AddTaskViewModel?, logger: Logger?, onDone: (
+actual fun AddTaskScreenContent(navigator:Navigator?=null,
+    viewModel: AddTaskViewModel?, task: Task?, logger: Logger?, onDone: (
     title: String,
     description: String?,
     time: Long?,
@@ -44,6 +46,8 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel?, logger: Logger?, o
     reminder: Reminder,
     priority: Priority,
 ) -> Unit) {
+
+
     Box(Modifier.fillMaxSize()) {
         Image(
             painter = painterResource("bg.png"),
@@ -57,13 +61,7 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel?, logger: Logger?, o
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.Start
     ) {
-        val taskTitle = remember { mutableStateOf("") }
-        val taskDescription = remember { mutableStateOf("") }
-        val taskTime = remember { mutableStateOf<Long?>(null) }
-        val taskDate = remember { mutableListOf<Long?>(System.currentTimeMillis()) }
-        val taskPriority = remember { mutableStateOf(Priority.NO_PRIORITY) }
-        val taskCheckItems = remember { mutableStateListOf<String>() }
-        val taskReminder = remember { mutableStateOf<Reminder>(Reminder.NONE) }
+       // val taskDate = remember { mutableListOf<Long?>(System.currentTimeMillis()) }
         val timePickerState = rememberTimePickerState()
         val showTimePicker = remember { mutableStateOf(false) }
 
@@ -75,6 +73,33 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel?, logger: Logger?, o
         )
         val showDatePicker = remember { mutableStateOf(false) }
 
+        val taskTitle = remember { mutableStateOf(task?.title ?: "") }
+        val taskDescription = remember { mutableStateOf(task?.description ?: "") }
+        val taskPriority = remember { mutableStateOf(task?.priority ?: Priority.NO_PRIORITY) }
+        val taskTime = remember { mutableStateOf(task?.time) }
+        val taskReminder = remember { mutableStateOf(task?.reminder ?: Reminder.NONE) }
+
+        val taskDate = remember {
+            mutableStateListOf(
+                *if (task == null || task.dateStatuses.isEmpty()) {
+                    listOf(System.currentTimeMillis()).toTypedArray()
+                } else {
+                    task.dateStatuses.map {
+                        stringToDate(it.date).toEpochDay()
+                    }.toTypedArray()
+                }
+            )
+        }
+
+        val taskCheckItems = remember {
+            mutableStateListOf(
+                *if (task == null || task.checkItems.isNullOrEmpty()) {
+                    emptyArray<String>()
+                } else {
+                    task.checkItems.toTypedArray()
+                }
+            )
+        }
         Text(
             modifier = Modifier.padding(top = 10.dp).padding(start = 30.dp),
             text = "AddTaskScreen",
@@ -130,7 +155,7 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel?, logger: Logger?, o
                     )
                 }
                 ShowTimePickerDialog(showTimePicker, timePickerState, taskTime)
-                ShowDatePickerDialog(showDatePicker, datePickerState, taskDate)
+                ShowDatePickerDialog(showDatePicker, datePickerState, taskDate.toMutableList())
                 Spacer(modifier = Modifier.height(5.dp))
 
             }
@@ -157,7 +182,7 @@ actual fun AddTaskScreenContent(viewModel: AddTaskViewModel?, logger: Logger?, o
 
             ReminderPicker(taskReminder)
             Row(Modifier.padding(start = 30.dp)) {
-            EnableSaveButton(taskDescription, taskTime, taskTitle) {
+            EnableSaveButton(taskDescription, taskTime, taskTitle,navigator) {
 
             logger?.i(
                 "Save task with title: ${taskTitle.value}, description: ${taskDescription.value}, time: ${taskTime.value}, date: $taskDate"
@@ -185,20 +210,17 @@ fun EnableSaveButton(
     taskDescription: MutableState<String>,
     taskTime: MutableState<Long?>,
     taskTitle: MutableState<String>,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    navigator: Navigator
 ) {
     val enabled =
         taskDescription.value.isNotEmpty() && taskTime.value != null && taskTitle.value.isNotEmpty()
 
-    Button(enabled = enabled, onClick = onClick,shape = RoundedCornerShape(10.dp)) {
+    Button(enabled = enabled, onClick = {onClick
+        navigator.popUntil { it.key == GOAL_SCREEN_KEY }
+    },shape = RoundedCornerShape(10.dp)) {
         Text("Save Task")
     }
-}
-
-fun getFormattedDateText(taskDate: MutableState<Long?>, dateFormatter: SimpleDateFormat): String {
-    return taskDate.value?.let { time ->
-        "Entered Date: ${dateFormatter.format(time)}"
-    } ?: "Date has not selected yet"
 }
 
 fun getFormattedTimeText(taskTime: MutableState<Long?>, timeFormatter: SimpleDateFormat): String {

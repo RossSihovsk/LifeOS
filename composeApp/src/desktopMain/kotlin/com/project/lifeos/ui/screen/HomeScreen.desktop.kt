@@ -10,16 +10,13 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.rounded.Checklist
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.ExpandLess
 import androidx.compose.material.icons.rounded.ExpandMore
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -33,12 +30,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
-import com.project.lifeos.data.Priority
-import com.project.lifeos.data.Reminder
-import com.project.lifeos.data.Task
+import com.project.lifeos.data.*
 import com.project.lifeos.ui.view.calendar.CalendarUiModel
 
 import com.project.lifeos.utils.formatTime
+import com.project.lifeos.utils.safePush
 import com.project.lifeos.viewmodel.HomeScreenViewModel
 import com.project.lifeos.viewmodel.HomeUiState
 import java.time.format.DateTimeFormatter
@@ -66,44 +62,61 @@ actual fun HomeScreenContent(
             contentScale = ContentScale.FillBounds // Scales the image to cover the whole background
         )
     }
-Box{
-    Column(modifier = Modifier.fillMaxWidth().verticalScroll(state = scrollState)) {
+    Box {
+        Column(modifier = Modifier.fillMaxWidth().verticalScroll(state = scrollState)) {
 
-        CalendarView(modifier = Modifier.fillMaxWidth(),
-            calendarUiModel = viewModel.calendarUiModel,
-            onDateClickListener = { date ->
-                viewModel.onDateClicked(date)
-            })
+            CalendarView(
+                modifier = Modifier.fillMaxWidth(),
+                calendarUiModel = viewModel.calendarUiModel,
+                onDateClickListener = { date ->
+                    viewModel.onDateClicked(date)
+                })
 
-        Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-        when (val state = uiState) {
-            is HomeUiState.Loading -> {
-                //Display some loading indicator
-            }
+            when (val state = uiState) {
+                is HomeUiState.Loading -> {
+                    //Display some loading indicator
+                }
 
-            is HomeUiState.NoTaskForSelectedDate -> {
-                DisplayNoDataImage()
-            }
+                is HomeUiState.NoTaskForSelectedDate -> {
+                    DisplayNoDataImage()
+                }
 
-            is HomeUiState.TaskUpdated -> {
-                logger.i("UpdateTaskStatus")
-                TaskExpandedSection(title = TO_COMPLETE_TITLE, content = {
+                is HomeUiState.TaskUpdated -> {
+                    logger.i("UpdateTaskStatus")
+                    TaskExpandedSection(
+                        title = TO_COMPLETE_TITLE, content = {
 
-                    TasksContent(state.unCompletedTasks, onTaskStatusChanged = viewModel::onTaskStatusChanged,completed = false)
+                            TasksContent(
+                                state.unCompletedTasks,
+                                onTaskStatusChanged = viewModel::onTaskStatusChanged,
+                                completed = false,
+                                viewModel,
+                                navigator
+                            )
 
-                }, isExpanded = ongoingTasksExpanded.value, // Bind state to isExpanded
-                    onToggleClick = { ongoingTasksExpanded.value = !ongoingTasksExpanded.value })
+                        }, isExpanded = ongoingTasksExpanded.value, // Bind state to isExpanded
+                        onToggleClick = { ongoingTasksExpanded.value = !ongoingTasksExpanded.value })
 
-                Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
 
-                TaskExpandedSection(title = COMPLETED_TITLE, content = {
-                    TasksContent(state.completedTasks, onTaskStatusChanged = viewModel::onTaskStatusChanged,completed = false)
-                }, isExpanded = completedTasksExpanded.value, // Bind state to isExpanded
-                    onToggleClick = { completedTasksExpanded.value = !completedTasksExpanded.value })
+                    TaskExpandedSection(
+                        title = COMPLETED_TITLE,
+                        content = {
+                            TasksContent(
+                                state.completedTasks,
+                                onTaskStatusChanged = viewModel::onTaskStatusChanged,
+                                completed = true,
+                                viewModel,
+                                navigator
+                            )
+                        }, isExpanded = completedTasksExpanded.value, // Bind state to isExpanded
+                        onToggleClick = { completedTasksExpanded.value = !completedTasksExpanded.value })
+                }
             }
         }
-    }}
+    }
     LaunchedEffect(Unit) {
         // Call your ViewModel function
         viewModel.init()
@@ -173,26 +186,131 @@ fun TaskExpandedSection(
 }
 
 @Composable
-fun TasksContent(tasks: List<Task>, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean) {
+fun TasksContent(
+    tasks: List<Task>,
+    onTaskStatusChanged: (status: Boolean, task: Task) -> Unit,
+    completed: Boolean,
+    viewModel: HomeScreenViewModel,
+    navigator: Navigator?
+) {
+    var showModalBottomSheet by remember { mutableStateOf(false) }
+    var showDeleteView by remember { mutableStateOf(false) }
+    var taskToDeleteOrOpen: Task? by remember { mutableStateOf(null) }
+
     LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 600.dp)) {
         items(tasks) { task ->
-            TaskCard(task = task, onTaskStatusChanged = onTaskStatusChanged, completed)
+            TaskCard(
+                task = task, onTaskStatusChanged = onTaskStatusChanged, completed,
+                onClick = {
+                    taskToDeleteOrOpen = it
+                    showModalBottomSheet = true
+                },
+                onDeleteTask = {
+                    taskToDeleteOrOpen = it
+                    showDeleteView = true
+                },
+            )
             HorizontalDivider(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
-            thickness = 1.dp,
-            color = Color.Black
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+                thickness = 1.dp,
+                color = Color.Black
             )
             Spacer(modifier = Modifier.height(25.dp))
         }
     }
+    if (showModalBottomSheet) {
+        navigator?.safePush(AddTaskScreen(task = taskToDeleteOrOpen)
+        {title, description, time, dates, checkItems, reminder, priority ->
+            viewModel.updateTask(taskToDeleteOrOpen?.id, title, description, time, dates.map { DateStatus(it,false) }, checkItems, reminder, priority)
+            showModalBottomSheet = false
+        }
+        )
+
+
+    }
+
+    if (showDeleteView) {
+        DeleteTaskDialog(
+            onDismissRequest = { showDeleteView = false },
+            onSingleDelete = {
+                viewModel.deleteForToday(taskToDeleteOrOpen)
+                showDeleteView = false
+                println("Confirmation registered") //Add logic here to handle confirmation.
+            },
+            onDeleteCompletely = {
+                viewModel.deleteCompletely(taskToDeleteOrOpen)
+                showDeleteView = false
+            },
+            dialogTitle = "Delete Task",
+            dialogText = "Do you want to delete task \"${taskToDeleteOrOpen?.title}\" just for today or completely?",
+        )
+    }
 }
 
 @Composable
-fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean) {
+fun DeleteTaskDialog(
+    onDismissRequest: () -> Unit,
+    onSingleDelete: () -> Unit,
+    onDeleteCompletely: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+) {
+    AlertDialog(
+        icon = {
+            Icon(Icons.Default.Delete, contentDescription = "Example Icon")
+        },
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            Text(text = dialogText)
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            Row {
+                TextButton(
+                    onClick = {
+                        onSingleDelete()
+                    }
+                ) {
+                    Text("Today")
+                }
+
+                TextButton(
+                    onClick = {
+                        onDeleteCompletely()
+                    }
+                ) {
+                    Text("Completely")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun TaskCard(
+    task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean,
+    onClick: (task: Task) -> Unit, onDeleteTask: (task: Task) -> Unit,
+) {
     Column(
-        modifier = Modifier.wrapContentSize().padding(horizontal = 16.dp), horizontalAlignment = Alignment.Start
+        modifier = Modifier.wrapContentSize().padding(horizontal = 16.dp).combinedClickable(
+            onClick = { onClick(task) },
+        ), horizontalAlignment = Alignment.Start
     ) {
-        MainInfoCard(task = task, onTaskStatusChanged = onTaskStatusChanged, completed)
+        MainInfoCard(task = task, onTaskStatusChanged = onTaskStatusChanged, completed, onDeleteTask)
         Spacer(modifier = Modifier.height(4.dp))
         TaskCardDescription(description = task.description)
         Spacer(modifier = Modifier.height(6.dp))
@@ -201,7 +319,12 @@ fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> U
 }
 
 @Composable
-fun MainInfoCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean) {
+fun MainInfoCard(
+    task: Task,
+    onTaskStatusChanged: (status: Boolean, task: Task) -> Unit,
+    completed: Boolean,
+    onDeleteTask: (task: Task) -> Unit,
+) {
     Row(
         modifier = Modifier.fillMaxWidth().wrapContentHeight(), verticalAlignment = Alignment.CenterVertically
     ) {
@@ -218,6 +341,15 @@ fun MainInfoCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) 
             fontSize = 20.sp,
             modifier = Modifier.weight(1f)
         )
+        IconButton(
+            onClick = {
+                onDeleteTask(task)
+            },
+            Modifier.padding(start = 8.dp),
+        ) {
+            Icon(Icons.Rounded.Delete, contentDescription = "Delete")
+            Arrangement.End
+        }
         task.time?.let { time ->
             Text(
                 text = formatTime(time),
@@ -391,7 +523,8 @@ fun ContentItem(date: CalendarUiModel.Date, onDateClickListener: (CalendarUiMode
                 modifier = Modifier.align(Alignment.CenterHorizontally), style = MaterialTheme.typography.bodyMedium
             )
             Spacer(modifier = Modifier.height(10.dp))
-            Text(style = MaterialTheme.typography.bodyLarge,
+            Text(
+                style = MaterialTheme.typography.bodyLarge,
                 text = date.date.dayOfMonth.toString(), // date "15", "16",
                 color = if (date.isSelected) Color.White else Color.Black,
                 modifier = Modifier.align(Alignment.CenterHorizontally).drawBehind {
@@ -400,3 +533,4 @@ fun ContentItem(date: CalendarUiModel.Date, onDateClickListener: (CalendarUiMode
         }
     }
 }
+

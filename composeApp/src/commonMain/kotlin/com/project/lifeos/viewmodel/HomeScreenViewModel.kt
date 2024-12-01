@@ -130,7 +130,7 @@ class HomeScreenViewModel(
         logger.i("deleteForToday $task")
         screenModelScope.launch(Dispatchers.IO) {
             task?.let { taskToDelete ->
-                val updateJob = screenModelScope.async {
+                val updateJob = screenModelScope.async(Dispatchers.IO) {
                     val updatedDates = task.dateStatuses.toMutableList().apply {
                         removeIf { it.date.contains(currentDate) }
                     }
@@ -146,7 +146,7 @@ class HomeScreenViewModel(
         logger.i("deleteCompletely $task")
         screenModelScope.launch(Dispatchers.IO) {
             task?.let { taskToDelete ->
-                val updateJob = screenModelScope.async {
+                val updateJob = screenModelScope.async(Dispatchers.IO) {
                     taskRepository.deleteCompletely(taskToDelete.id!!)
                 }
 
@@ -173,7 +173,7 @@ class HomeScreenViewModel(
             )
 
             screenModelScope.launch(Dispatchers.IO) {
-                val updateJob = screenModelScope.async {
+                val updateJob = screenModelScope.async(Dispatchers.IO) {
                     taskRepository.updateTask(taskId, title, description, time, dates, checkItems, reminder, priority)
                 }
 
