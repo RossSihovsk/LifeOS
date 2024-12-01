@@ -1,21 +1,18 @@
 import androidx.compose.ui.window.Window
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.application
+import androidx.compose.ui.window.rememberWindowState
 import com.project.lifeos.App
-import com.project.lifeos.di.DesktopAppModule
+import androidx.compose.ui.window.WindowPosition
+
 
 fun main() = application {
-    Window(onCloseRequest = ::exitApplication, title = "LifeOS") {
+    val state = rememberWindowState(position = WindowPosition(Alignment.Center), size = DpSize(1120.dp, 900.dp))
+    Window(onCloseRequest = ::exitApplication, title = "LifeOS", state = state)
+    {
         App()
-
-//      Desktop example of How to get the auth token
-//        runBlocking {
-//            val desktop = Desktop.getDesktop()
-//            val client = GoogleAuthClient(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET)
-//            println(client.authorizationUrl)
-//            desktop.browse(URI(client.authorizationUrl))
-//            val res = client.waitForOAuthIdToken()
-//            println(res)
-//        }
     }
 }
 

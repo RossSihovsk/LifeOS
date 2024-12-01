@@ -13,11 +13,16 @@ generativeai = "0.9.0"
 githubCompose = "1.0.0-beta01"
 googleAuthDesktop = "1.1"
 googleid = "1.1.1"
+javafxControls = "20"
+javaJwt = "3.18.2"
+jna = "5.13.0"
+json = "20210307"
 kermit = "2.0.3"
 kizitonwoseCompose = "2.5.1"
 kotlin = "1.9.23"
 kotlinxSerializationJsonVersion = "1.6.0"
 ktorClientCio = "2.2.4"
+notify = "3.7"
 ktorClientCore = "2.3.4"
 ktorClientOkhttp = "2.3.4"
 voyagerNavigator = "1.1.0-beta02"
@@ -28,6 +33,11 @@ material3Android = "1.2.1"
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
+java-jwt = { module = "com.auth0:java-jwt", version.ref = "javaJwt" }
+javafx-base = { module = "org.openjfx:javafx-base", version.ref = "javafxControls" }
+javafx-controls = { module = "org.openjfx:javafx-controls", version.ref = "javafxControls" }
+jna = { module = "net.java.dev.jna:jna", version.ref = "jna" }
+json = { module = "org.json:json", version.ref = "json" }
 generativeai = { module = "com.google.ai.client.generativeai:generativeai", version.ref = "generativeai" }
 kizitonwose_calendar = { module = "com.kizitonwose.calendar:compose", version.ref = "kizitonwoseCompose" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
@@ -47,6 +57,7 @@ ktor-client-core-v234 = { module = "io.ktor:ktor-client-core", version.ref = "kt
 ktor-client-java = { module = "io.ktor:ktor-client-java", version.ref = "ktorClientCore" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktorClientOkhttp" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorClientCore" }
+notify = { module = "com.dorkbox:Notify", version.ref = "notify" }
 voyager-bottom-sheet-navigator = { module = "cafe.adriel.voyager:voyager-bottom-sheet-navigator", version.ref = "voyagerNavigator" }
 voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyagerNavigator" }
 voyager-tab-navigator = { module = "cafe.adriel.voyager:voyager-tab-navigator", version.ref = "voyagerNavigator" }

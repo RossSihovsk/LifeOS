@@ -106,7 +106,7 @@ actual fun ProfileScreenContent(
                                 )
                                 val credential = result.credential
                                 val userCred = GoogleIdTokenCredential.createFrom(credential.data)
-
+                                println(userCred)
                                 User(
                                     name = userCred.displayName ?: "Unknown name",
                                     mail = if (userCred.id.contains("@")) userCred.id else "Unknown email",

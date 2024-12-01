@@ -60,7 +60,7 @@ class HomeScreenViewModel(
         val newStatus = task.dateStatuses.first { it.date.contains(currentDate) }.copy(status = !status)
 
         logger.d("newStatus: $newStatus")
-        val updateJob = screenModelScope.async {
+        val updateJob = screenModelScope.async(Dispatchers.IO) {
             taskRepository.onTaskStatusChanged(newStatus, task)
         }
 
@@ -75,7 +75,7 @@ class HomeScreenViewModel(
         return Pair(completedTasks, uncompletedTasks)
     }
 
-    private fun updateTasksState(changeJob: Deferred<Unit>? = null) = screenModelScope.launch {
+    private fun updateTasksState(changeJob: Deferred<Unit>? = null) = screenModelScope.launch(context = Dispatchers.IO){
         changeJob?.onAwait
         val updatedList = taskRepository.getTasksForDay(
             day = currentDate, userMail = userRepository.getLastUser()?.mail
@@ -130,7 +130,7 @@ class HomeScreenViewModel(
         logger.i("deleteForToday $task")
         screenModelScope.launch(Dispatchers.IO) {
             task?.let { taskToDelete ->
-                val updateJob = screenModelScope.async {
+                val updateJob = screenModelScope.async(Dispatchers.IO) {
                     val updatedDates = task.dateStatuses.toMutableList().apply {
                         removeIf { it.date.contains(currentDate) }
                     }
@@ -146,7 +146,7 @@ class HomeScreenViewModel(
         logger.i("deleteCompletely $task")
         screenModelScope.launch(Dispatchers.IO) {
             task?.let { taskToDelete ->
-                val updateJob = screenModelScope.async {
+                val updateJob = screenModelScope.async(Dispatchers.IO) {
                     taskRepository.deleteCompletely(taskToDelete.id!!)
                 }
 
@@ -173,7 +173,7 @@ class HomeScreenViewModel(
             )
 
             screenModelScope.launch(Dispatchers.IO) {
-                val updateJob = screenModelScope.async {
+                val updateJob = screenModelScope.async(Dispatchers.IO) {
                     taskRepository.updateTask(taskId, title, description, time, dates, checkItems, reminder, priority)
                 }
 
