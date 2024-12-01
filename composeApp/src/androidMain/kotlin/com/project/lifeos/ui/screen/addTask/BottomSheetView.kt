@@ -4,13 +4,16 @@ import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -47,6 +50,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,11 +71,15 @@ import com.project.lifeos.data.DateStatus
 import com.project.lifeos.data.Duration
 import com.project.lifeos.data.Priority
 import com.project.lifeos.data.Reminder
+import com.project.lifeos.data.Task
 import com.project.lifeos.utils.formatDateFromLocalDate
+import com.project.lifeos.utils.stringToDate
 import com.project.lifeos.viewmodel.AddTaskViewModel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
-val logger: Logger = Logger.withTag("AddTaskBottomSheetView")
+private val logger: Logger = Logger.withTag("AddTaskBottomSheetView")
 
 @Composable
 fun AddTaskBottomSheetView(
@@ -85,7 +93,8 @@ fun AddTaskBottomSheetView(
         checkItems: List<String>,
         reminder: Reminder,
         priority: Priority,
-    ) -> Unit
+    ) -> Unit,
+    task: Task? = null
 ) {
 
     var showBottomSheet by remember { mutableStateOf(true) }
@@ -98,7 +107,8 @@ fun AddTaskBottomSheetView(
                 logger.i("Navigate back")
                 showBottomSheet = false
                 onDismiss()
-            }, onDone = onDone
+            }, onDone = onDone,
+            task
         )
     }
 }
@@ -117,17 +127,42 @@ fun AddTaskView(
         checkItems: List<String>,
         reminder: Reminder,
         priority: Priority,
-    ) -> Unit
+    ) -> Unit,
+    task: Task?
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
-    var taskTitle by remember { mutableStateOf("") }
-    var taskDescription by remember { mutableStateOf("") }
-    var taskPriority by remember { mutableStateOf(Priority.NO_PRIORITY) }
-    var taskTime by remember { mutableStateOf<Long?>(null) }
-    var taskReminder by remember { mutableStateOf(Reminder.NONE) }
-    val taskDates = remember { mutableStateListOf(CalendarDay(date = LocalDate.now(), DayPosition.InDate)) }
+    var taskTitle by remember { mutableStateOf(task?.title ?: "") }
+    var taskDescription by remember { mutableStateOf(task?.description ?: "") }
+    var taskPriority by remember { mutableStateOf(task?.priority ?: Priority.NO_PRIORITY) }
+    var taskTime by remember { mutableStateOf(task?.time) }
+    var taskReminder by remember { mutableStateOf(task?.reminder ?: Reminder.NONE) }
 
-    val taskCheckItems = remember { mutableStateListOf<String>() }
+    val taskDates = remember {
+        mutableStateListOf(
+            *if (task == null || task.dateStatuses.isEmpty()) {
+                listOf(CalendarDay(date = LocalDate.now(), position = DayPosition.InDate)).toTypedArray()
+            } else {
+                task.dateStatuses.map {
+                    CalendarDay(
+                        date = stringToDate(it.date),
+                        position = DayPosition.InDate
+                    )
+                }.toTypedArray()
+            }
+        )
+    }
+
+    val taskCheckItems = remember {
+        mutableStateListOf(
+            *if (task == null || task.checkItems.isNullOrEmpty()) {
+                emptyArray<String>()
+            } else {
+                task.checkItems.toTypedArray()
+            }
+        )
+    }
+
+    val scope = rememberCoroutineScope()
 
     var showDatePicker by remember { mutableStateOf(false) }
     var showPriorityPicker by remember { mutableStateOf(false) }
@@ -138,7 +173,8 @@ fun AddTaskView(
     ModalBottomSheet(
         containerColor = Color.White,
         onDismissRequest = onDismiss,
-        sheetState = sheetState
+        sheetState = sheetState,
+        windowInsets = WindowInsets.ime
     ) {
 
         Column(
@@ -148,7 +184,14 @@ fun AddTaskView(
                 .padding(bottom = 10.dp, start = 10.dp, end = 10.dp)
         ) {
 
-            BasicTextField2(modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+            BasicTextField2(modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .clickable {
+                    scope.launch {
+                        sheetState.expand()
+                    }
+                },
                 value = taskTitle,
                 onValueChange = { taskTitle = it },
                 textStyle = TextStyle(
@@ -169,19 +212,25 @@ fun AddTaskView(
                     innerTextField()
                 }
             )
-            LaunchedEffect(Unit) {
-
-            }
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            BasicTextField2(modifier = Modifier.fillMaxWidth().wrapContentHeight(),
+            BasicTextField2(modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .clickable {
+                    scope.launch {
+                        sheetState.expand()
+                    }
+                },
                 value = taskDescription,
                 onValueChange = { taskDescription = it },
                 textStyle = TextStyle(
                     fontSize = 14.sp,
                     fontFamily = FontFamily.Default
                 ),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                 decorator = { innerTextField ->
                     if (taskDescription.isEmpty()) {
                         Text(
@@ -209,6 +258,10 @@ fun AddTaskView(
                         }
                     }
                     Spacer(modifier = Modifier.height(8.dp))
+
+                    LaunchedEffect(Unit) {
+                        sheetState.expand()
+                    }
                 }
             }
 
@@ -231,6 +284,9 @@ fun AddTaskView(
                             }
                         )
                     }
+                }
+                LaunchedEffect(Unit) {
+                    sheetState.expand()
                 }
             }
 
@@ -292,7 +348,7 @@ fun AddTaskView(
                                 taskTitle,
                                 taskDescription,
                                 taskTime,
-                                taskDates.toList().map { DateStatus(it.date.toString(), false)   },
+                                taskDates.toList().map { DateStatus(it.date.toString(), false) },
                                 taskCheckItems.toList(),
                                 taskReminder,
                                 taskPriority
@@ -304,11 +360,20 @@ fun AddTaskView(
                         colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
                     )
                     {
-                        Icon(
-                            modifier = Modifier.size(20.dp),
-                            imageVector = ImageVector.vectorResource(R.drawable.baseline_arrow_circle_up_24),
-                            contentDescription = null
-                        )
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Text("Done")
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Icon(
+                                modifier = Modifier.size(25.dp),
+                                imageVector = ImageVector.vectorResource(R.drawable.baseline_arrow_circle_up_24),
+                                contentDescription = null
+                            )
+                        }
+
                     }
                 }
             }

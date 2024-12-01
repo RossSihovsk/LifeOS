@@ -3,16 +3,34 @@ package com.project.lifeos.ui.screen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
@@ -21,12 +39,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,9 +63,11 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
 import com.project.lifeos.R
+import com.project.lifeos.data.Duration
 import com.project.lifeos.data.Priority
 import com.project.lifeos.data.Reminder
 import com.project.lifeos.data.Task
+import com.project.lifeos.ui.screen.addTask.AddTaskBottomSheetView
 import com.project.lifeos.ui.view.CalendarView
 import com.project.lifeos.utils.formatTime
 import com.project.lifeos.viewmodel.HomeScreenViewModel
@@ -65,15 +87,7 @@ actual fun HomeScreenContent(
     val completedTasksExpanded = remember { mutableStateOf(false) } // Track expansion state
 
     val uiState by viewModel.uiState.collectAsState()
-    Box(Modifier.fillMaxSize()) {
-        Image(
-            painter = painterResource(R.drawable.bg),
-            contentDescription = "Background",
-            modifier = Modifier.fillMaxSize().graphicsLayer(alpha = 0.5f),
-            contentScale = ContentScale.FillBounds // Scales the image to cover the whole background
-        )
-    }
-    Box{
+
     Column(modifier = Modifier.fillMaxWidth().verticalScroll(state = scrollState)) {
 
         CalendarView(
@@ -102,7 +116,8 @@ actual fun HomeScreenContent(
                         TasksContent(
                             state.unCompletedTasks,
                             onTaskStatusChanged = viewModel::onTaskStatusChanged,
-                            completed = false
+                            completed = false,
+                            viewModel
                         )
                     },
                     isExpanded = ongoingTasksExpanded.value, // Bind state to isExpanded
@@ -117,7 +132,8 @@ actual fun HomeScreenContent(
                         TasksContent(
                             state.completedTasks,
                             onTaskStatusChanged = viewModel::onTaskStatusChanged,
-                            completed = true
+                            completed = true,
+                            viewModel
                         )
                     },
                     isExpanded = completedTasksExpanded.value, // Bind state to isExpanded
@@ -125,7 +141,7 @@ actual fun HomeScreenContent(
                 )
             }
         }
-    }}
+    }
     LaunchedEffect(Unit) {
         // Call your ViewModel function
         viewModel.init()
@@ -143,7 +159,7 @@ fun DisplayNoDataImage() {
         verticalArrangement = Arrangement.SpaceEvenly
     ) {
         Text(
-            text = "There is nothing in TODO list for this day",
+            text = "There is nothing you should do this day",
             fontSize = 24.sp,
             textAlign = TextAlign.Center,
             fontWeight = FontWeight.Bold
@@ -151,7 +167,7 @@ fun DisplayNoDataImage() {
 
         Spacer(modifier = Modifier.height(60.dp))
         Image(
-            painter = painterResource(id = R.drawable.no_data2), // Load the image from the drawable folder
+            painter = painterResource(id = R.drawable.no_data), // Load the image from the drawable folder
             contentDescription = "No data available",
             modifier = Modifier.fillMaxWidth(), // Adjust the size or any modifiers as needed
             contentScale = ContentScale.Fit // Adjust content scaling if necessary
@@ -201,22 +217,138 @@ fun TaskExpandedSection(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TasksContent(tasks: List<Task>, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean) {
+fun TasksContent(
+    tasks: List<Task>,
+    onTaskStatusChanged: (status: Boolean, task: Task) -> Unit,
+    completed: Boolean,
+    viewModel: HomeScreenViewModel
+) {
+    var showModalBottomSheet by remember { mutableStateOf(false) }
+    var showDeleteView by remember { mutableStateOf(false) }
+    var taskToDeleteOrOpen: Task? by remember { mutableStateOf(null) }
+
     LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 600.dp)) {
         items(tasks) { task ->
-            TaskCard(task = task, onTaskStatusChanged = onTaskStatusChanged, completed)
+
+            TaskCard(
+                task = task,
+                onTaskStatusChanged = onTaskStatusChanged,
+                completed,
+                onDeleteTask = {
+                    taskToDeleteOrOpen = it
+                    showDeleteView = true
+                },
+                onClick = {
+                    taskToDeleteOrOpen = it
+                    showModalBottomSheet = true
+                }
+            )
             Spacer(modifier = Modifier.height(25.dp))
         }
+    }
+
+    if (showModalBottomSheet){
+        AddTaskBottomSheetView(
+            addTaskViewModel = null,
+            duration = Duration.THREE_MONTH,
+            onDone = { title, description, time, dates, checkItems, reminder, priority ->
+                viewModel.updateTask(taskToDeleteOrOpen?.id, title, description, time, dates, checkItems, reminder, priority)
+                showModalBottomSheet = false
+            },
+            onDismiss = { showModalBottomSheet = false },
+            task = taskToDeleteOrOpen
+        )
+    }
+
+    if (showDeleteView) {
+        DeleteTaskDialog(
+            onDismissRequest = { showDeleteView = false },
+            onSingleDelete = {
+                viewModel.deleteForToday(taskToDeleteOrOpen)
+                showDeleteView = false
+                println("Confirmation registered") // Add logic here to handle confirmation.
+            },
+            onDeleteCompletely = {
+                viewModel.deleteCompletely(taskToDeleteOrOpen)
+                showDeleteView = false
+            },
+            dialogTitle = "Delete Task",
+            dialogText = "Do you want to delete task \"${taskToDeleteOrOpen?.title}\" just for today or completely?",
+        )
     }
 }
 
 @Composable
-fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean) {
+fun DeleteTaskDialog(
+    onDismissRequest: () -> Unit,
+    onSingleDelete: () -> Unit,
+    onDeleteCompletely: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+) {
+    AlertDialog(
+        icon = {
+            Icon(Icons.Default.Delete, contentDescription = "Example Icon")
+        },
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            Text(text = dialogText)
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            Row {
+                TextButton(
+                    onClick = {
+                        onSingleDelete()
+                    }
+                ) {
+                    Text("Today")
+                }
+
+                TextButton(
+                    onClick = {
+                        onDeleteCompletely()
+                    }
+                ) {
+                    Text("Completely")
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun TaskCard(
+    task: Task,
+    onTaskStatusChanged: (status: Boolean, task: Task) -> Unit,
+    completed: Boolean,
+    onDeleteTask: (task: Task) -> Unit,
+    onClick: (task: Task) -> Unit
+) {
     Column(
         modifier = Modifier
             .wrapContentSize()
-            .padding(horizontal = 16.dp),
+            .padding(horizontal = 16.dp)
+            .combinedClickable(
+                onClick = {onClick(task)},
+                onLongClick = { onDeleteTask(task) }
+            ),
         horizontalAlignment = Alignment.Start
     ) {
         MainInfoCard(task = task, onTaskStatusChanged = onTaskStatusChanged, completed)
@@ -228,7 +360,11 @@ fun TaskCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> U
 }
 
 @Composable
-fun MainInfoCard(task: Task, onTaskStatusChanged: (status: Boolean, task: Task) -> Unit, completed: Boolean) {
+fun MainInfoCard(
+    task: Task,
+    onTaskStatusChanged: (status: Boolean, task: Task) -> Unit,
+    completed: Boolean,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

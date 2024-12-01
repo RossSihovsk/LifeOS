@@ -23,16 +23,22 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,30 +59,48 @@ import androidx.compose.ui.window.Dialog
 import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
 import com.project.lifeos.R
+import com.project.lifeos.ai.TaskResponse
 import com.project.lifeos.data.Category
 import com.project.lifeos.data.Duration
+import com.project.lifeos.data.Goal
 import com.project.lifeos.data.Task
 import com.project.lifeos.ui.screen.addTask.AddTaskBottomSheetView
 import com.project.lifeos.utils.formatTime
 import com.project.lifeos.viewmodel.CreateGoalScreenViewModel
+import kotlinx.coroutines.launch
 
 private val logger = Logger.withTag("AddGoalScreenContent")
 private const val GOAL_SCREEN_KEY = "com.project.lifeos.ui.screen.GoalScreen"
 
 @Composable
-actual fun AddGoalScreenContent(navigator: Navigator, viewModel: CreateGoalScreenViewModel) {
+actual fun AddGoalScreenContent(
+    navigator: Navigator,
+    viewModel: CreateGoalScreenViewModel?,
+    goal: Goal?,
+    onDone: (title: String, description: String, duration: Duration, category: Category, tasks: List<Task>) -> Unit
+) {
     Column(modifier = Modifier.fillMaxWidth().padding(vertical = 25.dp, horizontal = 20.dp)) {
+        logger.d("Goal $goal")
+        var goalTitle by remember { mutableStateOf(goal?.title ?: "") }
+        var goalDescription by remember { mutableStateOf(goal?.shortPhrase ?: "") }
+        var goalDuration: Duration? by remember { mutableStateOf(goal?.duration) }
+        var goalCategory: Category? by remember { mutableStateOf(goal?.category) }
+        val goalTasks = remember { mutableStateListOf<Task>() }
 
-        var goalTitle by remember { mutableStateOf("") }
-        var goalDescription by remember { mutableStateOf("") }
-        var goalDuration: Duration? by remember { mutableStateOf(null) }
-        var goalCategory: Category? by remember { mutableStateOf(null) }
-        var goalTasks: List<Task> by remember { mutableStateOf(mutableListOf()) }
+        val scope = rememberCoroutineScope()
+
+        LaunchedEffect(Unit) {
+            scope.launch {
+                viewModel?.let {
+                    goalTasks.addAll(viewModel.findTasksForGoal(goal?.id))
+                }
+            }
+        }
 
         BackButton(navigator = navigator)
         CreateGoalHeader()
         Spacer(modifier = Modifier.height(50.dp))
-        GoalTitleAndDescription { title, description ->
+        GoalTitleAndDescription(goalTitle, goalDescription) { title, description ->
             goalTitle = title
             goalDescription = description
         }
@@ -84,11 +108,11 @@ actual fun AddGoalScreenContent(navigator: Navigator, viewModel: CreateGoalScree
         Spacer(modifier = Modifier.height(20.dp))
 
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-            SelectDuration {
+            SelectDuration(goalDuration) {
                 goalDuration = it
             }
 
-            SelectCategory {
+            SelectCategory(goalCategory) {
                 goalCategory = it
             }
         }
@@ -99,17 +123,32 @@ actual fun AddGoalScreenContent(navigator: Navigator, viewModel: CreateGoalScree
             navigator,
             viewModel,
             goalTasks,
-            onDone = { goalTasks = goalTasks.plus(it) },
-            onDelete = { goalTasks = goalTasks.minus(it) },
+            onDone = { goalTasks.add(it) },
+            onDelete = { goalTasks.remove(it) },
             onSaveGoal = {
-                viewModel.saveGoal(
-                    title = goalTitle,
-                    description = goalDescription,
-                    duration = goalDuration ?: Duration.THREE_MONTH,
-                    category = goalCategory ?: Category.PERSONAL,
-                    tasks = goalTasks
-                )
-            }
+                if (goal == null) {
+                    viewModel?.saveGoal(
+                        title = goalTitle,
+                        description = goalDescription,
+                        duration = goalDuration ?: Duration.THREE_MONTH,
+                        category = goalCategory ?: Category.PERSONAL,
+                        tasks = goalTasks
+                    )
+                } else {
+                    onDone(
+                        goalTitle,
+                        goalDescription,
+                        goalDuration ?: Duration.THREE_MONTH,
+                        goalCategory ?: Category.PERSONAL,
+                        goalTasks
+                    )
+                }
+            },
+            onTasksGenerated = { tasks: List<Task> -> goalTasks.addAll(tasks) },
+            useAi = goalTitle.isNotEmpty() && goalDescription.isNotEmpty() && goalDuration != null,
+            title = goalTitle,
+            description = goalDescription,
+            duration = goalDuration
         )
     }
 }
@@ -122,7 +161,7 @@ fun CreateGoalHeader() {
         horizontalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Create your goal",
+            text = "Type your goal",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.W900,
             fontSize = 25.sp
@@ -143,10 +182,14 @@ fun BackButton(navigator: Navigator) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun GoalTitleAndDescription(onDone: (title: String, description: String) -> Unit) {
+fun GoalTitleAndDescription(
+    title: String,
+    description: String,
+    onDone: (title: String, description: String) -> Unit
+) {
     val keyboardController = LocalSoftwareKeyboardController.current
-    var goalTitle by remember { mutableStateOf("") }
-    var goalDescription by remember { mutableStateOf("") }
+    var goalTitle by remember { mutableStateOf(title) }
+    var goalDescription by remember { mutableStateOf(description) }
 
     BasicTextField2(modifier = Modifier.fillMaxWidth().wrapContentHeight(),
         value = goalTitle,
@@ -206,9 +249,9 @@ fun GoalTitleAndDescription(onDone: (title: String, description: String) -> Unit
 }
 
 @Composable
-fun SelectCategory(onDone: (category: Category) -> Unit) {
+fun SelectCategory(goalCategory: Category?, onDone: (category: Category) -> Unit) {
     var showDialog by remember { mutableStateOf(false) }
-    var category: Category? by remember { mutableStateOf(null) }
+    var category: Category? by remember { mutableStateOf(goalCategory) }
 
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -287,10 +330,10 @@ fun SelectCategory(onDone: (category: Category) -> Unit) {
 }
 
 @Composable
-fun SelectDuration(onDone: (duration: Duration) -> Unit) {
+fun SelectDuration(goalDuration: Duration?, onDone: (duration: Duration) -> Unit) {
 
     var showDialog by remember { mutableStateOf(false) }
-    var duration: Duration? by remember { mutableStateOf(null) }
+    var duration: Duration? by remember { mutableStateOf(goalDuration) }
 
 
     Column(
@@ -454,14 +497,81 @@ fun getCategoryResourceId(category: Category): Int {
 
 
 @Composable
+fun TasksGeneratedDialog(
+    onDismissRequest: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    AlertDialog(
+        icon = {
+            Image(
+                painter = painterResource(R.drawable.ai),
+                contentDescription = null,
+                modifier = Modifier.size(30.dp)
+            )
+        },
+        title = {
+            Text(text = "AI generation done")
+        },
+        text = {
+            Text(text = "Do you want to see tasks that AI generated for you based on the provided data?")
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onConfirm
+            ) {
+                Text("Confirm")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismissRequest
+            ) {
+                Text("Cancel")
+            }
+        }
+    )
+}
+
+@Composable
 fun GoalTasksView(
     navigator: Navigator,
-    viewModel: CreateGoalScreenViewModel,
+    viewModel: CreateGoalScreenViewModel?,
     goalTasks: List<Task>,
     onDone: (task: Task) -> Unit,
     onDelete: (task: Task) -> Unit,
-    onSaveGoal: () -> Unit
+    onSaveGoal: () -> Unit,
+    title: String,
+    description: String,
+    duration: Duration?,
+    useAi: Boolean,
+    onTasksGenerated: (tasks: List<Task>) -> Unit
 ) {
+    var showAiDialog by remember { mutableStateOf(false) }
+    var showErrorDialog by remember { mutableStateOf(false) }
+    val generatedTasks = remember { mutableStateListOf<TaskResponse>() }
+    val scope = rememberCoroutineScope()
+
+    if (showAiDialog) {
+        TasksGeneratedDialog(onDismissRequest = { showAiDialog = false }, onConfirm = {
+            scope.launch {
+                viewModel?.convertGeneratedTasks(generatedTasks.toList())?.let {
+                    onTasksGenerated(
+                        it
+                    )
+                }
+            }
+
+            showAiDialog = false
+        })
+    }
+
+    if (showErrorDialog) {
+        AiErrorDialog(onClick = { showErrorDialog = false })
+    }
+
 
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
         if (goalTasks.isEmpty()) {
@@ -482,8 +592,50 @@ fun GoalTasksView(
     }
 
     Spacer(Modifier.height(5.dp))
+
     if (goalTasks.isEmpty()) {
-        AddTaskButton(viewModel, "Create up to 4 tasks for achieving this goal", onDone)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AddTaskButton(viewModel, "Create tasks", onDone)
+            if (useAi) {
+                CardWrapper(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    roundedCorners = 20.dp,
+                    onClick = {
+                        viewModel?.generateTasksWithAI(
+                            goalTitle = title,
+                            goalDescription = description,
+                            duration = duration!!
+                        ) {
+                            if (it.isEmpty()) {
+                                showErrorDialog = true
+                            } else {
+                                showAiDialog = true
+                                generatedTasks.addAll(it)
+                            }
+
+                        }
+
+                    }
+                ) {
+                    Text(
+                        text = "Try AI",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Image(
+                        painter = painterResource(R.drawable.ai),
+                        contentDescription = null,
+                        modifier = Modifier.size(30.dp)
+                    )
+                }
+            }
+        }
+
     } else if (goalTasks.size in 1..3) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -520,6 +672,7 @@ fun GoalTasksView(
                 roundedCorners = 20.dp,
                 onClick = {
                     onSaveGoal()
+                    navigator.popUntil { it.key == GOAL_SCREEN_KEY }
                 }
             ) {
                 Text(
@@ -545,7 +698,7 @@ fun DisplayTask(task: Task, onDelete: (task: Task) -> Unit) {
 }
 
 @Composable
-fun AddTaskButton(viewModel: CreateGoalScreenViewModel, text: String, onDone: (task: Task) -> Unit) {
+fun AddTaskButton(viewModel: CreateGoalScreenViewModel?, text: String, onDone: (task: Task) -> Unit) {
     var showModalBottomSheet by remember { mutableStateOf(false) }
 
 
@@ -554,17 +707,19 @@ fun AddTaskButton(viewModel: CreateGoalScreenViewModel, text: String, onDone: (t
             addTaskViewModel = null,
             duration = Duration.THREE_MONTH,
             onDone = { title, description, time, dates, checkItems, reminder, priority ->
-                onDone(
-                    viewModel.validateDataAndGetTask(
-                        title,
-                        description,
-                        time,
-                        dates,
-                        checkItems,
-                        reminder,
-                        priority
+                viewModel?.validateDataAndGetTask(
+                    title,
+                    description,
+                    time,
+                    dates,
+                    checkItems,
+                    reminder,
+                    priority
+                )?.let {
+                    onDone(
+                        it
                     )
-                )
+                }
                 showModalBottomSheet = false
             },
             onDismiss = { showModalBottomSheet = false }
@@ -613,6 +768,31 @@ fun CardWrapper(
             content()
         }
     }
+}
+
+@Composable
+fun AiErrorDialog(
+    onClick: () -> Unit,
+) {
+    AlertDialog(
+        icon = {
+            Icon(Icons.Default.Delete, contentDescription = "Example Icon")
+        },
+        title = {
+            Text(text = "Unexpected error occurs")
+        },
+        text = {
+            Text(text = "Error fails during generation, but you can validate your data and try again")
+        },
+        onDismissRequest = onClick,
+        confirmButton = {
+            TextButton(
+                onClick = onClick
+            ) {
+                Text("Okay")
+            }
+        }
+    )
 }
 
 @Composable

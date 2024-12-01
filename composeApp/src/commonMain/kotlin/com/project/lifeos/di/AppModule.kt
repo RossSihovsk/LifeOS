@@ -1,5 +1,6 @@
 package com.project.lifeos.di
 
+import com.project.lifeos.ai.GeminiApi
 import com.project.lifeos.notification.NotificationScheduler
 import com.project.lifeos.repository.GoalRepository
 import com.project.lifeos.repository.TaskRepository
@@ -56,7 +57,8 @@ abstract class AppModule {
     val userViewModel: UserViewModel by lazy {
         UserViewModel(
             userRepository = userRepository,
-            taskRepository = taskRepository
+            taskRepository = taskRepository,
+            goalRepository = goalRepository
         )
     }
 
@@ -74,6 +76,7 @@ abstract class AppModule {
             userRepository = userRepository,
             goalRepository = goalRepository,
             notificationScheduler = notificationScheduler,
+            geminiApi = GeminiApi()
         )
     }
 }

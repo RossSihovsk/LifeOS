@@ -8,7 +8,6 @@ import com.project.lifeos.data.Duration
 import com.project.lifeos.data.Goal
 import com.project.lifeos.utils.convertLocalDateToString
 import com.project.lifeos.utils.stringToDate
-import com.project.lifeos.viewmodel.logger
 
 class LocalGoalDataSource(db: LifeOsDatabase) {
 
@@ -37,6 +36,24 @@ class LocalGoalDataSource(db: LifeOsDatabase) {
         logger.d("deleteGoal: $id")
         queries.deleteGoal(id)
     }
+
+    fun updateGoal(id: String, title: String, description: String, category: Category, duration: Duration) {
+        logger.d(
+            "updateGoal - id: $id, title: $title, description: $description, " +
+                    "category: $category, duration: $duration"
+        )
+        queries.updateGoal(
+            name = title,
+            description = description,
+            duration = duration.name,
+            category = category.name,
+            id = id
+        )
+    }
+
+    fun deleteAllForUser(userMail: String) {
+        queries.deleteAllForUser(userMail)
+    }
 }
 
 private fun List<GoalEntity>.mapToGoalList(): List<Goal> {
@@ -51,8 +68,6 @@ private fun List<GoalEntity>.mapToGoalList(): List<Goal> {
             startDate = stringToDate(goalEntity.startDate),
             userMail = goalEntity.userMail
         )
-        logger.d("Goal founded $goalEntity")
-        logger.d("Goal mapped $goal")
         goalList.add(goal)
     }
 
