@@ -3,9 +3,7 @@ package com.project.lifeos.utils
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
@@ -15,9 +13,12 @@ private val timeFormatter = SimpleDateFormat("h:mm a", Locale.getDefault())
 private val dateFormatter = SimpleDateFormat("yyyy-MM-dd h:mm a", Locale.getDefault())
 private val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
+fun getTomorrowDate(): String = LocalDate.now().plusDays(1).format(dateTimeFormatter)
+
 fun stringToDate(value: String): LocalDate {
     return LocalDate.parse(value, dateTimeFormatter)
 }
+
 fun formatTime(timeInMillis: Long): String = timeFormatter.format(Date(timeInMillis))
 fun convertLongToStringDate(date: Long): String = dateFormatter.format(date)
 fun convertLocalDateToString(localDate: LocalDate): String = localDate.format(dateTimeFormatter)

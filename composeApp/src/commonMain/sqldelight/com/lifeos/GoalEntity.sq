@@ -20,6 +20,10 @@ CREATE TABLE IF NOT EXISTS GoalEntity (
  DELETE FROM GoalEntity
    WHERE id IS :id;
 
+ deleteAllForUser:
+ DELETE FROM GoalEntity
+ WHERE userMail IS :userMail;
+
  updateGoal:
    UPDATE GoalEntity
    SET

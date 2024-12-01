@@ -49,7 +49,11 @@ kotlin {
             implementation (libs.androidx.credentials)
             implementation (libs.googleid)
 
+            //splash screen implementation
             implementation (libs.androidx.core.splashscreen)
+
+            //ktor for android support
+            implementation(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {
             //compose
@@ -58,7 +62,6 @@ kotlin {
             implementation(compose.material3)
             implementation(compose.ui)
             implementation(libs.compose.ui.tooling.preview)
-            @OptIn(ExperimentalComposeLibrary::class)
             implementation(compose.components.resources)
 
             //voyager
@@ -75,6 +78,18 @@ kotlin {
             implementation(libs.sqldelight.coroutines)
 
             implementation(libs.kotlinx.serialization.json)
+
+            // Ktor client core
+            implementation(libs.ktor.client.core.v234)
+
+            // Ktor for content negotiation
+            implementation(libs.ktor.client.content.negotiation)
+
+            // Kotlinx Serialization
+            implementation(libs.kotlinx.serialization.json)
+
+            // Ktor serialization with JSON support
+            implementation(libs.ktor.serialization.kotlinx.json)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -86,7 +101,9 @@ kotlin {
             implementation(libs.google.auth.desktop)
             implementation(libs.ktor.client.core)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.ktor.client.cio) // Ktor engine for desktop
+
+            //ktor for jvm support
+            implementation(libs.ktor.client.java)
         }
     }
 }
