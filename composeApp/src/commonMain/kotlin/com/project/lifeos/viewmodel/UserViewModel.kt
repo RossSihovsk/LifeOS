@@ -46,8 +46,6 @@ class UserViewModel(
         _user.emit(null)
     }
 
-    fun deleteAllDataForUser(userMail: String){
-        screenModelScope.launch(Dispatchers.IO) {
     fun deleteAllDataForUser(userMail: String) {
         screenModelScope.launch(Dispatchers.IO) {
             logger.d("deleteAllDataForUser: $userMail")

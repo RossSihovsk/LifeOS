@@ -32,10 +32,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
-import com.project.lifeos.data.Category
-import com.project.lifeos.data.DateStatus
-import com.project.lifeos.data.Duration
-import com.project.lifeos.data.Task
+import com.project.lifeos.data.*
 import com.project.lifeos.utils.formatTime
 import com.project.lifeos.viewmodel.CreateGoalScreenViewModel
 import java.time.Instant
@@ -44,7 +41,10 @@ private val logger = Logger.withTag("AddGoalScreenContent")
 private const val GOAL_SCREEN_KEY = "com.project.lifeos.ui.screen.GoalScreen"
 
 @Composable
-actual fun AddGoalScreenContent(navigator: Navigator, viewModel: CreateGoalScreenViewModel) {
+actual fun AddGoalScreenContent(navigator: Navigator,
+                                viewModel: CreateGoalScreenViewModel?,
+                                goal: Goal?,
+                                onDone: (title: String, description: String, duration: Duration, category: Category, tasks: List<Task>) -> Unit) {
     Box(Modifier.fillMaxSize()) {
         Image(
             painter = painterResource("bg.png"),
@@ -84,22 +84,24 @@ actual fun AddGoalScreenContent(navigator: Navigator, viewModel: CreateGoalScree
 
         Spacer(Modifier.height(20.dp))
 
-        GoalTasksView(
-            navigator,
-            viewModel,
-            goalTasks,
-            onDone = { goalTasks = goalTasks.plus(it) },
-            onDelete = { goalTasks = goalTasks.minus(it) },
-            onSaveGoal = {
-                viewModel.saveGoal(
-                    title = goalTitle,
-                    description = goalDescription,
-                    duration = goalDuration ?: Duration.THREE_MONTH,
-                    category = goalCategory ?: Category.PERSONAL,
-                    tasks = goalTasks
-                )
-            }
-        )
+        if (viewModel != null) {
+            GoalTasksView(
+                navigator,
+                viewModel,
+                goalTasks,
+                onDone = { goalTasks = goalTasks.plus(it) },
+                onDelete = { goalTasks = goalTasks.minus(it) },
+                onSaveGoal = {
+                    viewModel.saveGoal(
+                        title = goalTitle,
+                        description = goalDescription,
+                        duration = goalDuration ?: Duration.THREE_MONTH,
+                        category = goalCategory ?: Category.PERSONAL,
+                        tasks = goalTasks
+                    )
+                }
+            )
+        }
     }}
 }
 
