@@ -30,13 +30,14 @@ import com.project.lifeos.utils.stringToDate
 import com.project.lifeos.viewmodel.AddTaskViewModel
 import java.text.SimpleDateFormat
 import java.time.Instant
+import java.time.ZoneOffset
 import java.util.*
 private const val GOAL_SCREEN_KEY = "com.project.lifeos.ui.screen.HomeScreen"
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-actual fun AddTaskScreenContent(navigator:Navigator?=null,
+actual fun AddTaskScreenContent(navigator: Navigator?,
     viewModel: AddTaskViewModel?, task: Task?, logger: Logger?, onDone: (
     title: String,
     description: String?,
@@ -61,10 +62,8 @@ actual fun AddTaskScreenContent(navigator:Navigator?=null,
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.Start
     ) {
-       // val taskDate = remember { mutableListOf<Long?>(System.currentTimeMillis()) }
         val timePickerState = rememberTimePickerState()
         val showTimePicker = remember { mutableStateOf(false) }
-
         val timeFormatter = remember { SimpleDateFormat("hh:mm a", Locale.getDefault()) }
         val dateFormatter = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
 
@@ -85,7 +84,7 @@ actual fun AddTaskScreenContent(navigator:Navigator?=null,
                     listOf(System.currentTimeMillis()).toTypedArray()
                 } else {
                     task.dateStatuses.map {
-                        stringToDate(it.date).toEpochDay()
+                        stringToDate(it.date).atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli()
                     }.toTypedArray()
                 }
             )
@@ -173,30 +172,39 @@ actual fun AddTaskScreenContent(navigator:Navigator?=null,
 
                     shape = RoundedCornerShape(10.dp),
                 ){Icon(Icons.Rounded.List,contentDescription = null)
-
                 }
-
             }
 
         }
 
             ReminderPicker(taskReminder)
             Row(Modifier.padding(start = 30.dp)) {
-            EnableSaveButton(taskDescription, taskTime, taskTitle,navigator) {
-
+            EnableSaveButton(taskDescription, taskTime, taskTitle, navigator) {
             logger?.i(
                 "Save task with title: ${taskTitle.value}, description: ${taskDescription.value}, time: ${taskTime.value}, date: $taskDate"
             )
-            onDone(taskTitle.value, taskDescription.value, taskTime.value, taskDate.map { dateFormatter.format(it?.let { it1 -> Date(it1) }) },taskCheckItems.toList(), Reminder.DAY_BEFORE, taskPriority.value)
-            viewModel?.saveTask(
-                title = taskTitle.value,
-                description = taskDescription.value,
-                time = taskTime.value,
-                dates = taskDate.map { dateFormatter.format(it?.let { it1 -> Date(it1) }) } ,
-                reminder = taskReminder.value,
-                priority = taskPriority.value,
-                checkItems = taskCheckItems.toList(),
-            )
+                if (task==null){
+                    viewModel?.saveTask(
+                        title = taskTitle.value,
+                        description = taskDescription.value,
+                        time = taskTime.value,
+                        dates = taskDate.map { dateFormatter.format(Date(it)) } ,
+                        reminder = taskReminder.value,
+                        priority = taskPriority.value,
+                        checkItems = taskCheckItems.toList(),
+                    )
+                }
+                else {
+                    onDone(
+                        taskTitle.value,
+                        taskDescription.value,
+                        taskTime.value,
+                        taskDate.map { dateFormatter.format(Date(it)) },
+                        taskCheckItems.toList(),
+                        Reminder.DAY_BEFORE,
+                        taskPriority.value
+                    )
+                }
         }}
 
         }
@@ -210,18 +218,21 @@ fun EnableSaveButton(
     taskDescription: MutableState<String>,
     taskTime: MutableState<Long?>,
     taskTitle: MutableState<String>,
-    onClick: () -> Unit,
-    navigator: Navigator
+    navigator: Navigator?,
+    onClick: () -> Unit
+
 ) {
     val enabled =
         taskDescription.value.isNotEmpty() && taskTime.value != null && taskTitle.value.isNotEmpty()
 
-    Button(enabled = enabled, onClick = {onClick
-        navigator.popUntil { it.key == GOAL_SCREEN_KEY }
+    Button(enabled = enabled, onClick = {onClick()
+        navigator?.popUntil { it.key == GOAL_SCREEN_KEY }
     },shape = RoundedCornerShape(10.dp)) {
         Text("Save Task")
     }
 }
+
+
 
 fun getFormattedTimeText(taskTime: MutableState<Long?>, timeFormatter: SimpleDateFormat): String {
     return taskTime.value?.let { time ->

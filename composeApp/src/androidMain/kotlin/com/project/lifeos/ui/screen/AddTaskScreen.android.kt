@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import cafe.adriel.voyager.navigator.Navigator
 import co.touchlab.kermit.Logger
 import com.project.lifeos.R
 import com.project.lifeos.data.Priority
@@ -65,8 +66,8 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-actual fun AddTaskScreenContent(navigator:Navigator?=null,
-    viewModel: AddTaskViewModel?, task: Task?, logger: Logger?, onDone: (
+actual fun AddTaskScreenContent(navigator: Navigator?,
+                                viewModel: AddTaskViewModel?, task: Task?, logger: Logger?, onDone: (
     title: String,
     description: String?,
     time: Long?,

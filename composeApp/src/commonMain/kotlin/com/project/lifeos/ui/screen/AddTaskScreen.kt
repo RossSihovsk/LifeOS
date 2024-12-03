@@ -3,6 +3,9 @@ package com.project.lifeos.ui.screen
 import androidx.compose.runtime.Composable
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import co.touchlab.kermit.Logger
 import com.project.lifeos.data.Priority
 import com.project.lifeos.data.Reminder
@@ -11,8 +14,8 @@ import com.project.lifeos.di.AppModuleProvider
 import com.project.lifeos.viewmodel.AddTaskViewModel
 
 @Composable
-expect fun AddTaskScreenContent(navigator:Navigator? = null,
-    viewModel: AddTaskViewModel?, task: Task?, logger: Logger?, onDone: (
+expect fun AddTaskScreenContent(navigator: Navigator?=null,
+                                viewModel: AddTaskViewModel?, task: Task?, logger: Logger?, onDone: (
     title: String,
     description: String?,
     time: Long?,
@@ -36,7 +39,9 @@ data class AddTaskScreen(private val task:Task? = null, val onDone: (
 ) -> Unit ={ _, _, _, _, _, _, _, -> }) : Screen {
     @Composable
     override fun Content() {
+        val navigator = LocalNavigator.currentOrThrow
+
         val taskViewModel = rememberScreenModel { AppModuleProvider.getAppModule().addTaskViewModel }
-        AddTaskScreenContent(taskViewModel,task, logger,onDone)
+        AddTaskScreenContent(navigator,taskViewModel,task, logger,onDone)
     }
 }

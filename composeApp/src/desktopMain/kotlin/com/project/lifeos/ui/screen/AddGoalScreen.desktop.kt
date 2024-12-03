@@ -547,7 +547,8 @@ fun AddTaskButton(viewModel: CreateGoalScreenViewModel, text: String, onDone: (t
                 Box(Modifier.heightIn(max = 600.dp)) {
                     AddTaskScreenContent(
                         null,
-                        task = null,
+                        null,
+                        task = Task(title = "", time = null, dateStatuses = emptyList()),
                         logger
                     ) { title, description, time, dates, checkItems, reminder, priority ->
                         val task = Task(
