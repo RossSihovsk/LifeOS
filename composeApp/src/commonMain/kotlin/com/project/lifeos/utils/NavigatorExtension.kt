@@ -11,7 +11,6 @@ fun Navigator.safePush(screen: Screen) {
     if (items.isNotEmpty()) logger.d("last: ${items.last().key}")
     if (items.isNotEmpty() && items.last().key  == screen.key) {
         logger.d("return")
-//    if (items.isNotEmpty() && items.firstOrNull { it.key == screen.key } != null) {
        return
     }
     logger.d("push")

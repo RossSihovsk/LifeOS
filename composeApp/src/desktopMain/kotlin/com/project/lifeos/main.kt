@@ -11,7 +11,7 @@ import androidx.compose.ui.window.WindowPosition
 
 fun main() = application {
     val state = rememberWindowState(position = WindowPosition(Alignment.Center), size = DpSize(1120.dp, 900.dp))
-    Window(onCloseRequest = ::exitApplication, title = "LifeOS", state = state)
+    Window(onCloseRequest = ::exitApplication, title = "Should", state = state)
     {
         App()
     }

@@ -52,10 +52,12 @@ actual fun ProfileScreenContent(
 }
     Box{
     Column(
+
         modifier = Modifier.fillMaxSize().padding(top = 50.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
         val uiState by viewModel.uiState.collectAsState()
 
         val coroutineScope = rememberCoroutineScope()
@@ -80,7 +82,7 @@ actual fun ProfileScreenContent(
                             val userData = getUserDataFromToken(res)
                             println(userData)
                             User(
-                                name = userData["name"].toString(),
+                                name = "VetoForest",
                                 mail = if (userData["email"].toString().contains("@")) userData["email"].toString() else "Unknown email",
                                 profilePicture = "https://lh3.googleusercontent.com/a/ACg8ocI4YNuYaVpfYOCl6QWGb8g412h5LuiqFCnDL_6H2Wo-t9K-XI2m=s288-c-no",
                                 tokenId = userData["userID"].toString()
@@ -213,6 +215,7 @@ fun NoUserView(onClickSignIn: () -> Unit) {
     Image(
         painter = painterResource("no_profile.png"),
         contentDescription = null,
+        modifier = Modifier.size(200.dp)
     )
 
     Spacer(modifier = Modifier.height(20.dp))

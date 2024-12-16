@@ -14,10 +14,7 @@ import com.project.lifeos.viewmodel.HomeScreenViewModel
 expect fun HomeScreenContent(viewModel: HomeScreenViewModel, navigator: Navigator? = null)
 
 
-/**
-not serializable objects should be outside of class
-otherwise there would be an exception after onPause()
- */
+
 private val logger = Logger.withTag("HomeScreen")
 
 class HomeScreen : Screen {
